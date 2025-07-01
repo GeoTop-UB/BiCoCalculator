@@ -37,8 +37,14 @@
         {
           default = pkgs.mkShell {
             packages = with pkgs; [
-              # python3
+              (python3.withPackages (ps: with ps; [flask flask-cors]))
+              # (python3.withPackages (ps: [ps.flask ps.flask-cors sage]))
               sageWithDoc
+              # sageWithDoc.override { 
+              #   sage-with-env = pkgs.sage-with-env.override {
+              #     python3 = (python3.withPackages (ps: with ps; [flask flask-cors]));
+              #   }; 
+              # }
               git
             ];
           };
