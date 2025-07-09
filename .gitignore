@@ -163,3 +163,5 @@ cython_debug/
 
 # Nix
 .direnv
+
+bigraded_complexes.py.sage
