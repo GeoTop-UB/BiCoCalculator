@@ -7,49 +7,56 @@ from sage.all import *
 # load("backend/bigraded_complexes.py.sage")
 load("https://raw.githubusercontent.com/GeoTop-UB/BiCo/32aa81b039afa3ccbbb866702d1e34c0f6b288b4/bigraded_complexes.py.sage")
 
-
 PORT = 5001
+
 
 class MyHandler(http.server.SimpleHTTPRequestHandler):
     
     def do_GET(self):
         # - request -
-        
         content_length = self.headers['Content-Length']
-        
         if content_length:
             content_length = int(content_length)
             input_json = self.rfile.read(content_length)
             input_data = json.loads(input_json)
         else:
             input_data = None
-            
         print(input_data)
         
         # - response -
-        
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
 
+        def mapByBidegree(bbCx : BigradedComplex, method: str):
+            return {
+                str(bidegree): list(map(str, getattr(bbCx, method)(bidegree)))
+                for bidegree in bbCx.bidegrees()
+            }
+
         KT = BidifferentialBigradedCommutativeAlgebraExample.KodairaThurston()
         output_data = {
-            'status': 'OK', 
-            'result': 'HELLO WORLD!',
-            "message": "Nix!",
-            # "aeppli": KT._ascii_art_aeppli_cohomology()
-            "aeppli_dict": {str(bidegree): str(KT.delbar_cohomology_basis(bidegree)) for bidegree in KT.bidegrees()},
-            "aeppli": str({bidegree: KT.delbar_cohomology_basis(bidegree) for bidegree in KT.bidegrees()}[(1, 1)])
+            "cohomology": {
+                cohomology: mapByBidegree(KT, f"{cohomology}_cohomology_basis")
+                for cohomology in [
+                    "dell",
+                    "delbar",
+                    "bottchern",
+                    "aeppli",
+                    "reduced_aeppli",
+                    "reduced_bottchern"
+                ]
+            },
+            "zigzags": mapByBidegree(KT, "zigzags_basis"),
+            "squares": mapByBidegree(KT, "squares_basis")
         }
         output_json = json.dumps(output_data)
         
         self.wfile.write(output_json.encode('utf-8'))
 
 
-Handler = MyHandler
-
-with socketserver.TCPServer(("", PORT), Handler) as httpd:
+with socketserver.TCPServer(("", PORT), MyHandler) as httpd:
     try:
         print(f"Starting http://0.0.0.0:{PORT}")
         httpd.serve_forever()
