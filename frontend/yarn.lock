@@ -10,6 +10,11 @@
     "@jridgewell/gen-mapping" "^0.3.5"
     "@jridgewell/trace-mapping" "^0.3.24"
 
+"@djot/djot@^0.3.1":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@djot/djot/-/djot-0.3.2.tgz#c301352cae4f3de0b9507028da67d0a292c7f517"
+  integrity sha512-joMKR24B8rxueyFiJbpZAqEiypjvOyzTxzkhyr0q5mM/sUBaOD3unna/9IxtOotFugViyYlkIRaiXg3xM//zxg==
+
 "@esbuild/aix-ppc64@0.25.6":
   version "0.25.6"
   resolved "https://registry.yarnpkg.com/@esbuild/aix-ppc64/-/aix-ppc64-0.25.6.tgz#164b19122e2ed54f85469df9dea98ddb01d5e79e"
@@ -405,6 +410,14 @@ magic-string@^0.30.11, magic-string@^0.30.17:
   dependencies:
     "@jridgewell/sourcemap-codec" "^1.5.0"
 
+mathlifier@^3.2.2:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/mathlifier/-/mathlifier-3.2.2.tgz#eca693d0b70c5553f17d97f32c60af0205a1a01b"
+  integrity sha512-aMDT36PMt8onj6K1/jPCgePCp0ecmhfEyvyp1vyQsoTwI8jYr1W4E24SI8v9xOq/61zkSCzsp+gakK9iOgI32g==
+  dependencies:
+    "@djot/djot" "^0.3.1"
+    temml "^0.10.29"
+
 ms@^2.1.3:
   version "2.1.3"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
@@ -487,6 +500,11 @@ svelte@^5.35.2:
     locate-character "^3.0.0"
     magic-string "^0.30.11"
     zimmerframe "^1.1.2"
+
+temml@^0.10.29:
+  version "0.10.34"
+  resolved "https://registry.yarnpkg.com/temml/-/temml-0.10.34.tgz#ece28f64e7d272825238e2be2b7f93cc785646f3"
+  integrity sha512-f3b5CaPwPvMviA+CtHy0qoIGWvzpRrNpXmGRc/Y1jc9gAYy+xOlndJFyn7Vfcz7cBcS8QRvv8z0EEH59sHCQxg==
 
 tinyglobby@^0.2.14:
   version "0.2.14"

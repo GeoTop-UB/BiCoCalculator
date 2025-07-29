@@ -3,6 +3,7 @@
   import viteLogo from '/vite.svg'
   import Counter from './lib/Counter.svelte'
   import KT from './assets/KT.json'
+  import { math, display } from 'mathlifier';
 
   // const apiUrl = "http://127.0.0.1:5001/";
   
@@ -122,7 +123,7 @@
 
       
       <p>Kodaira-Thurston manifold</p>
-      <button onclick={roll}>Roll the dice</button>
+      <button onclick={roll}>Roll the dice {@html math('A = \\pi r^2')}</button>
 
       {#if number !== undefined}
         <p>You rolled a {number}</p>
@@ -142,7 +143,7 @@
         {#if dim[0] == 0}
           <div>{dim[1]}</div>
         {/if}
-        <div>{value}</div>
+        <div>{@html value.map(b => math(b.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", "")))}</div>
       {/each}
       <div></div>
       {#each [...Array(n).keys()] as key}
@@ -184,7 +185,7 @@
     width: 100%;
     height: 100%;
     display: flex;
-    flex-direction: column;
+    /* flex-direction: column; */
     align-items: center;
     justify-content: center;
   }
