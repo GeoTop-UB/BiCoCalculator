@@ -17,6 +17,15 @@
     }
     return 0;
   }
+  
+  function compareorder(a, b){
+    if (a.order > b.order) {
+      return 1;
+    } else if (a.order < b.order) {
+      return -1;
+    }
+    return 0;
+  }
 
   function adjustLine(from, to, line, vertical){
     if (vertical) {
@@ -80,7 +89,7 @@
 	}
 </script>
 
-<div id="output2" class={type}>
+<div id="output2" class={type} style="--n: {n}">
   {#each Object.entries(data[tab]).sort(compare) as [key, value]}
     {@const dim = key.substring(1, key.length - 1).split(",").map(b => parseInt(b.trim()))}
     {#if dim[0] == 0}
@@ -88,24 +97,42 @@
     {/if}
     <!-- <div>{@html value.map(b => (b === "b"? "<div id='start'>" : (b === "a*abar"? "<div id='end'>" : "<div>")) + math(b.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", "")) + "</div>").join("")}</div> -->
     {#if type === "zigzags"}
-      <!-- <div>{@html value.map(b => "<div>" + math(b["value"].replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", "")) + "</div>").join("")}</div> -->
-      <!-- <div>{@html value.map(b => (b["type"] === "start1"? "<div id='line'></div><div id='start'>" : (b["type"] === "end"? "<div id='end'>" : "<div>")) + math(b["value"].replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", "")) + "</div>").join("")}</div> -->
+      {@const points = value.filter(b => b.type === "point")}
+      {@const starts = value.filter(b => b.type === "start")}
+      {@const ends = value.filter(b => b.type === "end")}
+      
       <div>
-        {#each value as b}
-          {@const islinedel = b.type === "start" && b.del != "0"}
-          {@const islinedelbar = b.type === "start" && b.delbar != "0"}
-          {@const id = b.type === "start"? "start-" + b.value : (b.type === "end"? "end-" + b.value : null)}
-          {#if islinedel}
-            <!-- <div id='line'bind:this={line}></div> -->
-            <div class="line" use:myaction={{v: b.value, w: b.del, vertical: false}}></div>
-          {/if}
-          {#if islinedelbar}
-            <div class="line" use:myaction={{v: b.value, w: b.delbar, vertical: true}}></div>
-          {/if}
-          <div id={id} class="node">
-            {@html math(b.value.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", ""))}
-          </div>
-        {/each}
+        <div class="points" style="--n-points: {Math.ceil(Math.sqrt(points.length))}">
+          {#each points as b}
+            <div class="node">
+              {@html math(b.value.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", ""))}
+            </div>
+          {/each}
+        </div>
+        <div class="starts" style="--n-points: {starts.length}">
+          {#each starts.sort(compareorder).entries() as [index, b]}
+            {@const islinedel = b.type === "start" && b.del != "0"}
+            {@const islinedelbar = b.type === "start" && b.delbar != "0"}
+            {@const id = "start-" + b.value}
+            {#if islinedel}
+              <div class="line" use:myaction={{v: b.value, w: b.del, vertical: false}}></div>
+            {/if}
+            {#if islinedelbar}
+              <div class="line" use:myaction={{v: b.value, w: b.delbar, vertical: true}}></div>
+            {/if}
+            <div id={id} class="node" style="grid-area: {-(index+1)} / {(index+1)} / {-(index+2)} / {index+2};">
+              {@html math(b.value.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", ""))}
+            </div>
+          {/each}
+        </div>
+        <div class="ends" style="--n-points: {ends.length}">
+          {#each ends.sort(compareorder).entries() as [index, b]}
+            {@const id = "end-" + b.value}
+            <div id={id} class="node" style="grid-area: {-(index+1)} / {(index+1)} / {-(index+2)} / {index+2};">
+              {@html math(b.value.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", ""))}
+            </div>
+          {/each}
+        </div>
       </div>
     {:else}
       <div>{@html value.map(b => "<div>" + math(b.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", "")) + "</div>").join("")}</div>
@@ -131,6 +158,31 @@
     background-color: rgb(240, 240, 240);
     border: 2px rgb(100, 100, 100) solid;
     border-radius: 4px;
+  }
+
+  .points {
+    grid-area: points;
+    display: grid;
+    place-items: center;
+    place-content: center;
+    grid-template-columns: repeat(var(--n-points), 1fr);
+    grid-template-rows: repeat(var(--n-points), 1fr);
+  }
+
+  .starts {
+    grid-area: starts;
+  }
+
+  .ends {
+    grid-area: ends;
+  }
+
+  .starts, .ends {
+    display: grid;
+    place-items: center;
+    place-content: center;
+    grid-template-columns: repeat(var(--n-points), 1fr);
+    grid-template-rows: repeat(var(--n-points), 1fr);
   }
 
   #output2 {
@@ -162,5 +214,9 @@
     display: grid;
     place-items: center;
     place-content: center;
+    grid-template-areas: 
+      ".      .      ends "
+      ".      starts .    "
+      "points .      .    ";
   }
 </style>

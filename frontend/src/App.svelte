@@ -81,7 +81,7 @@
   // m = KT.m;
 </script>
 
-<main style="--n: {n}">
+<main>
   <div id="top-bar">
     <div class="content">
       <h1>bbCalculator</h1>
