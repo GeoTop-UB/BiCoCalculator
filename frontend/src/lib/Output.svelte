@@ -1,103 +1,118 @@
 <script>
   import TableOutput from './TableOutput.svelte'
-  
-  const tabs = [
-    {
-      "id": "cohomology_aeppli",
-      "name": "Aeppli Cohomology",
-      "type": "cohomology",
-    },
-    {
-      "id": "cohomology_bottchern",
-      "name": "Bottchern Cohomology",
-      "type": "cohomology",
-    },
-    {
-      "id": "cohomology_delbar",
-      "name": "Delbar Cohomology",
-      "type": "cohomology",
-    },
-    {
-      "id": "cohomology_dell",
-      "name": "Dell Cohomology",
-      "type": "cohomology",
-    },
-    {
-      "id": "cohomology_reduced_aeppli",
-      "name": "Reduced Aeppli Cohomology",
-      "type": "cohomology",
-    },
-    {
-      "id": "cohomology_reduced_bottchern",
-      "name": "Reduced Bottchern Cohomology",
-      "type": "cohomology",
-    },
-    {
-      "id": "zigzags",
-      "name": "Zigzags",
-      "type": "zigzags",
-    },
-    {// TODO
-      "id": "squares",
-      "name": "Squares",
-      "type": "cohomology",
-    }
-  ];
+  import StickyButton from './StickyButton.svelte';
 
   let { data } = $props();
-  
+
+  let tab = $state("cohomology_aeppli");
+  let type = $state("cohomology");
+  let firstActive = $state(true);
+  let active = $state(false);
+
   let n = $derived(data.n);
-  let tab = $state(tabs[0]["id"])
-  let type = $state(tabs[0]["type"])
+  let datatab = $derived(data[tab]);
 
-  let datatab = $derived(data[tab])
+  async function changeTab() {
+    active = true;
+    firstActive = true;
+    active = false;
+    firstActive = false;
+  }
 
-	async function changeTab(t) {
-    tab = t.id;
-    type = t.type;
+	async function changeTabCohomology(id) {
+    tab = id;
+    type = "cohomology";
+    changeTab();
+	}
+
+	async function changeTabOthers(id) {
+    tab = id;
+    type = "zigzags";
+    changeTab();
 	}
 </script>
 
-<div id="output">
-  <div class="tab">
-  {#each tabs as t}
-    <button class="tablinks" onclick={() => changeTab(t)}>{t.name}</button>
-  {/each}
+<section>
+  <div id="table-container">
+    <TableOutput {datatab} {n} {type} />
   </div>
 
-  <TableOutput {datatab} {n} {type} />
-</div>
+  <nav>
+    <div>
+      <h2>Cohomologies</h2>
+
+      <ul>
+        <StickyButton label="Aeppli" onClick={() => changeTabCohomology("cohomology_aeppli")} active={firstActive} />
+        <StickyButton label="Bottchern" onClick={() => changeTabCohomology("cohomology_bottchern")} {active} />
+        <StickyButton label="Delbar" onClick={() => changeTabCohomology("cohomology_delbar")} {active} />
+        <StickyButton label="Dell" onClick={() => changeTabCohomology("cohomology_dell")} {active} />
+        <StickyButton label="Reduced Aeppli" onClick={() => changeTabCohomology("cohomology_reduced_aeppli")} {active} />
+        <StickyButton label="Reduced Bottchern" onClick={() => changeTabCohomology("cohomology_reduced_bottchern")} {active} />
+      </ul>
+    </div>
+
+    <div id="decomposition">
+      <h2>Decomposition</h2>
+      
+      <ul>
+        <StickyButton label="Zigzags" onClick={() => changeTabOthers("zigzags")} {active} />
+        <StickyButton label="Squares" onClick={() => changeTabOthers("squares")} {active} />
+      </ul>
+    </div>
+  </nav>
+</section>
 
 <style>
-  #output {
-    width: 60%;
-    margin: 1rem;
+  section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 70%;
+    margin: 1.8rem;
   }
 
-  .tab {
-    overflow: hidden;
-    border: 1px solid #ccc;
-    background-color: #f1f1f1;
+  #table-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
   }
 
-  /* Style the buttons that are used to open the tab content */
-  .tab button {
-    background-color: inherit;
-    float: left;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    padding: 14px 16px;
-    transition: 0.3s;
+  nav > div {
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 4px 0 rgba(0,0,0,.14),0 0 8px 0 rgba(0,0,0,.12),0 0 3px -2px rgba(0,0,0,.2);
   }
 
-  /* Change background color of buttons on hover */
-  .tab button:hover {
-    background-color: #ddd;
+  nav h2 {
+    font-size: medium;
+    font-weight: bold;
+    text-align: center;
   }
 
-  /* Create an active/current tablink class */
-  .tab button.active {
-    background-color: #ccc;
+  nav ul {
+    list-style: none;
+    padding: 0;
+    width: max-content;
+    display: flex;
+    flex-direction: column;
+    margin: 8px;
+    margin-top: 0;
+  }
+
+  #decomposition {
+    margin-top: 1rem;
+  }
+
+  #decomposition ul {
+    width: auto;
+  }
+  
+  ul > :global(*) {
+    width: 100%;
+  }
+
+  ul > :global(*):not(:last-child) {
+    margin-bottom: 3px;
   }
 </style>
