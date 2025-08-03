@@ -4,13 +4,16 @@
 
   let { data } = $props();
 
-  let tab = $state("cohomology_aeppli");
-  let type = $state("cohomology");
-  let firstActive = $state(true);
+  // let tab = $state("cohomology_aeppli");
+  // let type = $state("cohomology");
+  let tab = $state();
+  let type = $state();
+  let firstActive = $state(false);
   let active = $state(false);
 
+  let disabled = $derived(data === undefined);
   let n = $derived(data.n);
-  let datatab = $derived(data[tab]);
+  let datatab = $derived(data != undefined ? data[tab] : undefined);
 
   async function changeTab() {
     active = true;
@@ -30,6 +33,21 @@
     type = "zigzags";
     changeTab();
 	}
+  
+  $effect(() => {
+		if (data === undefined) {
+      tab = undefined;
+      type = undefined;
+      active = true;
+      active = false;
+    } else {
+      tab = "cohomology_aeppli";
+      type = "cohomology";
+      active = true;
+      active = false;
+      firstActive = true;
+    }
+	});
 </script>
 
 <section>
@@ -42,12 +60,12 @@
       <h2>Cohomologies</h2>
 
       <ul>
-        <StickyButton label="Aeppli" onClick={() => changeTabCohomology("cohomology_aeppli")} active={firstActive} />
-        <StickyButton label="Bottchern" onClick={() => changeTabCohomology("cohomology_bottchern")} {active} />
-        <StickyButton label="Delbar" onClick={() => changeTabCohomology("cohomology_delbar")} {active} />
-        <StickyButton label="Dell" onClick={() => changeTabCohomology("cohomology_dell")} {active} />
-        <StickyButton label="Reduced Aeppli" onClick={() => changeTabCohomology("cohomology_reduced_aeppli")} {active} />
-        <StickyButton label="Reduced Bottchern" onClick={() => changeTabCohomology("cohomology_reduced_bottchern")} {active} />
+        <StickyButton label="Aeppli" onClick={() => changeTabCohomology("cohomology_aeppli")} active={firstActive} {disabled} />
+        <StickyButton label="Bottchern" onClick={() => changeTabCohomology("cohomology_bottchern")} {active} {disabled} />
+        <StickyButton label="Delbar" onClick={() => changeTabCohomology("cohomology_delbar")} {active} {disabled} />
+        <StickyButton label="Dell" onClick={() => changeTabCohomology("cohomology_dell")} {active} {disabled} />
+        <StickyButton label="Reduced Aeppli" onClick={() => changeTabCohomology("cohomology_reduced_aeppli")} {active} {disabled} />
+        <StickyButton label="Reduced Bottchern" onClick={() => changeTabCohomology("cohomology_reduced_bottchern")} {active} {disabled} />
       </ul>
     </div>
 
@@ -55,8 +73,8 @@
       <h2>Decomposition</h2>
       
       <ul>
-        <StickyButton label="Zigzags" onClick={() => changeTabOthers("zigzags")} {active} />
-        <StickyButton label="Squares" onClick={() => changeTabOthers("squares")} {active} />
+        <StickyButton label="Zigzags" onClick={() => changeTabOthers("zigzags")} {active} {disabled} />
+        <StickyButton label="Squares" onClick={() => changeTabOthers("squares")} {active} {disabled} />
       </ul>
     </div>
   </nav>
@@ -101,7 +119,7 @@
   }
 
   #decomposition {
-    margin-top: 1rem;
+    margin-top: 2rem;
   }
 
   #decomposition ul {

@@ -89,62 +89,72 @@
 	}
 </script>
 
-<div id="output2" class={type} style="--n: {n}">
-  {#each Object.entries(datatab).sort(compare) as [key, value]}
-    {@const dim = key.substring(1, key.length - 1).split(",").map(b => parseInt(b.trim()))}
-    {#if dim[0] == 0}
-      <div>{dim[1]}</div>
-    {/if}
-    <!-- <div>{@html value.map(b => (b === "b"? "<div id='start'>" : (b === "a*abar"? "<div id='end'>" : "<div>")) + math(b.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", "")) + "</div>").join("")}</div> -->
-    {#if type === "zigzags"}
-      {@const points = value.filter(b => b.type === "point")}
-      {@const starts = value.filter(b => b.type === "start")}
-      {@const ends = value.filter(b => b.type === "end")}
-      
-      <div>
-        <div class="points" style="--n-points: {Math.ceil(Math.sqrt(points.length))}">
-          {#each points as b}
-            <div class="node">
-              {@html math(b.value.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", ""))}
-            </div>
-          {/each}
+{#if datatab === undefined}
+  <div id="nodata"><p>Select an input and click compute!</p></div>
+{:else}
+  <div id="output2" class={type} style="--n: {n}">
+    {#each Object.entries(datatab).sort(compare) as [key, value]}
+      {@const dim = key.substring(1, key.length - 1).split(",").map(b => parseInt(b.trim()))}
+      {@const notfirstrow = dim[1] != 0}
+      {@const notfirstcol = dim[0] != 0}
+
+      {#if dim[0] == 0}
+        <div class="yidx">{dim[1]}</div>
+      {/if}
+      <!-- <div>{@html value.map(b => (b === "b"? "<div id='start'>" : (b === "a*abar"? "<div id='end'>" : "<div>")) + math(b.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", "")) + "</div>").join("")}</div> -->
+      {#if type === "zigzags"}
+        {@const points = value.filter(b => b.type === "point")}
+        {@const starts = value.filter(b => b.type === "start")}
+        {@const ends = value.filter(b => b.type === "end")}
+        
+        <div class={[{notfirstrow}, {notfirstcol}]}>
+          <div class="points" style="--n-points: {Math.ceil(Math.sqrt(points.length))}">
+            {#each points as b}
+              <div class="node">
+                {@html math(b.value.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", ""))}
+              </div>
+            {/each}
+          </div>
+          <div class="starts" style="--n-points: {starts.length}">
+            {#each starts.sort(compareorder).entries() as [index, b]}
+              {@const islinedel = b.type === "start" && b.del != "0"}
+              {@const islinedelbar = b.type === "start" && b.delbar != "0"}
+              {@const id = "start-" + b.value}
+              {#if islinedel}
+                <div class="line" use:myaction={{v: b.value, w: b.del, vertical: false}}></div>
+              {/if}
+              {#if islinedelbar}
+                <div class="line" use:myaction={{v: b.value, w: b.delbar, vertical: true}}></div>
+              {/if}
+              <div id={id} class="node" style="grid-area: {-(index+1)} / {(index+1)} / {-(index+2)} / {index+2};">
+                {@html math(b.value.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", ""))}
+              </div>
+            {/each}
+          </div>
+          <div class="ends" style="--n-points: {ends.length}">
+            {#each ends.sort(compareorder).entries() as [index, b]}
+              {@const id = "end-" + b.value}
+              <div id={id} class="node" style="grid-area: {-(index+1)} / {(index+1)} / {-(index+2)} / {index+2};">
+                {@html math(b.value.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", ""))}
+              </div>
+            {/each}
+          </div>
         </div>
-        <div class="starts" style="--n-points: {starts.length}">
-          {#each starts.sort(compareorder).entries() as [index, b]}
-            {@const islinedel = b.type === "start" && b.del != "0"}
-            {@const islinedelbar = b.type === "start" && b.delbar != "0"}
-            {@const id = "start-" + b.value}
-            {#if islinedel}
-              <div class="line" use:myaction={{v: b.value, w: b.del, vertical: false}}></div>
-            {/if}
-            {#if islinedelbar}
-              <div class="line" use:myaction={{v: b.value, w: b.delbar, vertical: true}}></div>
-            {/if}
-            <div id={id} class="node" style="grid-area: {-(index+1)} / {(index+1)} / {-(index+2)} / {index+2};">
-              {@html math(b.value.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", ""))}
-            </div>
-          {/each}
-        </div>
-        <div class="ends" style="--n-points: {ends.length}">
-          {#each ends.sort(compareorder).entries() as [index, b]}
-            {@const id = "end-" + b.value}
-            <div id={id} class="node" style="grid-area: {-(index+1)} / {(index+1)} / {-(index+2)} / {index+2};">
-              {@html math(b.value.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", ""))}
-            </div>
-          {/each}
-        </div>
-      </div>
-    {:else}
-      <div>{@html value.map(b => "<div>" + math(b.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", "")) + "</div>").join("")}</div>
-    {/if}
-  {/each}
-  <div></div>
-  {#each [...Array(n).keys()] as key}
-    <div>{key}</div>
-  {/each}
-</div>
+      {:else}
+        <div class={[{notfirstrow}, {notfirstcol}]} >{@html value.map(b => "<div>" + math(b.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", "")) + "</div>").join("")}</div>
+      {/if}
+    {/each}
+    <div></div>
+    {#each [...Array(n).keys()] as key}
+      <div class="xidx">{key}</div>
+    {/each}
+  </div>
+{/if}
 
 <style>
+  /* #nodata {
+  } */
+
   .line {
     position:absolute;
     width: 2px;
@@ -187,19 +197,37 @@
 
   #output2 {
     display: grid;
-    grid-template-columns: 1fr repeat(var(--n), 3fr);
-    grid-template-rows: repeat(var(--n), 3fr) 1fr;
-    padding: 10px;
-    align-items: center;
-    justify-items: center;
-    /* aspect-ratio: 1 / 1; */
+    grid-template-columns: 1fr repeat(var(--n), 4fr);
+    grid-template-rows: repeat(var(--n), 4fr) 1fr;
+    padding: 2rem;
+    max-width: 100%;
+    width: fit-content;
+    aspect-ratio: 1 / 1;
+    /* align-items: center;
+    justify-items: center; */
+  }
+
+  .yidx {
+    border-right: 1px black solid;
+  }
+  
+  .xidx {
+    border-top: 1px black solid;
+  }
+
+  .notfirstrow {
+    border-bottom: 1px black dashed;
+  }
+
+  .notfirstcol {
+    border-left: 1px black dashed;
   }
 
   #output2.cohomology > div {
-    border: 1px black dashed;
-    padding: 10px;
-    width: 100%;
-    height: 100%;
+    /* border: 1px black dashed; */
+    padding: 5px 8px;
+    /* width: 100%;
+    height: 100%; */
     display: flex;
     /* flex-direction: column; */
     align-items: center;
@@ -207,7 +235,7 @@
   }
   
   #output2.zigzags > div {
-    border: 1px black dashed;
+    /* border: 1px black dashed; */
     padding: 10px;
     width: 100%;
     height: 100%;

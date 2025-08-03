@@ -4,24 +4,36 @@
 
   let { data = $bindable() } = $props();
 
-  // async function loadData() {
-
-  // }
+  async function loadData() {
+    data = {
+      "n": KT.n,
+      "m": KT.m,
+      "cohomology_aeppli": KT.cohomology.aeppli,
+      "cohomology_bottchern": KT.cohomology.bottchern,
+      "cohomology_delbar": KT.cohomology.delbar,
+      "cohomology_dell": KT.cohomology.dell,
+      "cohomology_reduced_aeppli": KT.cohomology.reduced_aeppli,
+      "cohomology_reduced_bottchern": KT.cohomology.reduced_bottchern,
+      "zigzags": KT.zigzags,
+      "squares": KT.squares
+    };
+  }
   // const apiUrl = "http://127.0.0.1:5001/";
   // const response = await fetch(apiUrl);
   // KT = await response.json();
-  data = {
-    "n": KT.n,
-    "m": KT.m,
-    "cohomology_aeppli": KT.cohomology.aeppli,
-    "cohomology_bottchern": KT.cohomology.bottchern,
-    "cohomology_delbar": KT.cohomology.delbar,
-    "cohomology_dell": KT.cohomology.dell,
-    "cohomology_reduced_aeppli": KT.cohomology.reduced_aeppli,
-    "cohomology_reduced_bottchern": KT.cohomology.reduced_bottchern,
-    "zigzags": KT.zigzags,
-    "squares": KT.squares
-  };
+  
+  // data = {
+  //   "n": KT.n,
+  //   "m": KT.m,
+  //   "cohomology_aeppli": KT.cohomology.aeppli,
+  //   "cohomology_bottchern": KT.cohomology.bottchern,
+  //   "cohomology_delbar": KT.cohomology.delbar,
+  //   "cohomology_dell": KT.cohomology.dell,
+  //   "cohomology_reduced_aeppli": KT.cohomology.reduced_aeppli,
+  //   "cohomology_reduced_bottchern": KT.cohomology.reduced_bottchern,
+  //   "zigzags": KT.zigzags,
+  //   "squares": KT.squares
+  // };
 </script>
 
 <section>
@@ -31,6 +43,8 @@
   <p>Custom nilmanifold</p>
   Real Lie algebra
   Complex structure
+
+  <button onclick={loadData}>Compute</button>
 </section>
 
 <style>
@@ -39,4 +53,13 @@
     /* border-right: 1px black solid; */
     box-shadow: 3px 0 1px -2px rgba(0, 0, 0, .2), 3px 0 5px 0 rgba(0, 0, 0, .12), 3px 0 2px 0 rgba(0, 0, 0, .14)
   }
+
+  /* button {
+    background-color: rgb(255, 210, 255);
+    border: 1px solid transparent;
+  }
+
+  button:hover {
+    border: 1px rgb(180, 30, 180) solid;
+  } */
 </style>
