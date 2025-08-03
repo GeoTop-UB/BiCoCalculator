@@ -4,6 +4,9 @@
 
   let { data = $bindable() } = $props();
 
+  // async function loadData() {
+
+  // }
   // const apiUrl = "http://127.0.0.1:5001/";
   // const response = await fetch(apiUrl);
   // KT = await response.json();
@@ -21,13 +24,19 @@
   };
 </script>
 
-<div id="input">
+<section>
   <p>Kodaira-Thurston manifold</p>
-</div>
+  <p>Iwasawa manifold</p>
+  <p>Testing</p>
+  <p>Custom nilmanifold</p>
+  Real Lie algebra
+  Complex structure
+</section>
 
 <style>
-  #input {
-    width: 40%;
-    border-right: 1px black solid;
+  section {
+    width: 30%;
+    /* border-right: 1px black solid; */
+    box-shadow: 3px 0 1px -2px rgba(0, 0, 0, .2), 3px 0 5px 0 rgba(0, 0, 0, .12), 3px 0 2px 0 rgba(0, 0, 0, .14)
   }
 </style>
