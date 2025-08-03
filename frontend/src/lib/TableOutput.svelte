@@ -1,7 +1,7 @@
 <script>
   import { math } from 'mathlifier';
 
-	let { data, n, type, tab } = $props();
+	let { datatab, n, type } = $props();
 
   function compare(a, b){
     const ka = a[0].substring(1, a[0].length - 1).split(",").map(s => parseInt(s.trim()));
@@ -90,7 +90,7 @@
 </script>
 
 <div id="output2" class={type} style="--n: {n}">
-  {#each Object.entries(data[tab]).sort(compare) as [key, value]}
+  {#each Object.entries(datatab).sort(compare) as [key, value]}
     {@const dim = key.substring(1, key.length - 1).split(",").map(b => parseInt(b.trim()))}
     {#if dim[0] == 0}
       <div>{dim[1]}</div>

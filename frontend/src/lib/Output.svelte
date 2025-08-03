@@ -44,10 +44,13 @@
     }
   ];
 
-  let { data, n } = $props();
+  let { data } = $props();
   
+  let n = $derived(data.n);
   let tab = $state(tabs[0]["id"])
   let type = $state(tabs[0]["type"])
+
+  let datatab = $derived(data[tab])
 
 	async function changeTab(t) {
     tab = t.id;
@@ -62,7 +65,7 @@
   {/each}
   </div>
 
-  <TableOutput {data} {n} {type} {tab} />
+  <TableOutput {datatab} {n} {type} />
 </div>
 
 <style>
