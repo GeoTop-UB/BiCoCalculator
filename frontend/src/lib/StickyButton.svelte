@@ -2,9 +2,9 @@
   let { label, onClick, active, disabled } = $props();
 
   function wrappedOnClick() {
-    if (!disabled) {
+    if (!disabled && !active) {
       onClick();
-      active = !active;
+      active = true;
     }
   }
 </script>
