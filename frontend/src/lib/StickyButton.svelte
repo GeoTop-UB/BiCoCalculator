@@ -15,23 +15,23 @@
 
 <style>
   button {
-    background-color: rgb(255, 210, 255);
+    background-color: var(--color-accent-light);
     border: 1px solid transparent;
   }
 
   button:hover {
-    border: 1px rgb(180, 30, 180) solid;
+    border: 1px var(--color-accent-strong) solid;
   }
 
   .active {
     border: 1px solid transparent;
-    background-color: rgb(180, 30, 180);
+    background-color: var(--color-accent-strong);
     color: white;
   }
 
   .active:hover {
     border: 1px solid transparent;
-    background-color: rgb(180, 30, 180);
+    background-color: var(--color-accent-strong);
   }
 
   .disabled {

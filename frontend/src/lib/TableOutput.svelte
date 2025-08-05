@@ -111,7 +111,7 @@
           <div class="points" style="--n-points: {Math.ceil(Math.sqrt(points.length))}">
             {#each points as b}
               <div class="node">
-                {@html math(b.value.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", ""))}
+                {@html math(b.value)}
               </div>
             {/each}
           </div>
@@ -127,7 +127,7 @@
                 <div class="line" use:myaction={{v: b.value, w: b.delbar, vertical: true}}></div>
               {/if}
               <div id={id} class="node" style="grid-area: {-(index+1)} / {(index+1)} / {-(index+2)} / {index+2};">
-                {@html math(b.value.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", ""))}
+                {@html math(b.value)}
               </div>
             {/each}
           </div>
@@ -135,13 +135,13 @@
             {#each ends.sort(compareorder).entries() as [index, b]}
               {@const id = "end-" + b.value}
               <div id={id} class="node" style="grid-area: {-(index+1)} / {(index+1)} / {-(index+2)} / {index+2};">
-                {@html math(b.value.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", ""))}
+                {@html math(b.value)}
               </div>
             {/each}
           </div>
         </div>
       {:else}
-        <div class={[{notfirstrow}, {notfirstcol}]} >{@html value.map(b => "<div>" + math(b.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", "")) + "</div>").join("")}</div>
+        <div class={[{notfirstrow}, {notfirstcol}]} >{@html value.map(b => "<div>" + math(b) + "</div>").join("")}</div>
       {/if}
     {/each}
     <div></div>
@@ -232,6 +232,7 @@
     /* flex-direction: column; */
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
   }
   
   #output2.zigzags > div {

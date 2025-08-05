@@ -66,7 +66,7 @@
     font-weight: 700;
     font-style: normal;
     letter-spacing: 3px;
-    color: rgb(90, 90, 90);
+    color: var(--color-accent-stronger);
   }
 
   header img {

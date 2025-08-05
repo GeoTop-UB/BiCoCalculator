@@ -11,6 +11,9 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  --color-accent-stronger: rgb(140, 30, 140);
+  --color-accent-strong: rgb(180, 30, 180);
+  --color-accent-light: rgb(255, 210, 255);
 }
 
 /* 1. Use a more-intuitive box-sizing model */
@@ -44,7 +47,7 @@ body {
 }
 
 button {
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
