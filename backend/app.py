@@ -1,6 +1,7 @@
 import http.server
 import socketserver
 import json
+from pprint import pprint
 
 from sage.all import *
 
@@ -12,7 +13,7 @@ PORT = 5001
 
 class MyHandler(http.server.SimpleHTTPRequestHandler):
     
-    def do_GET(self):
+    def do_POST(self):
         # - request -
         content_length = self.headers['Content-Length']
         if content_length:
@@ -29,16 +30,57 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
 
-        def mapByBidegree(bbCx : BigradedComplex, method: str):
+        def build(dim, lie_names, lie_bracket, acs_matrix, acs_names, normalization_coefficients=None):
+            bfield = QuadraticField(-1, 'I')
+
+            lie_algebra = LieAlgebra(bfield, lie_names, lie_bracket)
+            acs = Matrix(bfield, dim, acs_matrix)
+
+            return BidifferentialBigradedCommutativeAlgebra.from_nilmanifold(lie_algebra, acs, acs_names, normalization_coefficients)
+        
+        dim = input_data["dim"]
+        tmp_names = [f"v{i}" for i in range(dim)]
+        # lie_names_final = input_data["lie"]["names"]
+        lie_names = ",".join(tmp_names)
+        lie_bracket = {
+            tuple(map(lambda i: tmp_names[int(i) - 1], k[1:-1].split(","))): {
+                tmp_names[int(kk) - 1]: vv
+                for kk, vv in v.items()
+            }
+            for k, v in input_data["lie"]["bracket"].items()
+        }
+        acs_matrix = input_data["acs"]["matrix"]
+        acs_names_final = input_data["acs"]["names"]
+        acs_names = tmp_names
+        normalization_coefficients= list(map(QQ, input_data["acs"].get("norm"))) if input_data["acs"].get("norm") else None
+        pprint(dim)
+        pprint(lie_names)
+        pprint(lie_bracket)
+        pprint(acs_matrix)
+        pprint(acs_names)
+        pprint(normalization_coefficients)
+
+        def replaceNames(s: str):
+            for i in range(dim):
+                s = s.replace(tmp_names[i], acs_names_final[i])
+            
+            s = s.replace("*", "")
+            return s
+
+        def mapByBidegree(bbc : BigradedComplex, method: str):
             return {
-                str(bidegree): list(map(str, getattr(bbCx, method)(bidegree)))
-                for bidegree in bbCx.bidegrees()
+                str(bidegree): list(map(lambda a: replaceNames(str(a)), getattr(bbc, method)(bidegree)))
+                for bidegree in bbc.bidegrees()
             }
 
-        KT = BidifferentialBigradedCommutativeAlgebraExample.KodairaThurston()
+        bbc = build(dim, lie_names, lie_bracket, acs_matrix, acs_names, normalization_coefficients)
+        # bbc = BidifferentialBigradedCommutativeAlgebraExample.KodairaThurston()
+        # bbc = BidifferentialBigradedCommutativeAlgebraExample.Iwasawa()
         output_data = {
+            "n": max(map(lambda t: t[0], bbc.dimension().keys())) + 1,
+            "m": max(map(lambda t: t[1], bbc.dimension().keys())) + 1,
             "cohomology": {
-                cohomology: mapByBidegree(KT, f"{cohomology}_cohomology_basis")
+                cohomology: mapByBidegree(bbc, f"{cohomology}_cohomology_basis")
                 for cohomology in [
                     "dell",
                     "delbar",
@@ -48,9 +90,12 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
                     "reduced_bottchern"
                 ]
             },
-            "zigzags": mapByBidegree(KT, "zigzags_basis"),
-            "squares": mapByBidegree(KT, "squares_basis")
+            # TODO
+            # "zigzags": mapByBidegree(bbc, "zigzags_basis"),
+            "zigzags": mapByBidegree(bbc, "squares_basis"),
+            "squares": mapByBidegree(bbc, "squares_basis")
         }
+        pprint(output_data)
         output_json = json.dumps(output_data)
         
         self.wfile.write(output_json.encode('utf-8'))
