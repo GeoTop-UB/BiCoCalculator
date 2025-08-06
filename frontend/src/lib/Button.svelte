@@ -1,15 +1,8 @@
 <script>
-  let { label, onClick, active, disabled = false } = $props();
-
-  function wrappedOnClick() {
-    if (!disabled && !active) {
-      onClick();
-      active = true;
-    }
-  }
+  let { label, onClick, disabled = false, slim = false } = $props();
 </script>
 
-<button class={[{active}, {disabled}]} onclick={wrappedOnClick}>
+<button class={[{disabled}, {slim}]} onclick={onClick}>
   {label}
 </button>
 
@@ -29,17 +22,6 @@
     color: var(--color-accent-strong-font);
   }
 
-  .active {
-    border: 1px solid transparent;
-    background-color: var(--color-accent-strong);
-    color: var(--color-accent-strong-font);
-  }
-
-  .active:hover {
-    border: 1px solid transparent;
-    background-color: var(--color-accent-strong);
-  }
-
   .disabled {
     border: 1px solid transparent;
     background-color: var(--color-disabled);
@@ -52,5 +34,10 @@
     background-color: var(--color-disabled);
     color: var(--color-disabled-font);
     cursor: auto;
+  }
+
+  .slim {
+    padding: 3px 8px;
+    font-size: medium;
   }
 </style>

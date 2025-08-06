@@ -13,7 +13,11 @@
   -moz-osx-font-smoothing: grayscale;
   --color-accent-stronger: rgb(140, 30, 140);
   --color-accent-strong: rgb(180, 30, 180);
+  --color-accent-strong-font: white;
   --color-accent-light: rgb(255, 210, 255);
+  --color-disabled: rgb(220, 220, 220);
+  --color-disabled-font: rgb(85, 85, 85);
+
 }
 
 /* 1. Use a more-intuitive box-sizing model */

@@ -4,6 +4,7 @@
   import Output from './lib/Output.svelte';
 
   let data = $state();
+  let waiting = $state(false)
 </script>
 
 <div id="app">
@@ -18,8 +19,8 @@
     </div>
   </header>
   <main class="content">
-    <Input bind:data />
-    <Output {data} />
+    <Input bind:data bind:waiting />
+    <Output {data} {waiting} />
   </main>
 </div>
 
@@ -36,10 +37,6 @@
   header {
     flex: 0 1 auto;
     width: 100vw;
-    /* background-color: darkslateblue; */
-    /* height: 5em; */
-    /* color: white; */
-    /* margin-bottom: 1.5rem; */
     box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);
   }
 

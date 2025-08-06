@@ -1,9 +1,11 @@
 <script>
-  import { math, display } from 'mathlifier';
+  import { math } from 'mathlifier';
   import KT from '../assets/KT.json'
   import StickyButton from './StickyButton.svelte';
+  import Modal from './Modal.svelte';
+  import Button from './Button.svelte';
 
-  let { data = $bindable() } = $props();
+  let { data = $bindable(), waiting = $bindable() } = $props();
   
   const apiUrl = "http://127.0.0.1:5001/";
   const kte = {
@@ -58,11 +60,14 @@
   let acsNorm = $state(kte.acs.norm);
   let ktActive = $state(true);
   let iwActive = $state(false);
+	let showModal = $state(false);
+	let modalLie = $state();
+  let computeDisabled = $state(false)
 
-  // const kteBr = JSON.stringify(kte.lie.bracket);
-  // const kteJ = kte.acs.matrix.toString();
-  // const iweBr = JSON.stringify(iwe.lie.bracket);
-  // const iweJ = iwe.acs.matrix.toString();
+  const kteBr = JSON.stringify(kte.lie.bracket);
+  const kteJ = kte.acs.matrix.toString();
+  const iweBr = JSON.stringify(iwe.lie.bracket);
+  const iweJ = iwe.acs.matrix.toString();
   // let ktActive = $derived(dim === kte.dim && JSON.stringify(lieBracket) === kteBr && acsMatrix.toString() === kteJ);
   // let iwActive = $derived(dim === iwe.dim && JSON.stringify(lieBracket) === iweBr && acsMatrix.toString() === iweJ);
 
@@ -75,6 +80,7 @@
       acsNames = kte.acs.names;
       acsMatrix = kte.acs.matrix;
       acsNorm = kte.acs.norm;
+      computeDisabled = false;
       ktActive = true;
       iwActive = false;
     }
@@ -89,12 +95,15 @@
       acsNames = iwe.acs.names;
       acsMatrix = iwe.acs.matrix;
       acsNorm = iwe.acs.norm;
+      computeDisabled = false;
       ktActive = false;
       iwActive = true;
     }
   }
 
   async function loadData() {
+    computeDisabled = true;
+    waiting = true;
     const response = await fetch(apiUrl, {
       headers: {
         'Accept': 'application/json',
@@ -127,13 +136,55 @@
       "zigzags": ktActive? KT.zigzags : d.zigzags,
       "squares": d.squares
     };
+    waiting = false;
+  }
+
+  async function lieClick() {
+    modalLie = JSON.stringify({
+      "lie": {
+        "names": lieNames,
+        "bracket": lieBracket
+      },
+      "acs": {
+        "names": acsNames,
+        "matrix": acsMatrix,
+        ...(acsNorm != undefined) && {"norm": acsNorm}
+      }
+    }, null, 4)
+	  showModal = true;
+  }
+
+  async function save() {
+    let a = JSON.parse(modalLie);
+    if (!(Object.hasOwn(a, "lie") && Object.hasOwn(a.lie, "names") && Object.hasOwn(a.lie, "bracket") && Object.hasOwn(a, "acs") && Object.hasOwn(a.acs, "names") && Object.hasOwn(a.acs, "matrix") && a.lie.names.length === a.acs.names.length)) {
+      return false;
+    }
+    data = undefined;
+    dim = a.lie.names.length;
+    lieNames = a.lie.names;
+    lieBracket = a.lie.bracket;
+    acsNames = a.acs.names;
+    acsMatrix = a.acs.matrix;
+    acsNorm = a.acs.norm;
+    computeDisabled = false;
+    if (dim === kte.dim && JSON.stringify(lieBracket) === kteBr && acsMatrix.toString() === kteJ) {
+      ktActive = true;
+      iwActive = false;
+    } else if (dim === iwe.dim && JSON.stringify(lieBracket) === iweBr && acsMatrix.toString() === iweJ) {
+      ktActive = false;
+      iwActive = true;
+    } else {
+      ktActive = false;
+      iwActive = false;
+    }
+    return true;
   }
 </script>
 
 <section>
   <div id="intro">
     <!-- <p><strong>bbCalculator</strong> is aimed at computing invariants of bigraded complexes. The calculator takes as input any real Lie algebra ({@html math("\\mathfrak{g}")}) together with an almost complex structure ({@html math("ACS")}) and computes Dolbeault, anti-Dolbeault, Bott-Chern and Aeppli cohomologies together with the decomposition into zig-zags and squares.</p> -->
-    <p><strong>bbCalculator</strong> is aimed at computing invariants of bigraded complexes (several cohomologies together with the decomposition into zig-zags and squares).</p>
+    <p><strong>bbCalculator</strong> is aimed at computing invariants of bigraded complexes, in particular from complex nilmanifolds.</p>
   </div>
   <div id="examples">
     <h2>Some examples to try:</h2>
@@ -143,12 +194,13 @@
     </div>
   </div>
   <div id="input">
-    <h2>Input data:</h2>
+    <h2>Complex nilmanifold:</h2>
+    <!-- <h2>Input data:</h2> -->
     <!-- <p>The calculator takes as input any real Lie algebra ({@html math("\\mathfrak{g}")}) together with an almost complex structure ({@html math("ACS")})</p> -->
     <div class="visual">
       <div class="visualheader">
         <div><h5>Real Lie algebra</h5></div>
-        <button>Edit</button>
+        <Button label="Edit" onClick={lieClick} slim={true} />
       </div>
       <div class="visualcontent">
         {@html math("\\Lambda(" + lieNames.join(", ") + ")")}
@@ -159,11 +211,11 @@
           {/each}
         </div>
       </div>
-    </div>
-    <div class="visual">
+    <!-- </div>
+    <div class="visual"> -->
       <div class="visualheader">
         <h5>Almost complex structure</h5>
-        <button>Edit</button>
+        <!-- <button>Edit</button> -->
       </div>
       <div class="visualcontent">
         {@html math("\\begin{pmatrix}" + acsMatrix.map((row) => row.join(" & ")).join(" \\\\") + "\\end{pmatrix}")}
@@ -171,8 +223,21 @@
     </div>
   </div>
 
-  <button onclick={loadData}>Compute</button>
+  <Button label="Compute invariants" onClick={loadData} disabled={computeDisabled} />
 </section>
+
+<Modal bind:showModal onClose={save}>
+	{#snippet header()}
+		<h2>
+			Edit the complex nilmanifold
+		</h2>
+	{/snippet}
+
+	<textarea bind:value={modalLie}></textarea>
+  <p>
+    The input must be in JSON format, contain    
+  </p>
+</Modal>
 
 <style>
   section {
@@ -210,21 +275,6 @@
     text-align: center;
   }
 
-  button {
-    background-color: var(--color-accent-light);
-    border: 1px solid transparent;
-  }
-
-  button:hover {
-    border: 1px var(--color-accent-strong) solid;
-  }
-  
-  button:active {
-    border: 1px solid transparent;
-    background-color: var(--color-accent-strong);
-    color: white;
-  }
-
   .visual {
     display: flex;
     flex-direction: column;
@@ -244,16 +294,16 @@
     margin: 0;
   }
 
+  h5 {
+    padding: 3px 8px;
+  }
+
   .visualcontent {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
-  }
-
-  .visual button {
-    padding: 3px 8px;
-    font-size: medium;
+    margin: 3px 0 5px 0;
   }
 
   #brackets {
@@ -262,8 +312,4 @@
     flex-wrap: wrap;
     margin-left: 1rem
   }
-
-  /* .visual > *:not(:last-child) {
-    margin-right: 1rem;
-  } */
 </style>

@@ -1,11 +1,10 @@
 <script>
   import TableOutput from './TableOutput.svelte'
   import StickyButton from './StickyButton.svelte';
+  import Loader from './Loader.svelte';
 
-  let { data } = $props();
-
-  // let tab = $state("cohomology_aeppli");
-  // let type = $state("cohomology");
+  let { data, waiting } = $props();
+  
   let tab = $state();
   let type = $state();
   let firstActive = $state(false);
@@ -52,7 +51,16 @@
 
 <section>
   <div id="table-container">
-    <TableOutput {datatab} {n} {type} />
+    {#if datatab === undefined}
+      {#if waiting }
+        <Loader />
+        <!-- <div><p>Computing the invariants...</p></div> -->
+      {:else}
+        <div><p>Click compute to see the invariants of the selected nilmanifold</p></div>
+      {/if}
+    {:else}
+      <TableOutput {datatab} {n} {type} />
+    {/if}
   </div>
 
   <nav>
