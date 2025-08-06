@@ -4,7 +4,7 @@
   import Loader from './Loader.svelte';
 
   let { data, waiting } = $props();
-  
+
   let tab = $state();
   let type = $state();
   let firstActive = $state(false);
@@ -54,7 +54,6 @@
     {#if datatab === undefined}
       {#if waiting }
         <Loader />
-        <!-- <div><p>Computing the invariants...</p></div> -->
       {:else}
         <div><p>Click compute to see the invariants of the selected nilmanifold</p></div>
       {/if}

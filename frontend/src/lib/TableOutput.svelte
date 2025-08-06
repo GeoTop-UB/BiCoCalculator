@@ -72,8 +72,6 @@
   }
 
   function myaction(node, {v, w, vertical}) {
-		// the node has been mounted in the DOM
-
 		$effect(() => {
       adjustLine(
         document.getElementById("start-" + v), 
@@ -218,7 +216,6 @@
   }
 
   #output2.cohomology > div {
-    /* border: 1px black dashed; */
     padding: 5px 8px;
     /* width: 100%;
     height: 100%; */
@@ -230,7 +227,6 @@
   }
   
   #output2.zigzags > div {
-    /* border: 1px black dashed; */
     padding: 10px;
     width: 100%;
     height: 100%;

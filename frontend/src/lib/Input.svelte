@@ -183,7 +183,6 @@
 
 <section>
   <div id="intro">
-    <!-- <p><strong>bbCalculator</strong> is aimed at computing invariants of bigraded complexes. The calculator takes as input any real Lie algebra ({@html math("\\mathfrak{g}")}) together with an almost complex structure ({@html math("ACS")}) and computes Dolbeault, anti-Dolbeault, Bott-Chern and Aeppli cohomologies together with the decomposition into zig-zags and squares.</p> -->
     <p><strong>bbCalculator</strong> is aimed at computing invariants of bigraded complexes, in particular from complex nilmanifolds.</p>
   </div>
   <div id="examples">
@@ -195,8 +194,6 @@
   </div>
   <div id="input">
     <h2>Complex nilmanifold:</h2>
-    <!-- <h2>Input data:</h2> -->
-    <!-- <p>The calculator takes as input any real Lie algebra ({@html math("\\mathfrak{g}")}) together with an almost complex structure ({@html math("ACS")})</p> -->
     <div class="visual">
       <div class="visualheader">
         <div><h5>Real Lie algebra</h5></div>
@@ -211,11 +208,8 @@
           {/each}
         </div>
       </div>
-    <!-- </div>
-    <div class="visual"> -->
       <div class="visualheader">
         <h5>Almost complex structure</h5>
-        <!-- <button>Edit</button> -->
       </div>
       <div class="visualcontent">
         {@html math("\\begin{pmatrix}" + acsMatrix.map((row) => row.join(" & ")).join(" \\\\") + "\\end{pmatrix}")}
