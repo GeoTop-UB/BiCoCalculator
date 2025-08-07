@@ -1,12 +1,13 @@
 <script>
-	let { showModal = $bindable(), onClose, header, children } = $props();
+  import Button from './Button.svelte';
+
+	let { showModal = $bindable(), onClose, buttonLabel, buttonDisabled, header, children } = $props();
 
 	let dialog = $state();
 
 	async function wrappedOnClose() {
-		if (onClose()) {
-			dialog.close();
-		}
+		onClose();
+		dialog.close();
 	}
 
 	$effect(() => {
@@ -14,7 +15,6 @@
 	});
 </script>
 
-<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
 <dialog
 	bind:this={dialog}
 	onclose={() => (showModal = false)}
@@ -22,11 +22,8 @@
 >
 	<div>
 		{@render header?.()}
-		<hr />
 		{@render children?.()}
-		<hr />
-		<!-- svelte-ignore a11y_autofocus -->
-		<button autofocus onclick={wrappedOnClose}>close modal</button>
+		<Button label={buttonLabel} disabled={buttonDisabled} onClick={wrappedOnClose} />
 	</div>
 </dialog>
 
@@ -42,6 +39,9 @@
 	}
 	dialog > div {
 		padding: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8em;
 	}
 	dialog[open] {
 		animation: zoom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -65,7 +65,9 @@
 			opacity: 1;
 		}
 	}
-	button {
-		display: block;
-	}
+
+  dialog > div > :global(button) {
+    width: min-content;
+    margin: 0 0 0 auto;
+  }
 </style>

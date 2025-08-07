@@ -1,8 +1,14 @@
 <script>
   let { label, onClick, disabled = false, slim = false } = $props();
+
+  function wrappedOnClick() {
+    if (!disabled) {
+      onClick();
+    }
+  }
 </script>
 
-<button class={[{disabled}, {slim}]} onclick={onClick}>
+<button class={[{disabled}, {slim}]} onclick={wrappedOnClick}>
   {label}
 </button>
 

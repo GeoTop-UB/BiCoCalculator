@@ -35,7 +35,7 @@
         "(1, 3)": {"5": 1},
         "(1, 4)": {"6": 1},
         "(2, 3)": {"6": 1},
-        "(2, 4)": {"5":-1}
+        "(2, 4)": {"5": -1}
       }
     },
     "acs": {
@@ -63,6 +63,30 @@
 	let showModal = $state(false);
 	let modalLie = $state();
   let computeDisabled = $state(false)
+
+  let saveDisabled = $derived.by(() => {
+    if (modalLie != undefined) {
+      try {
+        let a = JSON.parse(modalLie);
+        if (
+          Object.hasOwn(a, "lie") 
+          && Object.hasOwn(a.lie, "names") 
+          && Object.hasOwn(a.lie, "bracket") 
+          && Object.hasOwn(a, "acs") 
+          && Object.hasOwn(a.acs, "names") 
+          && Object.hasOwn(a.acs, "matrix") 
+          && a.lie.names.length === a.acs.names.length
+          && a.lie.names.length === a.acs.matrix.length 
+          // TODO add more checks
+          // && a.lie.names.length === a.acs.matrix[0].length 
+          // && a.lie.names.length === a.acs.norm.length 
+        ) {
+          return false;
+        }
+      } catch (exceptionVar) {}
+    }
+    return true;
+  })
 
   const kteBr = JSON.stringify(kte.lie.bracket);
   const kteJ = kte.acs.matrix.toString();
@@ -140,25 +164,37 @@
   }
 
   async function lieClick() {
-    modalLie = JSON.stringify({
+    // TODO format more comptly lie bracket
+    let tmp = JSON.stringify({
       "lie": {
-        "names": lieNames,
+        "names": "lieNames",
         "bracket": lieBracket
       },
       "acs": {
-        "names": acsNames,
-        "matrix": acsMatrix,
-        ...(acsNorm != undefined) && {"norm": acsNorm}
+        "names": "acsNames",
+        "matrix": [...Array(acsMatrix.length).keys().map((i) => "acsMatrix-" + i)],
+        ...(acsNorm != undefined) && {"norm": "acsNorm"}
       }
-    }, null, 4)
+    }, null, 4).replace(
+      "\"lieNames\"", JSON.stringify(lieNames)
+    ).replace(
+      "\"acsNames\"", JSON.stringify(acsNames)
+    );
+    
+    for (let i = 0; i < acsMatrix.length; i++) {
+      tmp = tmp.replace(
+        "\"acsMatrix-" + i + "\"", JSON.stringify(acsMatrix[i])
+      );
+    }
+    if (acsNorm != undefined) {
+      tmp = tmp.replace("\"acsNorm\"", JSON.stringify(acsNorm));
+    }
+    modalLie = tmp;
 	  showModal = true;
   }
 
   async function save() {
     let a = JSON.parse(modalLie);
-    if (!(Object.hasOwn(a, "lie") && Object.hasOwn(a.lie, "names") && Object.hasOwn(a.lie, "bracket") && Object.hasOwn(a, "acs") && Object.hasOwn(a.acs, "names") && Object.hasOwn(a.acs, "matrix") && a.lie.names.length === a.acs.names.length)) {
-      return false;
-    }
     data = undefined;
     dim = a.lie.names.length;
     lieNames = a.lie.names;
@@ -220,7 +256,7 @@
   <Button label="Compute invariants" onClick={loadData} disabled={computeDisabled} />
 </section>
 
-<Modal bind:showModal onClose={save}>
+<Modal bind:showModal buttonLabel="Save" buttonDisabled={saveDisabled} onClose={save}>
 	{#snippet header()}
 		<h2>
 			Edit the complex nilmanifold
@@ -228,9 +264,6 @@
 	{/snippet}
 
 	<textarea bind:value={modalLie}></textarea>
-  <p>
-    The input must be in JSON format, contain    
-  </p>
 </Modal>
 
 <style>
@@ -306,4 +339,10 @@
     flex-wrap: wrap;
     margin-left: 1rem
   }
+  
+  textarea {
+		resize: none;
+    width: 400px;
+    height: 350px;
+	}
 </style>
