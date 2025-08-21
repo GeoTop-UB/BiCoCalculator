@@ -39,6 +39,8 @@
       type = undefined;
       active = true;
       active = false;
+      firstActive = true;
+      firstActive = false;
     } else {
       tab = "cohomology_aeppli";
       type = "cohomology";
@@ -68,11 +70,11 @@
 
       <ul>
         <StickyButton label="Aeppli" onClick={() => changeTabCohomology("cohomology_aeppli")} active={firstActive} {disabled} />
-        <StickyButton label="Bottchern" onClick={() => changeTabCohomology("cohomology_bottchern")} {active} {disabled} />
+        <StickyButton label="Bott-Chern" onClick={() => changeTabCohomology("cohomology_bottchern")} {active} {disabled} />
         <StickyButton label="Delbar" onClick={() => changeTabCohomology("cohomology_delbar")} {active} {disabled} />
-        <StickyButton label="Dell" onClick={() => changeTabCohomology("cohomology_dell")} {active} {disabled} />
+        <StickyButton label="Del" onClick={() => changeTabCohomology("cohomology_dell")} {active} {disabled} />
         <StickyButton label="Reduced Aeppli" onClick={() => changeTabCohomology("cohomology_reduced_aeppli")} {active} {disabled} />
-        <StickyButton label="Reduced Bottchern" onClick={() => changeTabCohomology("cohomology_reduced_bottchern")} {active} {disabled} />
+        <StickyButton label="Reduced Bott-Chern" onClick={() => changeTabCohomology("cohomology_reduced_bottchern")} {active} {disabled} />
       </ul>
     </div>
 
