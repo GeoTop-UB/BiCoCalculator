@@ -6,7 +6,7 @@ from pprint import pprint
 from sage.all import *
 
 # load("backend/bigraded_complexes.py.sage")
-load("https://raw.githubusercontent.com/GeoTop-UB/BiCo/32aa81b039afa3ccbbb866702d1e34c0f6b288b4/bigraded_complexes.py.sage")
+load("https://raw.githubusercontent.com/GeoTop-UB/BiCo/refs/heads/main/bigraded_complexes.py.sage")
 
 PORT = 5001
 
@@ -72,6 +72,12 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
                 str(bidegree): list(map(lambda a: replaceNames(str(a)), getattr(bbc, method)(bidegree)))
                 for bidegree in bbc.bidegrees()
             }
+        
+        def replaceNamesZigzags(a):
+            return {
+                str(bidegree): replaceNames(str(v))
+                for (bidegree, v) in a.items()
+            }
 
         bbc = build(dim, lie_names, lie_bracket, acs_matrix, acs_names, normalization_coefficients)
         # bbc = BidifferentialBigradedCommutativeAlgebraExample.KodairaThurston()
@@ -90,10 +96,8 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
                     "reduced_bottchern"
                 ]
             },
-            # TODO
-            # "zigzags": mapByBidegree(bbc, "zigzags_basis"),
-            "zigzags": mapByBidegree(bbc, "squares_basis"),
-            "squares": mapByBidegree(bbc, "squares_basis")
+            "zigzags": list(map(lambda a: replaceNamesZigzags(a), bbc.zigzags_decomposition())),
+            "squares": list(map(lambda a: replaceNames(str(a)), bbc.squares_decomposition()))
         }
         pprint(output_data)
         output_json = json.dumps(output_data)
