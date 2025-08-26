@@ -29,7 +29,7 @@
 
 	async function changeTabOthers(id) {
     tab = id;
-    type = "zigzags";
+    type = id;
     changeTab();
 	}
   
@@ -103,6 +103,9 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
+    max-width: 80%;
+    overflow: auto;
+    position: relative;
   }
 
   nav > div {

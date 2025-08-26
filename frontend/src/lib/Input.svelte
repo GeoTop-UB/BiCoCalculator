@@ -125,6 +125,112 @@
     }
   }
 
+  function computeZigzags(d) {
+    let t = {};
+    let nz = {};
+    
+    for (const z of d) {
+      if (Object.keys(z).length == 1) {
+        for (const [bd, v] of Object.entries(z)) {
+          if (!t[bd]) {
+              t[bd] = 0;
+          }
+          if (!nz[bd]) {
+              nz[bd] = [];
+          }
+          nz[bd].push({
+            "value": v,
+            "del": "0",
+            "delbar": "0",
+            "type": "point",
+          });
+        }
+      } else {
+        let tt = {}
+        let nzz = {}
+        // let a = undefined;
+        // let b = undefined;
+        for (const [bd, v] of Object.entries(z)) {
+          const bdt = bd.substring(1, bd.length - 1).split(",").map(s => parseInt(s.trim()));
+          // const diag = bdt[0] + bdt[1];
+          if (!t[bd]) {
+              t[bd] = 0;
+          }
+          tt[bd] = t[bd] + 1;
+          if (!nzz[bd]) {
+              nzz[bd] = [];
+          }
+          const delk = "(" + (bdt[0] + 1) + ", " + bdt[1] + ")";
+          const delbark = "(" + bdt[0] + ", " + (bdt[1] + 1) + ")";
+          if ((delk in z)
+              && (delbark in z)) {
+            nzz[bd] = {
+              "value": v,
+              "del": z[delk],
+              "delbar": z[delbark],
+              "type": "start"
+            };
+          } else if (delk in z) {
+            nzz[bd] = {
+              "value": v,
+              "del": z[delk],
+              "delbar": "0",
+              "type": "start"
+            };
+          } else if (delbark in z) {
+            nzz[bd] = {
+              "value": v,
+              "del": "0",
+              "delbar": z[delbark],
+              "type": "start"
+            };
+          } else {
+            nzz[bd] = {
+              "value": v,
+              "del": "0",
+              "delbar": "0",
+              "type": "end"
+            };
+          }
+        }
+        const ttt = Object.keys(tt).map(function(key){
+          return tt[key];
+        });
+        const max = Math.max(...ttt);
+        for (const [bd, v] of Object.entries(nzz)) {
+          t[bd] = max;
+          if (!nz[bd]) {
+              nz[bd] = [];
+          }
+          nz[bd].push({
+            "value": v.value,
+            "del": v.del,
+            "delbar": v.delbar,
+            "type": v.type,
+            "order": max - 1
+          });
+        }
+      }
+    }
+    
+    for (const z of d) {
+      if (Object.keys(z).length != 1) {
+        const ttt = Object.keys(z).map(function(key){
+          return t[key];
+        });
+        const max = Math.max(...ttt);
+        for (const bd of Object.keys(z)) {
+          t[bd] = max;
+        }
+      }
+    }
+
+    return {
+      "tracks": t,
+      "zigzags": nz
+    }
+  }
+
   async function loadData() {
     computeDisabled = true;
     waiting = true;
@@ -147,7 +253,8 @@
         }
       })
     });
-    let d = await response.json();
+    const d = await response.json();
+    const { tracks, zigzags } = computeZigzags(d.zigzags)
     data = {
       "n": d.n,
       "m": d.m,
@@ -157,9 +264,17 @@
       "cohomology_dell": d.cohomology.dell,
       "cohomology_reduced_aeppli": d.cohomology.reduced_aeppli,
       "cohomology_reduced_bottchern": d.cohomology.reduced_bottchern,
-      "zigzags": ktActive? KT.zigzags : d.zigzags,
-      "squares": d.squares
+      "zigzags": {
+        "basis": zigzags,
+        "tracks": tracks
+      },
+      // "squares": d.squares
+      "squares": {
+        "basis": {},
+        "tracks": {}
+      }
     };
+    console.log(data);
     waiting = false;
   }
 

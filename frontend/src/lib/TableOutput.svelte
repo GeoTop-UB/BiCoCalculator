@@ -28,17 +28,10 @@
   }
 
   function adjustLine(from, to, line, vertical){
-    if (vertical) {
-      var fT = from.offsetTop;
-      var tT = to.offsetTop 	 + to.offsetHeight;
-      var fL = from.offsetLeft + from.offsetWidth/2;
-      var tL = to.offsetLeft 	 + to.offsetWidth/2;
-    } else {
-      var fT = from.offsetTop + from.offsetHeight/2;
-      var tT = to.offsetTop 	 + to.offsetHeight/2;
-      var fL = from.offsetLeft + from.offsetWidth;
-      var tL = to.offsetLeft;
-    }
+    var fT = from.offsetTop  + from.offsetHeight/2;
+    var tT = to.offsetTop 	 + to.offsetHeight/2;
+    var fL = from.offsetLeft + from.offsetWidth/2;
+    var tL = to.offsetLeft 	 + to.offsetWidth/2;
     
     var CA   = Math.abs(tT - fT);
     var CO   = Math.abs(tL - fL);
@@ -88,61 +81,71 @@
 </script>
 
 <div id="output2" class={type} style="--n: {n}">
-  {#each Object.entries(datatab).sort(compare) as [key, value]}
-    {@const dim = key.substring(1, key.length - 1).split(",").map(b => parseInt(b.trim()))}
-    {@const notfirstrow = dim[1] != 0}
-    {@const notfirstcol = dim[0] != 0}
-
-    {#if dim[0] == 0}
-      <div class="yidx">{dim[1]}</div>
-    {/if}
-    <!-- <div>{@html value.map(b => (b === "b"? "<div id='start'>" : (b === "a*abar"? "<div id='end'>" : "<div>")) + math(b.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", "")) + "</div>").join("")}</div> -->
-    {#if type === "zigzags"}
+  {#if type === "zigzags" || type === "squares"}
+    {#each Object.entries(datatab.basis).sort(compare) as [key, value]}
+      {@const dim = key.substring(1, key.length - 1).split(",").map(b => parseInt(b.trim()))}
+      {@const notfirstrow = dim[1] != 0}
+      {@const notfirstcol = dim[0] != 0}
       {@const points = value.filter(b => b.type === "point")}
       {@const starts = value.filter(b => b.type === "start")}
       {@const ends = value.filter(b => b.type === "end")}
-      
-      <div class={[{notfirstrow}, {notfirstcol}]}>
+      {@const nopoints = value.filter(b => (b.type === "start" || b.type === "end"))}
+
+      {#if dim[0] == 0}
+        <div class="yidx">{dim[1]}</div>
+      {/if}
+      <!-- <div>{@html value.map(b => (b === "b"? "<div id='start'>" : (b === "a*abar"? "<div id='end'>" : "<div>")) + math(b.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", "")) + "</div>").join("")}</div> -->
+      <div class={["cell", {notfirstrow}, {notfirstcol}]}>
         <div class="points" style="--n-points: {Math.ceil(Math.sqrt(points.length))}">
-          {#each points as b}
+          <!-- {#each points as b}
             <div class="node">
               {@html math(b.value)}
             </div>
-          {/each}
+          {/each} -->
+          <div class="node"></div>
+          <div class="exp">{@html math(points.length.toString())}</div>
         </div>
-        <div class="starts" style="--n-points: {starts.length}">
-          {#each starts.sort(compareorder).entries() as [index, b]}
-            {@const islinedel = b.type === "start" && b.del != "0"}
-            {@const islinedelbar = b.type === "start" && b.delbar != "0"}
-            {@const id = "start-" + b.value}
+        <div class="ends" style="--n-points: {datatab.tracks[key]}">
+          {#each nopoints.sort(compareorder).entries() as [index, b]}
+            {@const isstart = b.type === "start"}
+            {@const islinedel = isstart && b.del != "0"}
+            {@const islinedelbar = isstart && b.delbar != "0"}
+            {@const id = isstart? "start-" + b.value : "end-" + b.value}
             {#if islinedel}
               <div class="line" use:myaction={{v: b.value, w: b.del, vertical: false}}></div>
             {/if}
             {#if islinedelbar}
               <div class="line" use:myaction={{v: b.value, w: b.delbar, vertical: true}}></div>
             {/if}
-            <div id={id} class="node" style="grid-area: {-(index+1)} / {(index+1)} / {-(index+2)} / {index+2};">
-              {@html math(b.value)}
-            </div>
-          {/each}
-        </div>
-        <div class="ends" style="--n-points: {ends.length}">
-          {#each ends.sort(compareorder).entries() as [index, b]}
-            {@const id = "end-" + b.value}
-            <div id={id} class="node" style="grid-area: {-(index+1)} / {(index+1)} / {-(index+2)} / {index+2};">
-              {@html math(b.value)}
+            <div id={id} class="node" style="grid-area: {-(b.order+1)} / {(b.order+1)} / {-(b.order+2)} / {b.order+2};">
+              <!-- {@html math(b.value)} -->
+              <!-- {@html math("\\bullet")} -->
             </div>
           {/each}
         </div>
       </div>
-    {:else}
-      <div class={[{notfirstrow}, {notfirstcol}]} >{@html value.map(b => "<div>" + math(b) + "</div>").join("")}</div>
-    {/if}
-  {/each}
-  <div></div>
-  {#each [...Array(n).keys()] as key}
-    <div class="xidx">{key}</div>
-  {/each}
+    {/each}
+    <div></div>
+    {#each [...Array(n).keys()] as key}
+      <div class="xidx">{key}</div>
+    {/each}
+  {:else}
+    {#each Object.entries(datatab).sort(compare) as [key, value]}
+      {@const dim = key.substring(1, key.length - 1).split(",").map(b => parseInt(b.trim()))}
+      {@const notfirstrow = dim[1] != 0}
+      {@const notfirstcol = dim[0] != 0}
+
+      {#if dim[0] == 0}
+        <div class="yidx">{dim[1]}</div>
+      {/if}
+      <!-- <div>{@html value.map(b => (b === "b"? "<div id='start'>" : (b === "a*abar"? "<div id='end'>" : "<div>")) + math(b.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", "")) + "</div>").join("")}</div> -->
+      <div class={["cell", {notfirstrow}, {notfirstcol}]} >{@html value.map(b => "<div>" + math(b) + "</div>").join("")}</div>
+    {/each}
+    <div></div>
+    {#each [...Array(n).keys()] as key}
+      <div class="xidx">{key}</div>
+    {/each}
+  {/if}
 </div>
 
 <style>
@@ -151,24 +154,51 @@
     position:absolute;
     width: 2px;
     /* margin-top:-1px; */
-    background-color:rgb(100, 100, 100);
-    border: 1px rgb(100, 100, 100) solid;
+    /* background-color:rgb(100, 100, 100); */
+    /* border: 1px rgb(100, 100, 100) solid; */
+    background-color:var(--color-points);
+    border: 1px var(--color-points) solid;
   }
   
-  .node {
+  /* .node {
     padding: 0.05rem 0.2rem;
     background-color: rgb(240, 240, 240);
     border: 2px rgb(100, 100, 100) solid;
     border-radius: 4px;
+  } */
+  
+  .node {
+    --node-size: 1.25ex;
+    width: var(--node-size);
+    height: var(--node-size);
+    border-radius: calc(var(--node-size) / 2);
+    background-color: var(--color-points);
   }
 
-  .points {
+  .exp {
+    align-self: flex-start;
+    font-size: 0.4lh;
+  }
+
+  .points > .node {
+    align-self: flex-end;
+  }
+
+  /* .points {
     grid-area: points;
     display: grid;
     place-items: center;
     place-content: center;
     grid-template-columns: repeat(var(--n-points), 1fr);
     grid-template-rows: repeat(var(--n-points), 1fr);
+  } */
+
+  .points {
+    grid-area: points;
+    display: flex;
+    flex-direction: row;
+    width: 2.25ex;
+    height: 2.25ex;
   }
 
   .starts {
@@ -179,24 +209,38 @@
     grid-area: ends;
   }
 
+  /* .starts > .node, .ends > .node {
+
+  } */
+
   .starts, .ends {
     display: grid;
     place-items: center;
     place-content: center;
-    grid-template-columns: repeat(var(--n-points), 1fr);
-    grid-template-rows: repeat(var(--n-points), 1fr);
+    grid-template-columns: repeat(var(--n-points), 2.25ex);
+    grid-template-rows: repeat(var(--n-points), 2.25ex);
   }
 
   #output2 {
     display: grid;
-    grid-template-columns: 1fr repeat(var(--n), 4fr);
-    grid-template-rows: repeat(var(--n), 4fr) 1fr;
-    padding: 2rem;
-    max-width: 100%;
-    width: fit-content;
-    aspect-ratio: 1 / 1;
+    /* grid-template-columns: 1fr repeat(var(--n), 4fr);
+    grid-template-rows: repeat(var(--n), 4fr) 1fr; */
+    grid-template-columns: 1.2lh repeat(var(--n), minmax(15ex, max-content));
+    grid-template-rows: repeat(var(--n), minmax(15ex, max-content)) 1.2lh;
     /* align-items: center;
     justify-items: center; */
+    padding: 2rem;
+    /* max-width: 100%; */
+    /* width: max-content; */
+    /* height: max-content; */
+    aspect-ratio: 1 / 1;
+  }
+
+  .xidx, .yidx {
+    padding: 5px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .yidx {
@@ -215,7 +259,7 @@
     border-left: 1px black dashed;
   }
 
-  #output2.cohomology > div {
+  #output2.cohomology > .cell {
     padding: 5px 8px;
     /* width: 100%;
     height: 100%; */
@@ -225,17 +269,30 @@
     justify-content: center;
     flex-wrap: wrap;
   }
+
+  #output2.zigzags {
+    min-width: max-content;
+  }
   
-  #output2.zigzags > div {
-    padding: 10px;
+  #output2.zigzags > .cell {
+    gap: 5px;
     width: 100%;
     height: 100%;
     display: grid;
     place-items: center;
     place-content: center;
+    /* grid-template-areas: 
+      ".      .    starts"
+      ".      ends .     "
+      "points .    .     "; */
     grid-template-areas: 
-      ".      .      ends "
-      ".      starts .    "
-      "points .      .    ";
+      ".      ends"
+      "points .   ";
+    /* width: fit-content;
+    height: fit-content; */
+    padding: 1ex;
+    /* 
+    grid-template-columns: min-content min-content min-content;
+    grid-template-rows: min-content min-content min-content; */
   }
 </style>
