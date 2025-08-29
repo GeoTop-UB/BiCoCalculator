@@ -387,6 +387,7 @@
     flex-direction: column;
     justify-content: space-between;
     width: 30%;
+    min-width: 30%;
     box-shadow: 3px 0 1px -2px rgba(0, 0, 0, .2), 3px 0 5px 0 rgba(0, 0, 0, .12), 3px 0 2px 0 rgba(0, 0, 0, .14);
     padding: 1rem 1.5rem;
     gap: 0.8rem;

@@ -103,10 +103,11 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
-    max-width: 80%;
+    /* max-width: 72.59%; */
     overflow: auto;
     scrollbar-gutter: stable;
     position: relative;
+    margin: 1rem;
   }
 
   nav > div {

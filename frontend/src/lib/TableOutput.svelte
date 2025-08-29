@@ -229,7 +229,7 @@
     grid-template-rows: repeat(var(--n), minmax(15ex, max-content)) 1.2lh;
     /* align-items: center;
     justify-items: center; */
-    padding: 2rem;
+    padding: 1rem;
     /* max-width: 100%; */
     /* width: max-content; */
     /* height: max-content; */
