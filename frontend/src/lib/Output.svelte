@@ -105,6 +105,7 @@
     justify-content: center;
     max-width: 80%;
     overflow: auto;
+    scrollbar-gutter: stable;
     position: relative;
   }
 
