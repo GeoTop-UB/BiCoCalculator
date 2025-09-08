@@ -28,10 +28,14 @@
   }
 
   function adjustLine(from, to, line, vertical){
+    const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const margin = parseFloat(getComputedStyle(line).getPropertyValue("--margin-hover")) * rootFontSize;
     var fT = from.offsetTop  + from.offsetHeight/2;
     var tT = to.offsetTop 	 + to.offsetHeight/2;
-    var fL = from.offsetLeft + from.offsetWidth/2;
-    var tL = to.offsetLeft 	 + to.offsetWidth/2;
+    var fL = from.offsetLeft + from.offsetWidth/2 - 1;
+    var tL = to.offsetLeft 	 + to.offsetWidth/2 - 1;
+    fL -= margin;
+    tL -= margin;
     
     var CA   = Math.abs(tT - fT);
     var CO   = Math.abs(tL - fL);
@@ -87,8 +91,6 @@
       {@const notfirstrow = dim[1] != 0}
       {@const notfirstcol = dim[0] != 0}
       {@const points = value.filter(b => b.type === "point")}
-      {@const starts = value.filter(b => b.type === "start")}
-      {@const ends = value.filter(b => b.type === "end")}
       {@const nopoints = value.filter(b => (b.type === "start" || b.type === "end"))}
 
       {#if dim[0] == 0}
@@ -96,7 +98,7 @@
       {/if}
       <!-- <div>{@html value.map(b => (b === "b"? "<div id='start'>" : (b === "a*abar"? "<div id='end'>" : "<div>")) + math(b.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", "")) + "</div>").join("")}</div> -->
       <div class={["cell", {notfirstrow}, {notfirstcol}]}>
-        <div class="points" style="--n-points: {Math.ceil(Math.sqrt(points.length))}">
+        <div class="points tooltip" style="--n-points: {Math.ceil(Math.sqrt(points.length))}">
           <!-- {#each points as b}
             <div class="node">
               {@html math(b.value)}
@@ -104,6 +106,13 @@
           {/each} -->
           <div class="node"></div>
           <div class="exp">{@html math(points.length.toString())}</div>
+          <div class="tooltiptext pointstool">
+            {#each points as b}
+              <div class="nodetool">
+                {@html math(b.value)}
+              </div>
+            {/each}
+          </div>
         </div>
         <div class="ends" style="--n-points: {datatab.tracks[key]}">
           {#each nopoints.sort(compareorder).entries() as [index, b]}
@@ -112,10 +121,18 @@
             {@const islinedelbar = isstart && b.delbar != "0"}
             {@const id = isstart? "start-" + b.value : "end-" + b.value}
             {#if islinedel}
-              <div class="line" use:myaction={{v: b.value, w: b.del, vertical: false}}></div>
+              <div id="aaa" use:myaction={{v: b.value, w: b.del, vertical: false}}>
+                <div class="line">
+                  <span class="tooltiptext">Tooltip text</span>
+                </div>
+              </div>
             {/if}
             {#if islinedelbar}
-              <div class="line" use:myaction={{v: b.value, w: b.delbar, vertical: true}}></div>
+              <div id="aaa" use:myaction={{v: b.value, w: b.delbar, vertical: true}}>
+              <div class="line">
+                <span class="tooltiptext">Tooltip text</span>
+              </div>
+              </div>
             {/if}
             <div id={id} class="node" style="grid-area: {-(b.order+1)} / {(b.order+1)} / {-(b.order+2)} / {b.order+2};">
               <!-- {@html math(b.value)} -->
@@ -149,26 +166,67 @@
 </div>
 
 <style>
-
-  .line {
+  #aaa {
     position:absolute;
-    width: 2px;
-    /* margin-top:-1px; */
-    /* background-color:rgb(100, 100, 100); */
-    /* border: 1px rgb(100, 100, 100) solid; */
-    background-color:var(--color-points);
-    border: 1px var(--color-points) solid;
+    width: fit-content;
+    height: fit-content;
+    --margin-hover: 0.9rem;
+    
+    & .tooltiptext {
+      visibility: hidden;
+      width: 120px;
+      background-color: black;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px 0;
+      position: absolute;
+      z-index: 1;
+      bottom: 150%;
+      left: 50%;
+      margin-left: -60px;
+      
+      /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    & .tooltiptext::after {
+      content: " ";
+      position: absolute;
+      top: 100%; /* At the bottom of the tooltip */
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: black transparent transparent transparent;
+    }
+
+    & .line {
+      /* box-sizing: content-box; */
+      width: 3px;
+      height: 100%;
+      /* margin-top:-1px; */
+      /* background-color:rgb(100, 100, 100); */
+      /* border: 1px rgb(100, 100, 100) solid; */
+      background-color:var(--color-points);
+      /* border: 1px var(--color-points) solid; */
+      margin: 0 var(--margin-hover) 0 var(--margin-hover);
+    }
+    
+    &:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
   }
   
-  /* .node {
+  .nodetool {
     padding: 0.05rem 0.2rem;
-    background-color: rgb(240, 240, 240);
-    border: 2px rgb(100, 100, 100) solid;
+    background-color: rgb(60, 60, 60);
+    /* border: 2px rgb(100, 100, 100) solid; */
     border-radius: 4px;
-  } */
+  }
   
   .node {
-    --node-size: 1.25ex;
     width: var(--node-size);
     height: var(--node-size);
     border-radius: calc(var(--node-size) / 2);
@@ -184,14 +242,15 @@
     align-self: flex-end;
   }
 
-  /* .points {
+  .pointstool {
     grid-area: points;
     display: grid;
     place-items: center;
     place-content: center;
     grid-template-columns: repeat(var(--n-points), 1fr);
-    grid-template-rows: repeat(var(--n-points), 1fr);
-  } */
+    /* grid-template-rows: repeat(var(--n-points), 1fr); */
+    gap: 0.5em;
+  }
 
   .points {
     grid-area: points;
@@ -259,6 +318,10 @@
     border-left: 1px black dashed;
   }
 
+  #output2 {
+    --node-size: 1.25ex;
+  }
+
   #output2.cohomology > .cell {
     padding: 5px 8px;
     /* width: 100%;
@@ -294,5 +357,48 @@
     /* 
     grid-template-columns: min-content min-content min-content;
     grid-template-rows: min-content min-content min-content; */
+  }
+  
+  [role="tooltip"] {
+    display: none;
+  }
+
+  .tooltip {
+    position: relative;
+
+    & > .tooltiptext {
+      visibility: hidden;
+      /* width: 120px; */
+      background-color: black;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 130%;
+      left: calc(var(--node-size) / 2);
+      /* margin-left: -60px; */
+      transform: translate(-50%, 0);
+      
+      /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    & > .tooltiptext::after {
+      content: " ";
+      position: absolute;
+      top: 100%; /* At the bottom of the tooltip */
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: black transparent transparent transparent;
+    }
+    
+    &:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
   }
 </style>
