@@ -27,45 +27,26 @@
     return 0;
   }
 
-  function adjustLine(from, to, line, vertical){
-    const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
-    const margin = parseFloat(getComputedStyle(line).getPropertyValue("--margin-hover")) * rootFontSize;
-    var fT = from.offsetTop  + from.offsetHeight/2;
-    var tT = to.offsetTop 	 + to.offsetHeight/2;
-    var fL = from.offsetLeft + from.offsetWidth/2 - 1;
-    var tL = to.offsetLeft 	 + to.offsetWidth/2 - 1;
-    fL -= margin;
-    tL -= margin;
-    
-    var CA   = Math.abs(tT - fT);
-    var CO   = Math.abs(tL - fL);
-    var H    = Math.sqrt(CA*CA + CO*CO);
-    var ANG  = 180 / Math.PI * Math.acos( CA/H );
+  function adjustLine(from, to, line, vertical) {
+    const remToPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const marginRem = parseFloat(getComputedStyle(line).getPropertyValue("--margin-hover"));
+    const margin = marginRem * remToPx;
 
-    if(tT > fT){
-        var top  = (tT-fT)/2 + fT;
-    }else{
-        var top  = (fT-tT)/2 + tT;
-    }
-    if(tL > fL){
-        var left = (tL-fL)/2 + fL;
-    }else{
-        var left = (fL-tL)/2 + tL;
-    }
+    const fT = from.offsetTop  + from.offsetHeight / 2;
+    const tT = to.offsetTop 	 + to.offsetHeight / 2;
+    const fL = from.offsetLeft + from.offsetWidth / 2;
+    const tL = to.offsetLeft 	 + to.offsetWidth / 2;
 
-    if(( fT < tT && fL < tL) || ( tT < fT && tL < fL) || (fT > tT && fL > tL) || (tT > fT && tL > fL)){
-      ANG *= -1;
+    const px = "px";
+    if (vertical) {
+      line.style.top    = (tT - margin) + px;
+      line.style.left   = (tL - margin - 1)  + px;
+      line.style.height = (fT - tT + 2 * margin) + px;
+    } else {
+      line.style.top    = (fT - margin - 1) + px;
+      line.style.left   = (fL - margin) + px;
+      line.style.width = (tL - fL + 2 * margin) + px;
     }
-    top-= H/2;
-
-    line.style["-webkit-transform"] = 'rotate('+ ANG +'deg)';
-    line.style["-moz-transform"] = 'rotate('+ ANG +'deg)';
-    line.style["-ms-transform"] = 'rotate('+ ANG +'deg)';
-    line.style["-o-transform"] = 'rotate('+ ANG +'deg)';
-    line.style["-transform"] = 'rotate('+ ANG +'deg)';
-    line.style.top    = top +'px';
-    line.style.left   = left +'px';
-    line.style.height = H + 'px';
   }
 
   function myaction(node, {v, w, vertical}) {
@@ -77,9 +58,7 @@
         vertical
       );
 
-			return () => {
-				// teardown goes here
-			};
+			return () => {};
 		});
 	}
 </script>
@@ -96,14 +75,8 @@
       {#if dim[0] == 0}
         <div class="yidx">{dim[1]}</div>
       {/if}
-      <!-- <div>{@html value.map(b => (b === "b"? "<div id='start'>" : (b === "a*abar"? "<div id='end'>" : "<div>")) + math(b.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", "")) + "</div>").join("")}</div> -->
       <div class={["cell", {notfirstrow}, {notfirstcol}]}>
         <div class="points tooltip" style="--n-points: {Math.ceil(Math.sqrt(points.length))}">
-          <!-- {#each points as b}
-            <div class="node">
-              {@html math(b.value)}
-            </div>
-          {/each} -->
           <div class="node"></div>
           <div class="exp">{@html math(points.length.toString())}</div>
           <div class="tooltiptext pointstool">
@@ -122,22 +95,31 @@
             {@const id = isstart? "start-" + b.value : "end-" + b.value}
             {#if islinedel}
               <div id="aaa" use:myaction={{v: b.value, w: b.del, vertical: false}}>
-                <div class="line">
-                  <span class="tooltiptext">Tooltip text</span>
-                </div>
+                <div class="line lineh"></div>
+                <span class="tooltiptext hor zigzagtool" style="--n-zig: {b.zigzag.n}; --m-zig: {b.zigzag.m}">
+                  {#each Object.entries(b.zigzag.z) as [zk, zv]}
+                    {@const kdim = zk.substring(1, zk.length - 1).split(",").map(b => parseInt(b.trim()))}
+                    <div class="zigzagnodetool" style="grid-area: {-(kdim[1]+1)} / {(kdim[0]+1)} / {-(kdim[1]+2)} / {kdim[0]+2};">
+                      <div>{@html math(zv)}</div>
+                    </div>
+                  {/each}
+                </span>
               </div>
             {/if}
             {#if islinedelbar}
               <div id="aaa" use:myaction={{v: b.value, w: b.delbar, vertical: true}}>
-              <div class="line">
-                <span class="tooltiptext">Tooltip text</span>
-              </div>
+                <div class="line linev"></div>
+                <span class="tooltiptext ver zigzagtool" style="--n-zig: {b.zigzag.n}; --m-zig: {b.zigzag.m}">
+                  {#each Object.entries(b.zigzag.z) as [zk, zv]}
+                    {@const kdim = zk.substring(1, zk.length - 1).split(",").map(b => parseInt(b.trim()))}
+                    <div class="zigzagnodetool" style="grid-area: {-(kdim[1]+1)} / {(kdim[0]+1)} / {-(kdim[1]+2)} / {kdim[0]+2};">
+                      <div>{@html math(zv)}</div>
+                    </div>
+                  {/each}
+                </span>
               </div>
             {/if}
-            <div id={id} class="node" style="grid-area: {-(b.order+1)} / {(b.order+1)} / {-(b.order+2)} / {b.order+2};">
-              <!-- {@html math(b.value)} -->
-              <!-- {@html math("\\bullet")} -->
-            </div>
+            <div id={id} class="node" style="grid-area: {-(b.order+1)} / {(b.order+1)} / {-(b.order+2)} / {b.order+2};"></div>
           {/each}
         </div>
       </div>
@@ -155,7 +137,6 @@
       {#if dim[0] == 0}
         <div class="yidx">{dim[1]}</div>
       {/if}
-      <!-- <div>{@html value.map(b => (b === "b"? "<div id='start'>" : (b === "a*abar"? "<div id='end'>" : "<div>")) + math(b.replaceAll("bbar", "\\bar{b}").replaceAll("abar", "\\bar{a}").replaceAll("*", "")) + "</div>").join("")}</div> -->
       <div class={["cell", {notfirstrow}, {notfirstcol}]} >{@html value.map(b => "<div>" + math(b) + "</div>").join("")}</div>
     {/each}
     <div></div>
@@ -170,53 +151,103 @@
     position:absolute;
     width: fit-content;
     height: fit-content;
-    --margin-hover: 0.9rem;
+    --margin-hover: 0.7rem;
+    padding: var(--margin-hover);
     
     & .tooltiptext {
       visibility: hidden;
-      width: 120px;
+      /* width: 120px; */
       background-color: black;
       color: #fff;
       text-align: center;
       border-radius: 6px;
-      padding: 5px 0;
+      padding: 5px;
       position: absolute;
       z-index: 1;
-      bottom: 150%;
-      left: 50%;
-      margin-left: -60px;
       
       /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
       opacity: 0;
       transition: opacity 0.5s;
     }
+    
+    & .tooltiptext.hor {
+      bottom: 100%;
+      left: 50%;
+      transform: translate(-50%,0);
+    }
+    
+    & .tooltiptext.ver {
+      left: 100%;
+      top: 50%;
+      transform: translate(0, -50%);
+    }
+
     & .tooltiptext::after {
       content: " ";
       position: absolute;
-      top: 100%; /* At the bottom of the tooltip */
-      left: 50%;
-      margin-left: -5px;
       border-width: 5px;
       border-style: solid;
+    }
+
+    & .tooltiptext.hor::after {
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
       border-color: black transparent transparent transparent;
+    }
+
+    & .tooltiptext.ver::after {
+      right: 100%;
+      top: 50%;
+      margin-top: -5px;
+      border-color: transparent black transparent transparent;
     }
 
     & .line {
       /* box-sizing: content-box; */
-      width: 3px;
-      height: 100%;
       /* margin-top:-1px; */
       /* background-color:rgb(100, 100, 100); */
       /* border: 1px rgb(100, 100, 100) solid; */
       background-color:var(--color-points);
       /* border: 1px var(--color-points) solid; */
-      margin: 0 var(--margin-hover) 0 var(--margin-hover);
+      /* margin: var(--margin-hover); */
+    }
+
+    & .linev {
+      width: 3px;
+      height: 100%;
+    }
+
+    & .lineh {
+      width: 100%;
+      height: 3px;
     }
     
     &:hover .tooltiptext {
       visibility: visible;
       opacity: 1;
     }
+  }
+
+  .zigzagtool {
+    display: grid;
+    gap: -3px;
+    /* place-items: center;
+    place-content: center; */
+    grid-template-columns: repeat(var(--n-zig), 1fr);
+    grid-template-rows: repeat(var(--m-zig), 1fr);
+  }
+
+  .zigzagnodetool {
+    background-color: var(--color-zigzag);
+    padding: 0.18rem;
+    /* border-radius: 3px; */
+  }
+
+  .zigzagnodetool > div {
+    background-color: var(--color-points);
+    padding: 0.05rem 0.3rem;
+    border-radius: 3px;
   }
   
   .nodetool {

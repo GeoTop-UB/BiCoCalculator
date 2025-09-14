@@ -125,6 +125,31 @@
     }
   }
 
+  function zigzagout(z) {
+    var newz = {};
+    var ns = [];
+    var ms = [];
+    for (const [bd, _] of Object.entries(z)) { 
+      const bdt = bd.substring(1, bd.length - 1).split(",").map(s => parseInt(s.trim()));
+      ns.push(bdt[0]);
+      ms.push(bdt[1]);
+    }
+    const nsmax = Math.max(...ns);
+    const nsmin = Math.min(...ns);
+    const msmax = Math.max(...ms);
+    const msmin = Math.min(...ms);
+    for (const [bd, v] of Object.entries(z)) { 
+      const bdt = bd.substring(1, bd.length - 1).split(",").map(s => parseInt(s.trim()));
+      const newbd = "(" + (bdt[0] - nsmin) + ", " + (bdt[1] - msmin) + ")";
+      newz[newbd] = v;
+    }
+    return {
+      "n": nsmax - nsmin + 1,
+      "m": msmax - msmin + 1,
+      "z": newz
+    }
+  }
+
   function computeZigzags(d) {
     let t = {};
     let nz = {};
@@ -168,28 +193,32 @@
               "value": v,
               "del": z[delk],
               "delbar": z[delbark],
-              "type": "start"
+              "type": "start",
+              "zigzag": zigzagout(z)
             };
           } else if (delk in z) {
             nzz[bd] = {
               "value": v,
               "del": z[delk],
               "delbar": "0",
-              "type": "start"
+              "type": "start",
+              "zigzag": zigzagout(z)
             };
           } else if (delbark in z) {
             nzz[bd] = {
               "value": v,
               "del": "0",
               "delbar": z[delbark],
-              "type": "start"
+              "type": "start",
+              "zigzag": zigzagout(z)
             };
           } else {
             nzz[bd] = {
               "value": v,
               "del": "0",
               "delbar": "0",
-              "type": "end"
+              "type": "end",
+              "zigzag": zigzagout(z)
             };
           }
         }
@@ -207,6 +236,7 @@
             "del": v.del,
             "delbar": v.delbar,
             "type": v.type,
+            "zigzag": v.zigzag,
             "order": max - 1
           });
         }

@@ -71,6 +71,8 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             for i in range(dim):
                 s = s.replace(tmp_names[i], acs_names_final[i])
             
+            s = s.replace("-", "\\textup{\\texttt{-}}")
+            s = s.replace("+", "\\textup{\\texttt{+}}")
             s = s.replace("*", "")
             return s
 
