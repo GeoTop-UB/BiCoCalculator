@@ -4,6 +4,10 @@
 
   let { datatab, n, type } = $props();
 
+  let grid = $derived(
+    type === "zigzags" || type === "squares" ? datatab.basis : datatab,
+  );
+
   function compare(a, b) {
     const ka = a[0]
       .substring(1, a[0].length - 1)
@@ -27,7 +31,7 @@
 </script>
 
 <div id="output2" class={type} style="--n: {n}">
-  {#each Object.entries(type === "zigzags" || type === "squares" ? datatab.basis : datatab).sort(compare) as [key, value]}
+  {#each Object.entries(grid).sort(compare) as [key, value]}
     {@const dim = key
       .substring(1, key.length - 1)
       .split(",")
@@ -117,5 +121,6 @@
 
   #output2.zigzags {
     min-width: max-content;
+    min-height: max-content;
   }
 </style>
