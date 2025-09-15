@@ -1,7 +1,7 @@
 <script>
-  import TableOutput from './TableOutput.svelte'
-  import StickyButton from './StickyButton.svelte';
-  import Loader from './Loader.svelte';
+  import TableOutput from "./TableOutput.svelte";
+  import StickyButton from "./StickyButton.svelte";
+  import Loader from "./Loader.svelte";
 
   let { data, waiting } = $props();
 
@@ -21,20 +21,20 @@
     firstActive = false;
   }
 
-	async function changeTabCohomology(id) {
+  async function changeTabCohomology(id) {
     tab = id;
     type = "cohomology";
     changeTab();
-	}
+  }
 
-	async function changeTabOthers(id) {
+  async function changeTabOthers(id) {
     tab = id;
     type = id;
     changeTab();
-	}
-  
+  }
+
   $effect(() => {
-		if (data === undefined) {
+    if (data === undefined) {
       tab = undefined;
       type = undefined;
       active = true;
@@ -48,16 +48,18 @@
       active = false;
       firstActive = true;
     }
-	});
+  });
 </script>
 
 <section>
   <div id="table-container">
     {#if datatab === undefined}
-      {#if waiting }
+      {#if waiting}
         <Loader />
       {:else}
-        <div><p>Click compute to see the invariants of the selected nilmanifold</p></div>
+        <div>
+          <p>Click compute to see the invariants of the selected nilmanifold</p>
+        </div>
       {/if}
     {:else}
       <TableOutput {datatab} {n} {type} />
@@ -69,21 +71,61 @@
       <h2>Cohomologies</h2>
 
       <ul>
-        <StickyButton label="Aeppli" onClick={() => changeTabCohomology("cohomology_aeppli")} active={firstActive} {disabled} />
-        <StickyButton label="Bott-Chern" onClick={() => changeTabCohomology("cohomology_bottchern")} {active} {disabled} />
-        <StickyButton label="Delbar" onClick={() => changeTabCohomology("cohomology_delbar")} {active} {disabled} />
-        <StickyButton label="Del" onClick={() => changeTabCohomology("cohomology_dell")} {active} {disabled} />
-        <StickyButton label="Reduced Aeppli" onClick={() => changeTabCohomology("cohomology_reduced_aeppli")} {active} {disabled} />
-        <StickyButton label="Reduced Bott-Chern" onClick={() => changeTabCohomology("cohomology_reduced_bottchern")} {active} {disabled} />
+        <StickyButton
+          label="Aeppli"
+          onClick={() => changeTabCohomology("cohomology_aeppli")}
+          active={firstActive}
+          {disabled}
+        />
+        <StickyButton
+          label="Bott-Chern"
+          onClick={() => changeTabCohomology("cohomology_bottchern")}
+          {active}
+          {disabled}
+        />
+        <StickyButton
+          label="Delbar"
+          onClick={() => changeTabCohomology("cohomology_delbar")}
+          {active}
+          {disabled}
+        />
+        <StickyButton
+          label="Del"
+          onClick={() => changeTabCohomology("cohomology_dell")}
+          {active}
+          {disabled}
+        />
+        <StickyButton
+          label="Reduced Aeppli"
+          onClick={() => changeTabCohomology("cohomology_reduced_aeppli")}
+          {active}
+          {disabled}
+        />
+        <StickyButton
+          label="Reduced Bott-Chern"
+          onClick={() => changeTabCohomology("cohomology_reduced_bottchern")}
+          {active}
+          {disabled}
+        />
       </ul>
     </div>
 
     <div id="decomposition">
       <h2>Decomposition</h2>
-      
+
       <ul>
-        <StickyButton label="Zigzags" onClick={() => changeTabOthers("zigzags")} {active} {disabled} />
-        <StickyButton label="Squares" onClick={() => changeTabOthers("squares")} {active} {disabled} />
+        <StickyButton
+          label="Zigzags"
+          onClick={() => changeTabOthers("zigzags")}
+          {active}
+          {disabled}
+        />
+        <StickyButton
+          label="Squares"
+          onClick={() => changeTabOthers("squares")}
+          {active}
+          {disabled}
+        />
       </ul>
     </div>
   </nav>
@@ -113,7 +155,10 @@
   nav > div {
     display: flex;
     flex-direction: column;
-    box-shadow: 0 0 4px 0 rgba(0,0,0,.14),0 0 8px 0 rgba(0,0,0,.12),0 0 3px -2px rgba(0,0,0,.2);
+    box-shadow:
+      0 0 4px 0 rgba(0, 0, 0, 0.14),
+      0 0 8px 0 rgba(0, 0, 0, 0.12),
+      0 0 3px -2px rgba(0, 0, 0, 0.2);
   }
 
   nav h2 {
@@ -139,7 +184,7 @@
   #decomposition ul {
     width: auto;
   }
-  
+
   ul > :global(*) {
     width: 100%;
   }

@@ -1,24 +1,30 @@
 <script>
-  import { math } from 'mathlifier';
+  import { math } from "mathlifier";
 
-	let { datatab, n, type } = $props();
+  let { datatab, n, type } = $props();
 
-  function compare(a, b){
-    const ka = a[0].substring(1, a[0].length - 1).split(",").map(s => parseInt(s.trim()));
-    const kb = b[0].substring(1, b[0].length - 1).split(",").map(s => parseInt(s.trim()));
+  function compare(a, b) {
+    const ka = a[0]
+      .substring(1, a[0].length - 1)
+      .split(",")
+      .map((s) => parseInt(s.trim()));
+    const kb = b[0]
+      .substring(1, b[0].length - 1)
+      .split(",")
+      .map((s) => parseInt(s.trim()));
     if (ka[1] > kb[1]) {
       return -1;
     } else if (ka[1] < kb[1]) {
       return 1;
     } else if (ka[0] < kb[0]) {
-      return -1
+      return -1;
     } else if (ka[0] > kb[0]) {
       return 1;
     }
     return 0;
   }
-  
-  function compareorder(a, b){
+
+  function compareorder(a, b) {
     if (a.order > b.order) {
       return 1;
     } else if (a.order < b.order) {
@@ -28,55 +34,67 @@
   }
 
   function adjustLine(from, to, line, vertical) {
-    const remToPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
-    const marginRem = parseFloat(getComputedStyle(line).getPropertyValue("--margin-hover"));
+    const remToPx = parseFloat(
+      getComputedStyle(document.documentElement).fontSize,
+    );
+    const marginRem = parseFloat(
+      getComputedStyle(line).getPropertyValue("--margin-hover"),
+    );
     const margin = marginRem * remToPx;
 
-    const fT = from.offsetTop  + from.offsetHeight / 2;
-    const tT = to.offsetTop 	 + to.offsetHeight / 2;
+    const fT = from.offsetTop + from.offsetHeight / 2;
+    const tT = to.offsetTop + to.offsetHeight / 2;
     const fL = from.offsetLeft + from.offsetWidth / 2;
-    const tL = to.offsetLeft 	 + to.offsetWidth / 2;
+    const tL = to.offsetLeft + to.offsetWidth / 2;
 
     const px = "px";
     if (vertical) {
-      line.style.top    = (tT - margin) + px;
-      line.style.left   = (tL - margin - 1)  + px;
-      line.style.height = (fT - tT + 2 * margin) + px;
+      line.style.top = tT - margin + px;
+      line.style.left = tL - margin - 1 + px;
+      line.style.height = fT - tT + 2 * margin + px;
     } else {
-      line.style.top    = (fT - margin - 1) + px;
-      line.style.left   = (fL - margin) + px;
-      line.style.width = (tL - fL + 2 * margin) + px;
+      line.style.top = fT - margin - 1 + px;
+      line.style.left = fL - margin + px;
+      line.style.width = tL - fL + 2 * margin + px;
     }
   }
 
-  function myaction(node, {v, w, vertical}) {
-		$effect(() => {
+  function myaction(node, { v, w, vertical }) {
+    $effect(() => {
       adjustLine(
-        document.getElementById("start-" + v), 
+        document.getElementById("start-" + v),
         document.getElementById("end-" + w),
         node,
-        vertical
+        vertical,
       );
 
-			return () => {};
-		});
-	}
+      return () => {};
+    });
+  }
 </script>
 
 <div id="output2" class={type} style="--n: {n}">
   {#if type === "zigzags" || type === "squares"}
     {#each Object.entries(datatab.basis).sort(compare) as [key, value]}
-      {@const dim = key.substring(1, key.length - 1).split(",").map(b => parseInt(b.trim()))}
+      {@const dim = key
+        .substring(1, key.length - 1)
+        .split(",")
+        .map((b) => parseInt(b.trim()))}
       {@const notfirstrow = dim[1] != 0}
       {@const notfirstcol = dim[0] != 0}
-      {@const points = value.filter(b => b.type === "point")}
-      {@const nopoints = value.filter(b => (b.type === "start" || b.type === "end"))}
+      {@const points = value.filter((b) => b.type === "point")}
+      {@const nopoints = value.filter(
+        (b) => b.type === "start" || b.type === "end",
+      )}
 
       {#if dim[0] == 0}
         <div class="yidx">{dim[1]}</div>
       {/if}
-      <div class={["cell", {notfirstrow}, {notfirstcol}]}>
-        <div class="points tooltip" style="--n-points: {Math.ceil(Math.sqrt(points.length))}">
+      <div class={["cell", { notfirstrow }, { notfirstcol }]}>
+        <div
+          class="points tooltip"
+          style="--n-points: {Math.ceil(Math.sqrt(points.length))}"
+        >
           <div class="node"></div>
           <div class="exp">{@html math(points.length.toString())}</div>
           <div class="tooltiptext pointstool">
@@ -92,14 +110,28 @@
             {@const isstart = b.type === "start"}
             {@const islinedel = isstart && b.del != "0"}
             {@const islinedelbar = isstart && b.delbar != "0"}
-            {@const id = isstart? "start-" + b.value : "end-" + b.value}
+            {@const id = isstart ? "start-" + b.value : "end-" + b.value}
             {#if islinedel}
-              <div id="aaa" use:myaction={{v: b.value, w: b.del, vertical: false}}>
+              <div
+                id="aaa"
+                use:myaction={{ v: b.value, w: b.del, vertical: false }}
+              >
                 <div class="line lineh"></div>
-                <span class="tooltiptext hor zigzagtool" style="--n-zig: {b.zigzag.n}; --m-zig: {b.zigzag.m}">
+                <span
+                  class="tooltiptext hor zigzagtool"
+                  style="--n-zig: {b.zigzag.n}; --m-zig: {b.zigzag.m}"
+                >
                   {#each Object.entries(b.zigzag.z) as [zk, zv]}
-                    {@const kdim = zk.substring(1, zk.length - 1).split(",").map(b => parseInt(b.trim()))}
-                    <div class="zigzagnodetool" style="grid-area: {-(kdim[1]+1)} / {(kdim[0]+1)} / {-(kdim[1]+2)} / {kdim[0]+2};">
+                    {@const kdim = zk
+                      .substring(1, zk.length - 1)
+                      .split(",")
+                      .map((b) => parseInt(b.trim()))}
+                    <div
+                      class="zigzagnodetool"
+                      style="grid-area: {-(kdim[1] + 1)} / {kdim[0] + 1} / {-(
+                        kdim[1] + 2
+                      )} / {kdim[0] + 2};"
+                    >
                       <div>{@html math(zv)}</div>
                     </div>
                   {/each}
@@ -107,19 +139,39 @@
               </div>
             {/if}
             {#if islinedelbar}
-              <div id="aaa" use:myaction={{v: b.value, w: b.delbar, vertical: true}}>
+              <div
+                id="aaa"
+                use:myaction={{ v: b.value, w: b.delbar, vertical: true }}
+              >
                 <div class="line linev"></div>
-                <span class="tooltiptext ver zigzagtool" style="--n-zig: {b.zigzag.n}; --m-zig: {b.zigzag.m}">
+                <span
+                  class="tooltiptext ver zigzagtool"
+                  style="--n-zig: {b.zigzag.n}; --m-zig: {b.zigzag.m}"
+                >
                   {#each Object.entries(b.zigzag.z) as [zk, zv]}
-                    {@const kdim = zk.substring(1, zk.length - 1).split(",").map(b => parseInt(b.trim()))}
-                    <div class="zigzagnodetool" style="grid-area: {-(kdim[1]+1)} / {(kdim[0]+1)} / {-(kdim[1]+2)} / {kdim[0]+2};">
+                    {@const kdim = zk
+                      .substring(1, zk.length - 1)
+                      .split(",")
+                      .map((b) => parseInt(b.trim()))}
+                    <div
+                      class="zigzagnodetool"
+                      style="grid-area: {-(kdim[1] + 1)} / {kdim[0] + 1} / {-(
+                        kdim[1] + 2
+                      )} / {kdim[0] + 2};"
+                    >
                       <div>{@html math(zv)}</div>
                     </div>
                   {/each}
                 </span>
               </div>
             {/if}
-            <div id={id} class="node" style="grid-area: {-(b.order+1)} / {(b.order+1)} / {-(b.order+2)} / {b.order+2};"></div>
+            <div
+              {id}
+              class="node"
+              style="grid-area: {-(b.order + 1)} / {b.order + 1} / {-(
+                b.order + 2
+              )} / {b.order + 2};"
+            ></div>
           {/each}
         </div>
       </div>
@@ -130,14 +182,19 @@
     {/each}
   {:else}
     {#each Object.entries(datatab).sort(compare) as [key, value]}
-      {@const dim = key.substring(1, key.length - 1).split(",").map(b => parseInt(b.trim()))}
+      {@const dim = key
+        .substring(1, key.length - 1)
+        .split(",")
+        .map((b) => parseInt(b.trim()))}
       {@const notfirstrow = dim[1] != 0}
       {@const notfirstcol = dim[0] != 0}
 
       {#if dim[0] == 0}
         <div class="yidx">{dim[1]}</div>
       {/if}
-      <div class={["cell", {notfirstrow}, {notfirstcol}]} >{@html value.map(b => "<div>" + math(b) + "</div>").join("")}</div>
+      <div class={["cell", { notfirstrow }, { notfirstcol }]}>
+        {@html value.map((b) => "<div>" + math(b) + "</div>").join("")}
+      </div>
     {/each}
     <div></div>
     {#each [...Array(n).keys()] as key}
@@ -148,12 +205,12 @@
 
 <style>
   #aaa {
-    position:absolute;
+    position: absolute;
     width: fit-content;
     height: fit-content;
     --margin-hover: 0.7rem;
     padding: var(--margin-hover);
-    
+
     & .tooltiptext {
       visibility: hidden;
       background-color: black;
@@ -163,18 +220,18 @@
       padding: 5px;
       position: absolute;
       z-index: 1;
-      
+
       /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
       opacity: 0;
       transition: opacity 0.5s;
     }
-    
+
     & .tooltiptext.hor {
       bottom: 100%;
       left: 50%;
-      transform: translate(-50%,0);
+      transform: translate(-50%, 0);
     }
-    
+
     & .tooltiptext.ver {
       left: 100%;
       top: 50%;
@@ -203,7 +260,7 @@
     }
 
     & .line {
-      background-color:var(--color-points);
+      background-color: var(--color-points);
     }
 
     & .linev {
@@ -215,7 +272,7 @@
       width: 100%;
       height: 3px;
     }
-    
+
     &:hover .tooltiptext {
       visibility: visible;
       opacity: 1;
@@ -239,14 +296,14 @@
     padding: 0.05rem 0.3rem;
     border-radius: 3px;
   }
-  
+
   .nodetool {
     padding: 0.05rem 0.2rem;
     background-color: rgb(60, 60, 60);
     /* border: 2px rgb(100, 100, 100) solid; */
     border-radius: 4px;
   }
-  
+
   .node {
     width: var(--node-size);
     height: var(--node-size);
@@ -293,7 +350,8 @@
 
   } */
 
-  .starts, .ends {
+  .starts,
+  .ends {
     display: grid;
     place-items: center;
     place-content: center;
@@ -316,7 +374,8 @@
     aspect-ratio: 1 / 1;
   }
 
-  .xidx, .yidx {
+  .xidx,
+  .yidx {
     padding: 5px 8px;
     display: flex;
     align-items: center;
@@ -326,7 +385,7 @@
   .yidx {
     border-right: 1px black solid;
   }
-  
+
   .xidx {
     border-top: 1px black solid;
   }
@@ -357,7 +416,7 @@
   #output2.zigzags {
     min-width: max-content;
   }
-  
+
   #output2.zigzags > .cell {
     gap: 5px;
     width: 100%;
@@ -369,7 +428,7 @@
       ".      .    starts"
       ".      ends .     "
       "points .    .     "; */
-    grid-template-areas: 
+    grid-template-areas:
       ".      ends"
       "points .   ";
     /* width: fit-content;
@@ -379,7 +438,7 @@
     grid-template-columns: min-content min-content min-content;
     grid-template-rows: min-content min-content min-content; */
   }
-  
+
   [role="tooltip"] {
     display: none;
   }
@@ -400,7 +459,7 @@
       bottom: 130%;
       left: calc(var(--node-size) / 2);
       transform: translate(-50%, 0);
-      
+
       /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
       opacity: 0;
       transition: opacity 0.5s;
@@ -415,7 +474,7 @@
       border-style: solid;
       border-color: black transparent transparent transparent;
     }
-    
+
     &:hover .tooltiptext {
       visibility: visible;
       opacity: 1;

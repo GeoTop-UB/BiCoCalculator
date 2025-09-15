@@ -8,7 +8,7 @@
   }
 </script>
 
-<button class={[{disabled}, {slim}]} onclick={wrappedOnClick}>
+<button class={[{ disabled }, { slim }]} onclick={wrappedOnClick}>
   {label}
 </button>
 
@@ -21,7 +21,7 @@
   button:hover {
     border: 1px var(--color-accent-strong) solid;
   }
-  
+
   button:active {
     border: 1px solid transparent;
     background-color: var(--color-accent-strong);

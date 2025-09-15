@@ -1,7 +1,14 @@
 <script>
-  import Button from './Button.svelte';
+	import Button from "./Button.svelte";
 
-	let { showModal = $bindable(), onClose, buttonLabel, buttonDisabled, header, children } = $props();
+	let {
+		showModal = $bindable(),
+		onClose,
+		buttonLabel,
+		buttonDisabled,
+		header,
+		children,
+	} = $props();
 
 	let dialog = $state();
 
@@ -18,12 +25,18 @@
 <dialog
 	bind:this={dialog}
 	onclose={() => (showModal = false)}
-	onclick={(e) => { if (e.target === dialog) dialog.close(); }}
+	onclick={(e) => {
+		if (e.target === dialog) dialog.close();
+	}}
 >
 	<div>
 		{@render header?.()}
 		{@render children?.()}
-		<Button label={buttonLabel} disabled={buttonDisabled} onClick={wrappedOnClose} />
+		<Button
+			label={buttonLabel}
+			disabled={buttonDisabled}
+			onClick={wrappedOnClose}
+		/>
 	</div>
 </dialog>
 
@@ -39,9 +52,9 @@
 	}
 	dialog > div {
 		padding: 1em;
-    display: flex;
-    flex-direction: column;
-    gap: 0.8em;
+		display: flex;
+		flex-direction: column;
+		gap: 0.8em;
 	}
 	dialog[open] {
 		animation: zoom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -66,8 +79,8 @@
 		}
 	}
 
-  dialog > div > :global(button) {
-    width: min-content;
-    margin: 0 0 0 auto;
-  }
+	dialog > div > :global(button) {
+		width: min-content;
+		margin: 0 0 0 auto;
+	}
 </style>
