@@ -1,5 +1,5 @@
 <script>
-  import TableOutput from "./TableOutput.svelte";
+  import GridOutput from "./GridOutput.svelte";
   import StickyButton from "./StickyButton.svelte";
   import Loader from "./Loader.svelte";
 
@@ -62,7 +62,7 @@
         </div>
       {/if}
     {:else}
-      <TableOutput {datatab} {n} {type} />
+      <GridOutput {datatab} {n} {type} />
     {/if}
   </div>
 
