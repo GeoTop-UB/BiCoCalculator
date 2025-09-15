@@ -156,7 +156,6 @@
     
     & .tooltiptext {
       visibility: hidden;
-      /* width: 120px; */
       background-color: black;
       color: #fff;
       text-align: center;
@@ -204,13 +203,7 @@
     }
 
     & .line {
-      /* box-sizing: content-box; */
-      /* margin-top:-1px; */
-      /* background-color:rgb(100, 100, 100); */
-      /* border: 1px rgb(100, 100, 100) solid; */
       background-color:var(--color-points);
-      /* border: 1px var(--color-points) solid; */
-      /* margin: var(--margin-hover); */
     }
 
     & .linev {
@@ -232,8 +225,6 @@
   .zigzagtool {
     display: grid;
     gap: -3px;
-    /* place-items: center;
-    place-content: center; */
     grid-template-columns: repeat(var(--n-zig), 1fr);
     grid-template-rows: repeat(var(--m-zig), 1fr);
   }
@@ -241,7 +232,6 @@
   .zigzagnodetool {
     background-color: var(--color-zigzag);
     padding: 0.18rem;
-    /* border-radius: 3px; */
   }
 
   .zigzagnodetool > div {
@@ -409,7 +399,6 @@
       z-index: 1;
       bottom: 130%;
       left: calc(var(--node-size) / 2);
-      /* margin-left: -60px; */
       transform: translate(-50%, 0);
       
       /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
