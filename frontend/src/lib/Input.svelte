@@ -159,6 +159,9 @@
   function computeZigzags(d) {
     let t = {};
     let nz = {};
+    let ccc = 0;
+    let cc = {};
+    let cco = {};
 
     for (const z of d) {
       if (Object.keys(z).length == 1) {
@@ -179,8 +182,6 @@
       } else {
         let tt = {};
         let nzz = {};
-        // let a = undefined;
-        // let b = undefined;
         for (const [bd, v] of Object.entries(z)) {
           const bdt = bd
             .substring(1, bd.length - 1)
@@ -194,9 +195,99 @@
           if (!nzz[bd]) {
             nzz[bd] = [];
           }
+
           const delk = "(" + (bdt[0] + 1) + ", " + bdt[1] + ")";
           const delbark = "(" + bdt[0] + ", " + (bdt[1] + 1) + ")";
           if (delk in z && delbark in z) {
+            if (
+              cc[bd] === undefined &&
+              cc[delk] === undefined &&
+              cc[delbark] === undefined
+            ) {
+              cc[bd] = ccc;
+              cc[delk] = ccc;
+              cc[delbark] = ccc;
+              cco[ccc] = [];
+              cco[ccc].push(bd);
+              cco[ccc].push(delk);
+              cco[ccc].push(delbark);
+              ccc++;
+            } else if (cc[bd] === undefined && cc[delbark] === undefined) {
+              cc[bd] = cc[delk];
+              cc[delbark] = cc[delk];
+              cco[cc[delk]].push(bd);
+              cco[cc[delk]].push(delbark);
+            } else if (cc[delk] === undefined && cc[delbark] === undefined) {
+              cc[delk] = cc[bd];
+              cc[delbark] = cc[bd];
+              cco[cc[bd]].push(delk);
+              cco[cc[bd]].push(delbark);
+            } else if (cc[delk] === undefined && cc[bd] === undefined) {
+              cc[delk] = cc[delbark];
+              cc[bd] = cc[delbark];
+              cco[cc[delbark]].push(delk);
+              cco[cc[delbark]].push(bd);
+            } else if (
+              cc[bd] != undefined &&
+              cc[delk] != undefined &&
+              cc[delbark] != undefined &&
+              cc[bd] != cc[delk] &&
+              cc[bd] != cc[delbark] &&
+              cc[delbark] != cc[delk]
+            ) {
+              cco[cc[bd]].concat(cco[cc[delk]]);
+              cco[cc[bd]].concat(cco[cc[delbark]]);
+              for (const bbbd of cco[cc[delk]]) {
+                cc[bbbd] = cc[bd];
+              }
+              for (const bbbd of cco[cc[delbark]]) {
+                cc[bbbd] = cc[bd];
+              }
+              delete cco[cc[delk]];
+              delete cco[cc[delbark]];
+            } else if (
+              cc[bd] != undefined &&
+              cc[delk] != undefined &&
+              cc[bd] != cc[delk]
+            ) {
+              cco[cc[bd]].concat(cco[cc[delk]]);
+              for (const bbbd of cco[cc[delk]]) {
+                cc[bbbd] = cc[bd];
+              }
+              delete cco[cc[delk]];
+              if (cc[delbark] === undefined) {
+                cc[delbark] = cc[bd];
+                cco[cc[bd]].push(delbark);
+              }
+            } else if (
+              cc[bd] != undefined &&
+              cc[delbark] != undefined &&
+              cc[bd] != cc[delbark]
+            ) {
+              cco[cc[bd]].concat(cco[cc[delbark]]);
+              for (const bbbd of cco[cc[delbark]]) {
+                cc[bbbd] = cc[bd];
+              }
+              delete cco[cc[delbark]];
+              if (cc[delk] === undefined) {
+                cc[delk] = cc[bd];
+                cco[cc[bd]].push(delk);
+              }
+            } else if (
+              cc[delk] != undefined &&
+              cc[delbark] != undefined &&
+              cc[delbark] != cc[delk]
+            ) {
+              cco[cc[delk]].concat(cco[cc[delbark]]);
+              for (const bbbd of cco[cc[delbark]]) {
+                cc[bbbd] = cc[delk];
+              }
+              delete cco[cc[delbark]];
+              if (cc[bd] === undefined) {
+                cc[bd] = cc[delk];
+                cco[cc[delk]].push(bd);
+              }
+            }
             nzz[bd] = {
               value: v,
               del: z[delk],
@@ -205,6 +296,26 @@
               zigzag: zigzagout(z),
             };
           } else if (delk in z) {
+            if (cc[bd] === undefined && cc[delk] === undefined) {
+              cc[bd] = ccc;
+              cc[delk] = ccc;
+              cco[ccc] = [];
+              cco[ccc].push(bd);
+              cco[ccc].push(delk);
+              ccc++;
+            } else if (cc[bd] === undefined) {
+              cc[bd] = cc[delk];
+              cco[cc[delk]].push(bd);
+            } else if (cc[delk] === undefined) {
+              cc[delk] = cc[bd];
+              cco[cc[bd]].push(delk);
+            } else if (cc[bd] != cc[delk]) {
+              cco[cc[bd]].concat(cco[cc[delk]]);
+              for (const bbbd of cco[cc[delk]]) {
+                cc[bbbd] = cc[bd];
+              }
+              delete cco[cc[delk]];
+            }
             nzz[bd] = {
               value: v,
               del: z[delk],
@@ -213,6 +324,26 @@
               zigzag: zigzagout(z),
             };
           } else if (delbark in z) {
+            if (cc[bd] === undefined && cc[delbark] === undefined) {
+              cc[bd] = ccc;
+              cc[delbark] = ccc;
+              cco[ccc] = [];
+              cco[ccc].push(bd);
+              cco[ccc].push(delbark);
+              ccc++;
+            } else if (cc[bd] === undefined) {
+              cc[bd] = cc[delbark];
+              cco[cc[delbark]].push(bd);
+            } else if (cc[delbark] === undefined) {
+              cc[delbark] = cc[bd];
+              cco[cc[bd]].push(delbark);
+            } else if (cc[bd] != cc[delbark]) {
+              cco[cc[bd]].concat(cco[cc[delbark]]);
+              for (const bbbd of cco[cc[delbark]]) {
+                cc[bbbd] = cc[bd];
+              }
+              delete cco[cc[delbark]];
+            }
             nzz[bd] = {
               value: v,
               del: "0",
@@ -260,6 +391,16 @@
         for (const bd of Object.keys(z)) {
           t[bd] = max;
         }
+      }
+    }
+
+    for (const [_, ccp] of Object.entries(cco)) {
+      const ttt = ccp.map(function (key) {
+        return t[key];
+      });
+      const max = Math.max(...ttt);
+      for (const ccpp of ccp) {
+        t[ccpp] = max;
       }
     }
 
