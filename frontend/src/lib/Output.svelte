@@ -52,18 +52,20 @@
 </script>
 
 <section>
-  <div id="table-container">
-    {#if datatab === undefined}
-      {#if waiting}
-        <Loader />
+  <div id="table-container-parent">
+    <div id="table-container">
+      {#if datatab === undefined}
+        {#if waiting}
+          <Loader />
+        {:else}
+          <div>
+            <p>Click compute to see the invariants of the selected nilmanifold</p>
+          </div>
+        {/if}
       {:else}
-        <div>
-          <p>Click compute to see the invariants of the selected nilmanifold</p>
-        </div>
+        <GridOutput {datatab} {n} {type} />
       {/if}
-    {:else}
-      <GridOutput {datatab} {n} {type} />
-    {/if}
+    </div>
   </div>
 
   <nav>
@@ -140,16 +142,21 @@
     margin: 1.8rem;
   }
 
-  #table-container {
+  #table-container-parent {
     flex-grow: 1;
+    position: relative;
+    margin: 1rem;
+  }
+
+  #table-container {
+    width: 100%;
+    height: 100%;
+    /* max-width: 72.59%; */
     display: flex;
     flex-direction: row;
     justify-content: center;
-    /* max-width: 72.59%; */
     overflow: auto;
     scrollbar-gutter: stable;
-    position: relative;
-    margin: 1rem;
   }
 
   nav > div {
