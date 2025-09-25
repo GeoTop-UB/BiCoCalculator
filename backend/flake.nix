@@ -28,6 +28,12 @@
       treefmtBuild = eachSystemPkgs (pkgs: (treefmt-nix.lib.evalModule pkgs treefmtConfig).config.build);
     in
     {
+      packages = eachSystemPkgs (
+        pkgs: 
+        {
+          default = pkgs.callPackage ./default.nix { };
+        }
+      );
       formatter = eachSystem (system: treefmtBuild.${system}.wrapper);
       checks = eachSystem (system: {
         formatting = treefmtBuild.${system}.check self;

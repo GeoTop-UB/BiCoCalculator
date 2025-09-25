@@ -5,3 +5,6 @@ frontend:
 
 backend:
 	cd backend && nix develop --command make
+
+bundle:
+	nix bundle --bundler github:DavHau/nix-portable ./backend
