@@ -6,7 +6,7 @@ from pprint import pprint
 from sage.all import *
 
 # load("backend/bigraded_complexes.py.sage")
-load("https://raw.githubusercontent.com/GeoTop-UB/BiCo/refs/heads/main/bigraded_complexes.py.sage")
+load("https://raw.githubusercontent.com/GeoTop-UB/BiCo/f506151b699ffb4705a4311efbc480ee26a3d156/bigraded_complexes.py.sage")
 
 PORT = 5001
 
@@ -46,19 +46,10 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             return BidifferentialBigradedCommutativeAlgebra.from_nilmanifold(lie_algebra, acs, acs_names, normalization_coefficients)
         
         dim = input_data["dim"]
-        tmp_names = [f"v{i}" for i in range(dim)]
-        # lie_names_final = input_data["lie"]["names"]
-        lie_names = ",".join(tmp_names)
-        lie_bracket = {
-            tuple(map(lambda i: tmp_names[int(i) - 1], k[1:-1].split(","))): {
-                tmp_names[int(kk) - 1]: vv
-                for kk, vv in v.items()
-            }
-            for k, v in input_data["lie"]["bracket"].items()
-        }
+        lie_names = input_data["lie"]["names"]
+        lie_bracket = {tuple(k.split(",")): v for  k, v in input_data["lie"]["bracket"].items()}
         acs_matrix = input_data["acs"]["matrix"]
-        acs_names_final = input_data["acs"]["names"]
-        acs_names = tmp_names
+        acs_names = input_data["acs"]["names"]
         normalization_coefficients= list(map(QQ, input_data["acs"].get("norm"))) if input_data["acs"].get("norm") else None
         pprint(dim)
         pprint(lie_names)
@@ -67,26 +58,26 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         pprint(acs_names)
         pprint(normalization_coefficients)
 
-        def replaceNames(s: str):
-            for i in range(dim):
-                s = s.replace(tmp_names[i], acs_names_final[i])
+        # def replaceNames(s: str):
+        #     for i in range(dim):
+        #         s = s.replace(tmp_names[i], acs_names_final[i])
             
-            s = s.replace("-", "\\textup{\\texttt{-}}")
-            s = s.replace("+", "\\textup{\\texttt{+}}")
-            s = s.replace("*", "")
-            return s
+        #     s = s.replace("-", "\\textup{\\texttt{-}}")
+        #     s = s.replace("+", "\\textup{\\texttt{+}}")
+        #     s = s.replace("*", "")
+        #     return s
 
         def mapByBidegree(bbc : BigradedComplex, method: str):
             return {
-                str(bidegree): list(map(lambda a: replaceNames(str(a)), getattr(bbc, method)(bidegree)))
+                str(bidegree): list(map(lambda a: str(a), getattr(bbc, method)(bidegree)))
                 for bidegree in bbc.bidegrees()
             }
         
-        def replaceNamesZigzags(a):
-            return {
-                str(bidegree): replaceNames(str(v))
-                for (bidegree, v) in a.items()
-            }
+        # def replaceNamesZigzags(a):
+        #     return {
+        #         str(bidegree): str(v)
+        #         for (bidegree, v) in a.items()
+        #     }
 
         bbc = build(dim, lie_names, lie_bracket, acs_matrix, acs_names, normalization_coefficients)
         # bbc = BidifferentialBigradedCommutativeAlgebraExample.KodairaThurston()
@@ -105,8 +96,8 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
                     "reduced_bottchern"
                 ]
             },
-            "zigzags": list(map(lambda a: replaceNamesZigzags(a), bbc.zigzags_decomposition())),
-            "squares": list(map(lambda a: replaceNames(str(a)), bbc.squares_decomposition()))
+            "zigzags": list(map(lambda a: {str(bidegree): str(v) for (bidegree, v) in a.items()}, bbc.zigzags_decomposition())),
+            "squares": list(map(lambda a: str(a), bbc.squares_decomposition()))
         }
         pprint(output_data)
         output_json = json.dumps(output_data)

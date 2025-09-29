@@ -12,6 +12,8 @@
     "@sveltejs/vite-plugin-svelte": "^5.1.0",
     "svelte": "^5.35.2",
     "vite": "^7.0.3",
-    "mathlifier": "^3.2.2"
+    "mathlifier": "^3.2.2",
+    "axios": "^1.12.2",
+    "sockjs-client": "^1.6.1"
   }
 }
