@@ -1,8 +1,7 @@
 import SageCellClient from "./sagecell.js";
-import { ComputeBackend } from "./types.ts";
+import type { ComputeBackend } from "./types";
 
-// @ts-ignore
-import bicoLib from "../../assets/bico.py.sage?raw";
+import bicoLib from "./bico.py.sage?raw";
 
 
 // const version = 

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   let { label, onClick, disabled = false, slim = false } = $props();
 
   function wrappedOnClick() {

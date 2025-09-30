@@ -1,5 +1,5 @@
-<script>
-	import Button from "./Button.svelte";
+<script lang="ts">
+	import Button from "$lib/components/Button.svelte";
 
 	let {
 		showModal = $bindable(),

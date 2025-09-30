@@ -1,7 +1,17 @@
 all: run
 
-run: build
-	yarn run dev
+run: prepare
+	yarn run dev --open
+.PHONY: run
 
-build: package.json
+prepare: package.json
 	yarn
+.PHONY: prepare
+
+build:
+	yarn build
+.PHONY: build
+
+preview: build
+	yarn preview --open
+.PHONY: preview

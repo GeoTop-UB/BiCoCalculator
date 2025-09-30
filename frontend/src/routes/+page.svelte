@@ -1,19 +1,26 @@
-<script>
-  import favicon from "../favicon.svg";
-  import Input from "./lib/Input.svelte";
-  import Output from "./lib/Output.svelte";
+<script lang="ts">
+  import { base } from '$app/paths';
+  import favicon from "$lib/images/favicon.svg";
+  import Input from "./Input.svelte";
+  import Output from "./Output.svelte";
+  import '../app.css';
 
   let data = $state();
-  let waiting = $state(false);
+  let waiting: boolean = $state(false);
 </script>
+
+<svelte:head>
+    <title>bbCalculator</title>
+	<meta name="description" content="Svelte demo app" />
+</svelte:head>
 
 <div id="app">
   <header>
     <div class="content">
-      <a href="/" target="_blank" rel="noreferrer">
+      <a href="{base}/" target="_blank" rel="noreferrer">
         <img src={favicon} class="logo" alt="bbCalculator" />
       </a>
-      <a href="/" target="_blank" rel="noreferrer">
+      <a href="{base}/" target="_blank" rel="noreferrer">
         <h1>bbCalculator</h1>
       </a>
     </div>

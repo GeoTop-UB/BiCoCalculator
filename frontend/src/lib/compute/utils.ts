@@ -1,4 +1,4 @@
-import { Cohomology, LieBracket, LieBrackets, ZigZag } from "./types.ts";
+import type { Cohomology, LieBracket, LieBrackets, ZigZag } from "./types";
 
 interface LocatedZigZag {
   m: number,

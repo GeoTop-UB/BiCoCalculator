@@ -1,9 +1,10 @@
-<script>
+<script lang="ts">
   import { math } from "mathlifier";
-  import { compute } from './compute';
-  import StickyButton from "./StickyButton.svelte";
-  import Modal from "./Modal.svelte";
-  import Button from "./Button.svelte";
+
+  import { compute } from "$lib/compute";
+  import StickyButton from "$lib/components/StickyButton.svelte";
+  import Modal from "$lib/components/Modal.svelte";
+  import Button from "$lib/components/Button.svelte";
 
   let { data = $bindable(), waiting = $bindable() } = $props();
 

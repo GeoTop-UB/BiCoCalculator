@@ -1,14 +1,13 @@
-// @ts-ignore
 import hash from "object-hash";
 
-import { Cohomology, ComputeBackend, LieBrackets, ZigZag } from "./types.ts";
-import { computeSageCell, computeSelfhosted } from "./backends.ts";
-import { computeTmpLieBracket, makeTmpNames, replaceNamesCohomology, replaceNamesZigZags, computeZigzags } from "./utils.ts";
+import type { Cohomology, ComputeBackend, LieBrackets, ZigZag } from "./types";
+import { computeSageCell, computeSelfhosted } from "./backends";
+import { computeTmpLieBracket, makeTmpNames, replaceNamesCohomology, replaceNamesZigZags, computeZigzags } from "./utils";
 
 // @ts-ignore
-import ktResult from "../../assets/precomputations/KT_Result.json?raw";
+import ktResult from "../precomputations/KT_Result.json?raw";
 // @ts-ignore
-import iwResult from "../../assets/precomputations/IW_Result.json?raw";
+import iwResult from "../precomputations/IW_Result.json?raw";
 
 interface NamedBackends {
     [backend: string]: ComputeBackend;

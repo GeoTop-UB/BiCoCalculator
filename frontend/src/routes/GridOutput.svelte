@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { math } from "mathlifier";
   import ZigzagOutput from "./ZigzagOutput.svelte";
 

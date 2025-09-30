@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { math } from "mathlifier";
 
   let { points, nopoints, tracks } = $props();

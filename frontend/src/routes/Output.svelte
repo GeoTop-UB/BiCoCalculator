@@ -1,7 +1,7 @@
-<script>
+<script lang="ts">
   import GridOutput from "./GridOutput.svelte";
-  import StickyButton from "./StickyButton.svelte";
-  import Loader from "./Loader.svelte";
+  import StickyButton from "$lib/components/StickyButton.svelte";
+  import Loader from "$lib/components/Loader.svelte";
 
   let { data, waiting } = $props();
 
@@ -11,7 +11,7 @@
   let active = $state(false);
 
   let disabled = $derived(data === undefined);
-  let n = $derived(data.n);
+  let n = $derived(data != undefined ? data.n : undefined);
   let datatab = $derived(data != undefined ? data[tab] : undefined);
 
   async function changeTab() {
