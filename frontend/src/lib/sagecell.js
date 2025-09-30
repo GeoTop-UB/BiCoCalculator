@@ -11,7 +11,7 @@ export default class SageCellClient {
         this.connected = false;
 
         this.config.onstatuschange = null;
-        // this.config.onconnect = null;
+        this.config.onconnect = {};
         this.config.onmessage = null;
         this.config.onerror = null;
         this.config.server = "https://sagecell.sagemath.org";
@@ -21,7 +21,7 @@ export default class SageCellClient {
 
         if (config.server) this.config.server = config.server;
         if (config.timeout) this.config.timeout = config.timeout;
-        // if (config.onconnect) this.config.onconnect = config.onconnect;
+        if (config.onconnect) this.config.onconnect[crypto.randomUUID()] = config.onconnect;
         if (config.onstatuschange) this.config.onstatuschange = config.onstatuschange;
         if (config.onmessage) this.config.onmessage = config.onmessage;
         if (config.onerror) this.config.onerror = config.onerror;
@@ -47,7 +47,7 @@ export default class SageCellClient {
             this.sock.onopen = () => {
                 this.connected = true;
                 this.sendStatusChangeEvent("connected");
-                // await this.sendConnectEvent();
+                this.sendConnectEvent();
             };
 
             this.sock.onmessage = (e) => {
@@ -94,22 +94,14 @@ export default class SageCellClient {
         });
     }
     
+    // TODO add timeout, if no connect before this hangs forever!
     waitForOpenConnection() {
-        // TODO change interval to use of events
-        // https://dev.to/ndrbrt/wait-for-the-websocket-connection-to-be-open-before-sending-a-message-1h12
         return new Promise((resolve, reject) => {
-            let currentAttempt = 0
-            const interval = setInterval(() => {
-                console.log(currentAttempt);
-                if (currentAttempt > this.config.maxNumberOfAttempts - 1) {
-                    clearInterval(interval)
-                    reject(new Error('Maximum number of attempts exceeded'))
-                } else if (this.connected) {
-                    clearInterval(interval)
-                    resolve()
-                }
-                currentAttempt++
-            }, this.config.intervalTime)
+            if (!this.connected) {
+                this.config.onconnect[crypto.randomUUID()] = resolve;
+            } else {
+                resolve();
+            }
         });
     }
 
@@ -127,28 +119,15 @@ export default class SageCellClient {
         this.connect();
     }
 
-    async sendCommand(id, command) {
-        if (!this.connected) {
-            try {
-                console.log("in");
-                await this.waitForOpenConnection();
-                console.log("finish wait");
-                const r = this._sendCommand(id, command);
-                console.log("finish send command");
-                return r;
-            } catch (err) { 
-                console.error(err);
-            }
-        } else {
-            const r = this._sendCommand(id, command);
-            return r;
-        }
-    }
-
     //Send formula to server
-    _sendCommand(id, command) {
-        console.log(command);
-        return this.send(id, "execute_request", this.getCodeContent(command));
+    async sendCommand(id, command) {
+        try {
+            await this.waitForOpenConnection();
+            console.log(command);
+            return this.send(id, "execute_request", this.getCodeContent(command));
+        } catch (err) { 
+            console.error(err);
+        }
     }
 
     //Send raw command. Return promise of the response
@@ -169,14 +148,11 @@ export default class SageCellClient {
 
             this.listners[id] = (status, data) => {
                 if (status == "done") {
-                    console.log("done send command");
                     resolve(data);
                 } else {
-                    console.log("not done send command");
                     reject(data);
                 }
             }
-            console.log("send command");
             this.sock.send(this.getMsgData(id, op, msg));
         });
     }
@@ -196,9 +172,11 @@ export default class SageCellClient {
     sendErrorEvent(from, err) {
         if (this.config.onerror) this.config.onerror(from, err);
     }
-    // async sendConnectEvent() {
-    //     if (this.config.onconnect) await this.config.onconnect();
-    // }
+    sendConnectEvent() {
+        for (const [_, listener] of Object.entries(this.config.onconnect)) { 
+            listener(); 
+        }
+    }
     sendStatusChangeEvent(status) {
         if (this.config.onstatuschange) this.config.onstatuschange(status);
     }
