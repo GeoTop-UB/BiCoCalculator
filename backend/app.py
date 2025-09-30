@@ -37,49 +37,32 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
 
-        def build(dim, lie_names, lie_bracket, acs_matrix, acs_names, normalization_coefficients=None):
+        def build(lie_names, lie_bracket, acs_matrix, acs_names, normalization_coefficients=None):
             bfield = QuadraticField(-1, 'I')
 
             lie_algebra = LieAlgebra(bfield, lie_names, lie_bracket)
-            acs = Matrix(bfield, dim, acs_matrix)
+            acs = Matrix(bfield, len(acs_names), acs_matrix)
 
             return BidifferentialBigradedCommutativeAlgebra.from_nilmanifold(lie_algebra, acs, acs_names, normalization_coefficients)
         
-        dim = input_data["dim"]
         lie_names = input_data["lie"]["names"]
         lie_bracket = {tuple(k.split(",")): v for  k, v in input_data["lie"]["bracket"].items()}
         acs_matrix = input_data["acs"]["matrix"]
         acs_names = input_data["acs"]["names"]
         normalization_coefficients= list(map(QQ, input_data["acs"].get("norm"))) if input_data["acs"].get("norm") else None
-        pprint(dim)
         pprint(lie_names)
         pprint(lie_bracket)
         pprint(acs_matrix)
         pprint(acs_names)
         pprint(normalization_coefficients)
 
-        # def replaceNames(s: str):
-        #     for i in range(dim):
-        #         s = s.replace(tmp_names[i], acs_names_final[i])
-            
-        #     s = s.replace("-", "\\textup{\\texttt{-}}")
-        #     s = s.replace("+", "\\textup{\\texttt{+}}")
-        #     s = s.replace("*", "")
-        #     return s
-
         def mapByBidegree(bbc : BigradedComplex, method: str):
             return {
                 str(bidegree): list(map(lambda a: str(a), getattr(bbc, method)(bidegree)))
                 for bidegree in bbc.bidegrees()
             }
-        
-        # def replaceNamesZigzags(a):
-        #     return {
-        #         str(bidegree): str(v)
-        #         for (bidegree, v) in a.items()
-        #     }
 
-        bbc = build(dim, lie_names, lie_bracket, acs_matrix, acs_names, normalization_coefficients)
+        bbc = build(lie_names, lie_bracket, acs_matrix, acs_names, normalization_coefficients)
         # bbc = BidifferentialBigradedCommutativeAlgebraExample.KodairaThurston()
         # bbc = BidifferentialBigradedCommutativeAlgebraExample.Iwasawa()
         output_data = {

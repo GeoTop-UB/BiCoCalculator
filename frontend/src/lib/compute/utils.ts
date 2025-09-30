@@ -1,11 +1,93 @@
-import SageCellClient from "./sagecell.js";
-import bico from '../assets/bico.py.sage?raw';
-import { makeTmpNames, computeTmpLieBracket, replaceNamesCohomology, replaceNamesZigZags } from "./compute2.js";
+import { Cohomology, LieBracket, LieBrackets, ZigZag } from "./types.ts";
 
-const apiUrl = "http://127.0.0.1:5001/";
+interface LocatedZigZag {
+  m: number,
+  n: number,
+  z: ZigZag
+}
 
-function zigzagout(z) {
-  var newz = {};
+interface ZigZagBasis {
+  value: string,
+  type: string,
+  del: string,
+  delbar: string,
+  order?: number,
+  zigzag?: LocatedZigZag
+}
+
+interface ZigZagsTracks {
+  [bidegree: string]: number;
+}
+
+interface ZigZagsBasis2 {
+  [bidegree: string]: ZigZagBasis;
+}
+
+interface ZigZagsBasis {
+  [bidegree: string]: ZigZagBasis[];
+}
+
+interface PostZigZag {
+  tracks: ZigZagsTracks,
+  basis: ZigZagsBasis
+};
+
+interface CC {
+  [bidegree: string]: number;
+}
+
+interface CCO {
+  [idConnectedComponent: number]: string[]
+}
+
+export function makeTmpNames(dim: number): string[] {
+  return [...Array(dim).keys()].map(i => `v${i}`);
+}
+
+export function computeTmpLieBracket(lieBracket: LieBrackets, tmpNames: string[]): LieBrackets {
+  return Object.keys(lieBracket).reduce(function(result: LieBrackets, key: string) {
+    const bd = key.substring(1, key.length - 1).split(",").map((b) => parseInt(b.trim()));
+    const newKey = `${tmpNames[bd[0] - 1]},${tmpNames[bd[1] - 1]}`; 
+    result[newKey] = Object.keys(lieBracket[key]).reduce(function(result2: LieBracket, key2: string) {
+      const newKey2 = tmpNames[parseInt(key2) - 1];
+      result2[newKey2] = lieBracket[key][key2];
+      return result2;
+    }, {});
+    return result;
+  }, {})
+}
+
+function replaceNames(tmpNames: string[], displayNames: string[], formula: string): string {
+  if (tmpNames.length != displayNames.length) {
+    throw new Error("Number of temporal and display names of variables does not match");
+  }
+
+  var newFormula = formula;
+  for (const i of [...Array(tmpNames.length).keys()]) {
+    newFormula = newFormula.replaceAll(tmpNames[i], displayNames[i]);
+  }
+  newFormula = newFormula.replaceAll("-", "\\textup{\\texttt{-}}");
+  newFormula = newFormula.replaceAll("+", "\\textup{\\texttt{+}}");
+  newFormula = newFormula.replaceAll("*", "");
+  return newFormula;
+}
+
+export function replaceNamesCohomology(tmpNames: string[], displayNames: string[], cohomology: Cohomology): Cohomology {
+  return Object.keys(cohomology).reduce(function(result: Cohomology, key: string) {
+    result[key] = cohomology[key].map(formula => replaceNames(tmpNames, displayNames, formula));
+    return result;
+  }, {});
+}
+
+export function replaceNamesZigZags(tmpNames: string[], displayNames: string[], zigzags: ZigZag[]): ZigZag[] {
+  return zigzags.map(zigzag => Object.keys(zigzag).reduce(function(result: ZigZag, key: string) {
+    result[key] = replaceNames(tmpNames, displayNames, zigzag[key]);
+    return result;
+  }, {}));
+}
+
+function zigzagout(z: ZigZag): LocatedZigZag {
+  var newz: ZigZag = {};
   var ns = [];
   var ms = [];
   for (const [bd, _] of Object.entries(z)) {
@@ -35,12 +117,12 @@ function zigzagout(z) {
   };
 }
 
-function computeZigzags(d) {
-  let t = {};
-  let nz = {};
+export function computeZigzags(d: ZigZag[]): PostZigZag {
+  let t: ZigZagsTracks = {};
+  let nz: ZigZagsBasis = {};
   let ccc = 0;
-  let cc = {};
-  let cco = {};
+  let cc: CC = {};
+  let cco: CCO = {};
 
   for (const z of d) {
     if (Object.keys(z).length == 1) {
@@ -59,8 +141,8 @@ function computeZigzags(d) {
         });
       }
     } else {
-      let tt = {};
-      let nzz = {};
+      let tt: ZigZagsTracks = {};
+      let nzz: ZigZagsBasis2 = {};
       for (const [bd, v] of Object.entries(z)) {
         const bdt = bd
           .substring(1, bd.length - 1)
@@ -71,9 +153,9 @@ function computeZigzags(d) {
           t[bd] = 0;
         }
         tt[bd] = t[bd] + 1;
-        if (!nzz[bd]) {
-          nzz[bd] = [];
-        }
+        // if (!nzz[bd]) {
+        //   nzz[bd] = [];
+        // }
 
         const delk = "(" + (bdt[0] + 1) + ", " + bdt[1] + ")";
         const delbark = "(" + bdt[0] + ", " + (bdt[1] + 1) + ")";
@@ -263,7 +345,7 @@ function computeZigzags(d) {
 
   for (const z of d) {
     if (Object.keys(z).length != 1) {
-      const ttt = Object.keys(z).map(function (key) {
+      const ttt = Object.keys(z).map(function (key: string) {
         return t[key];
       });
       const max = Math.max(...ttt);
@@ -274,7 +356,7 @@ function computeZigzags(d) {
   }
 
   for (const [_, ccp] of Object.entries(cco)) {
-    const ttt = ccp.map(function (key) {
+    const ttt = ccp.map(function (key: string) {
       return t[key];
     });
     const max = Math.max(...ttt);
@@ -285,123 +367,6 @@ function computeZigzags(d) {
 
   return {
     tracks: t,
-    zigzags: nz,
-  };
-}
-
-// // Make *any* div with class 'compute' a Sage cell
-// sagecell.makeSagecell({inputLocation: 'div.compute',
-//                         evalButtonText: 'Evaluate'})
-// ;
-// fetch("https://raw.githubusercontent.com/GeoTop-UB/BiCo/refs/heads/main/bigraded_complexes.py.sage")
-// .then(function(response) {
-//   response.text().then(function(text) {
-//     var client = new SageClient({
-//       onstatuschange: (status) => {
-//         console.log("status change", status);
-//         if (status == "connected") {
-//           const id = crypto.randomUUID().replaceAll("-", "");
-//           // client.sendCommand(id, "");
-//           client.sendCommand(id, text);
-//           client.sendCommand(id, "KT = BidifferentialBigradedCommutativeAlgebraExample.KodairaThurston()");
-//           client.sendCommand(id, "KT._ascii_art_aeppli_cohomology()");
-//         }
-//       },
-//       onmessage: (msg) => {
-//         console.log("msg", msg);
-//       },
-//       onerror: (from, err) => {
-//         console.log("err", from, err);
-//       },
-//       timeout: 30
-//     });
-//     client.connect();
-//   });
-// });
-
-var client = new SageCellClient({
-  // onstatuschange: (status) => {
-  //   console.log("status change", status);
-  // },
-  // onmessage: (msg) => {
-  //   console.log("msg", msg);
-  // },
-  // onerror: (from, err) => {
-  //   console.log("err", from, err);
-  // },
-  timeout: 30
-});
-
-async function computeSageCell(dim, tmpNames, tmpLieBracket, acsMatrix, acsNorm) {
-  if (!client.connected) {
-    client.connect();
-    // id = crypto.randomUUID().replaceAll("-", "");
-    // client.config.onconnect = async () => {
-    //   if (this.config.onconnect) await this.config.onconnect();
-    //   await client.sendCommand(id, bico);
-    // }
-    await client.sendCommand(null, bico);
-  }
-  const norm = acsNorm != undefined? JSON.stringify(acsNorm) : "None";
-  const computeCommand = `compute(${dim}, "${tmpNames.join(",")}", ${JSON.stringify(tmpLieBracket)}, ${JSON.stringify(acsMatrix)}, ${JSON.stringify(tmpNames)}, ${norm})`;
-  console.log(computeCommand);
-  const r = await client.sendCommand(null, computeCommand);
-  return JSON.parse(r.data.substring(1, r.data.length - 1))
-}
-
-async function computeBackend(dim, tmpNames, tmpLieBracket, acsMatrix, acsNorm) {
-  const response = await fetch(apiUrl, {
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    method: "POST",
-    body: JSON.stringify({
-      dim: dim,
-      lie: {
-        names: tmpNames.join(","),
-        bracket: tmpLieBracket,
-      },
-      acs: {
-        names: tmpNames,
-        matrix: acsMatrix,
-        ...(acsNorm != undefined && { norm: acsNorm }),
-      },
-    }),
-  });
-  return response.json();
-}
-
-export async function compute(dim, lieBracket, acsNames, acsMatrix, acsNorm) {
-  const tmpNames = makeTmpNames(dim);
-  const tmpLieBracket = computeTmpLieBracket(lieBracket, tmpNames);
-  console.log(dim);
-  console.log(lieBracket);
-  console.log(tmpLieBracket);
-  console.log(acsNames);
-  console.log(tmpNames);
-  console.log(acsMatrix);
-  console.log(acsNorm);
-  // const d = await computeSageCell(dim, tmpNames, tmpLieBracket, acsMatrix, acsNorm);
-  const d = await computeBackend(dim, tmpNames, tmpLieBracket, acsMatrix, acsNorm);
-  const { tracks, zigzags } = computeZigzags(replaceNamesZigZags(tmpNames, acsNames, d.zigzags));
-  return {
-    n: d.n,
-    m: d.m,
-    cohomology_aeppli: replaceNamesCohomology(tmpNames, acsNames, d.cohomology.aeppli),
-    cohomology_bottchern: replaceNamesCohomology(tmpNames, acsNames, d.cohomology.bottchern),
-    cohomology_delbar: replaceNamesCohomology(tmpNames, acsNames, d.cohomology.delbar),
-    cohomology_dell: replaceNamesCohomology(tmpNames, acsNames, d.cohomology.dell),
-    cohomology_reduced_aeppli: replaceNamesCohomology(tmpNames, acsNames, d.cohomology.reduced_aeppli),
-    cohomology_reduced_bottchern: replaceNamesCohomology(tmpNames, acsNames, d.cohomology.reduced_bottchern),
-    zigzags: {
-      basis: zigzags,
-      tracks: tracks,
-    },
-    // "squares": d.squares
-    squares: {
-      basis: {},
-      tracks: {},
-    },
+    basis: nz,
   };
 }

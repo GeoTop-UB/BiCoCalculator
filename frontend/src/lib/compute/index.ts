@@ -1,0 +1,101 @@
+// @ts-ignore
+import hash from "object-hash";
+
+import { Cohomology, ComputeBackend, LieBrackets, ZigZag } from "./types.ts";
+import { computeSageCell, computeSelfhosted } from "./backends.ts";
+import { computeTmpLieBracket, makeTmpNames, replaceNamesCohomology, replaceNamesZigZags, computeZigzags } from "./utils.ts";
+
+// @ts-ignore
+import ktResult from "../../assets/precomputations/KT_Result.json?raw";
+// @ts-ignore
+import iwResult from "../../assets/precomputations/IW_Result.json?raw";
+
+interface NamedBackends {
+    [backend: string]: ComputeBackend;
+}
+const computeBackends: NamedBackends = {
+    selfHosted: computeSelfhosted,
+    sageCell: computeSageCell,
+}
+
+interface PrecomputedExamples {
+    [hash: string]: string;
+}
+const precomputedExamples: PrecomputedExamples = {
+    "f98765fc914692d6fd1b4062b72ecce95fedec43": ktResult, // Kodaira-Thurston
+    "52be107def827888912cd0de7b3e80df05471a5f": iwResult, // Iwasawa
+}
+
+interface ComputationResult {
+    n: number;
+    m: number;
+    cohomology: {
+        dell: Cohomology;
+        delbar: Cohomology;
+        bottchern: Cohomology;
+        aeppli: Cohomology;
+        reduced_aeppli: Cohomology;
+        reduced_bottchern: Cohomology;
+    }
+    zigzags: ZigZag[];
+    squares: ZigZag[];
+}
+
+async function computeCanonical(varNames: string[], lieBracket: LieBrackets, acsMatrix: number[][], acsNorm?: number[]): Promise<ComputationResult> {
+    // const backend: string = "selfHosted";
+    const backend: string = "sageCell";
+    if (!Object.keys(computeBackends).includes(backend)) {
+        throw new Error(`Invalid compute backend: ${backend} is not one of the available backends ${JSON.stringify(Object.keys(computeBackends))}`);
+    }
+
+    const inputHash: string = hash({
+        varNames: varNames,
+        lieBracket: lieBracket,
+        acsMatrix: acsMatrix,
+        ...(acsNorm != undefined && { acsNorm: acsNorm })
+    });
+    var result: string | null = window.localStorage.getItem(inputHash);
+    if (result == null) {
+        if (inputHash in precomputedExamples) {
+            console.log("Precomputed at the server...")
+            result = precomputedExamples[inputHash];
+        } else {
+            console.log("Computed in backend...")
+            result = await computeBackends[backend](varNames, lieBracket, acsMatrix, acsNorm);
+        }
+        window.localStorage.setItem(inputHash, result);
+    } else {
+        console.log("Cached in local storage")
+    }
+
+    return JSON.parse(result);
+}
+
+export async function compute(dim: number, lieBracket: LieBrackets, acsNames: string[], acsMatrix: number[][], acsNorm?: number[]) {
+    const tmpNames = makeTmpNames(dim);
+    const tmpLieBracket = computeTmpLieBracket(lieBracket, tmpNames);
+    console.log(dim);
+    console.log(lieBracket);
+    console.log(tmpLieBracket);
+    console.log(acsNames);
+    console.log(tmpNames);
+    console.log(acsMatrix);
+    console.log(acsNorm);
+    const d = await computeCanonical(tmpNames, tmpLieBracket, acsMatrix, acsNorm);
+    return {
+        n: d.n,
+        m: d.m,
+        cohomology_aeppli: replaceNamesCohomology(tmpNames, acsNames, d.cohomology.aeppli),
+        cohomology_bottchern: replaceNamesCohomology(tmpNames, acsNames, d.cohomology.bottchern),
+        cohomology_delbar: replaceNamesCohomology(tmpNames, acsNames, d.cohomology.delbar),
+        cohomology_dell: replaceNamesCohomology(tmpNames, acsNames, d.cohomology.dell),
+        cohomology_reduced_aeppli: replaceNamesCohomology(tmpNames, acsNames, d.cohomology.reduced_aeppli),
+        cohomology_reduced_bottchern: replaceNamesCohomology(tmpNames, acsNames, d.cohomology.reduced_bottchern),
+        zigzags: computeZigzags(replaceNamesZigZags(tmpNames, acsNames, d.zigzags)),
+        // "squares": d.squares
+        squares: {
+            basis: {},
+            tracks: {},
+        },
+    };
+}

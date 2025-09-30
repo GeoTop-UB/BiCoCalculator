@@ -1,7 +1,6 @@
 <script>
   import { math } from "mathlifier";
-  import KT from "../assets/KT.json";
-  import { compute } from './compute.js';
+  import { compute } from './compute';
   import StickyButton from "./StickyButton.svelte";
   import Modal from "./Modal.svelte";
   import Button from "./Button.svelte";
