@@ -75,7 +75,7 @@
     /* max-width: 100%; */
     /* width: max-content; */
     /* height: max-content; */
-    aspect-ratio: 1 / 1;
+    /* aspect-ratio: 1 / 1; */
   }
 
   .xidx,

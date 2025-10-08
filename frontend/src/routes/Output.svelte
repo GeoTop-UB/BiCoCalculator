@@ -113,7 +113,7 @@
     </div>
 
     <div id="decomposition">
-      <h2>Decomposition</h2>
+      <h2>Other invariants</h2>
 
       <ul>
         <StickyButton
@@ -139,24 +139,31 @@
     flex-direction: row;
     align-items: center;
     width: 70%;
-    margin: 1.8rem;
+    /* margin: 1.8rem; */
+    height: 100%;
   }
 
   #table-container-parent {
     flex-grow: 1;
-    position: relative;
-    margin: 1rem;
+    /* position: relative; */
+    /* margin: 1rem; */
+    height: 100%;
+    overflow: auto;
+    scrollbar-gutter: stable;
+    align-content: center;
   }
 
   #table-container {
     width: 100%;
-    height: 100%;
+    /* height: 100%; */
     /* max-width: 72.59%; */
     display: flex;
     flex-direction: row;
     justify-content: center;
-    overflow: auto;
-    scrollbar-gutter: stable;
+    /* overflow: auto;
+    scrollbar-gutter: stable; */
+    position: relative;
+    overflow: hidden;
   }
 
   nav > div {

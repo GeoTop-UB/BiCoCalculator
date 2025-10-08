@@ -291,7 +291,8 @@
   section {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    /* justify-content: space-between; */
+    justify-content: space-around;
     width: 30%;
     min-width: 30%;
     box-shadow:
@@ -299,7 +300,10 @@
       3px 0 5px 0 rgba(0, 0, 0, 0.12),
       3px 0 2px 0 rgba(0, 0, 0, 0.14);
     padding: 1rem 1.5rem;
-    gap: 0.8rem;
+    gap: 0.8rem;min-height: 100%;
+    overflow: auto;
+    scrollbar-gutter: stable;
+    max-height: fit-content;
   }
 
   #intro p {

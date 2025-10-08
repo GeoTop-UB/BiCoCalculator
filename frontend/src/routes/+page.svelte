@@ -53,6 +53,7 @@
   main {
     flex: 1 1 auto;
     display: flex;
+    height: calc(100vh - 2rem - 1.5 * 2rem);
   }
 
   .content {
@@ -74,6 +75,10 @@
     font-style: normal;
     letter-spacing: 3px;
     color: var(--color-accent-stronger);
+    margin: 0;
+    margin: 1rem 0;
+    font-size: 2rem;
+    line-height: 1.5;
   }
 
   header img {
