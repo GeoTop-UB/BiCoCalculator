@@ -4,6 +4,13 @@ pnpm-lock.yaml
 yarn.lock
 bun.lock
 bun.lockb
+.prettierrc
+eslint.config.js
+package.json
+svelte.config.js
+tsconfig.json
+vite.config.ts
 
 # Miscellaneous
 /static/
+/src/lib/precomputations/
