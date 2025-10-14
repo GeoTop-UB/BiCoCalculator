@@ -1,14 +1,17 @@
 <script lang="ts">
-  let { label, onClick, disabled = false, slim = false } = $props();
+  let { label, onClick, active = $bindable(false), disabled = false, slim = false } = $props();
 
   function wrappedOnClick() {
-    if (!disabled) {
+    if (!disabled && !active) {
       onClick();
+      // if (sticky) {
+      //   active = true;
+      // }
     }
   }
 </script>
 
-<button class={[{ disabled }, { slim }]} onclick={wrappedOnClick}>
+<button class={[{ active }, { disabled }, { slim }]} onclick={wrappedOnClick}>
   {label}
 </button>
 
@@ -26,6 +29,17 @@
     border: 1px solid transparent;
     background-color: var(--color-accent-strong);
     color: var(--color-accent-strong-font);
+  }
+
+  .active {
+    border: 1px solid transparent;
+    background-color: var(--color-accent-strong);
+    color: var(--color-accent-strong-font);
+  }
+
+  .active:hover {
+    border: 1px solid transparent;
+    background-color: var(--color-accent-strong);
   }
 
   .disabled {

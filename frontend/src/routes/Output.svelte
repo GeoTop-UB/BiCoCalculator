@@ -1,6 +1,6 @@
 <script lang="ts">
   import GridOutput from "./GridOutput.svelte";
-  import StickyButton from "$lib/components/StickyButton.svelte";
+  import Button from "$lib/components/Button.svelte";
   import Loader from "$lib/components/Loader.svelte";
 
   let { data, waiting } = $props();
@@ -172,27 +172,18 @@
         {/each}
       </select>
     {:else}
-      {#each outputCategories.entries() as [i, category]}
+      {#each outputCategories as category}
         <details {...openMenuAttr}>
           <summary>{category.label}</summary>
 
           <ul>
-            {#each category.outputs.entries() as [j, output]}
-              {#if i === 0 && j === 0 }
-                <StickyButton
-                  label={output.label}
-                  onClick={() => changeTab(output.id)}
-                  bind:active={outputActive[outputsIndex[output.id].index]}
-                  {disabled}
-                />
-              {:else}
-                <StickyButton
-                  label={output.label}
-                  onClick={() => changeTab(output.id)}
-                  bind:active={outputActive[outputsIndex[output.id].index]}
-                  {disabled}
-                />
-              {/if}
+            {#each category.outputs as output}
+              <Button
+                label={output.label}
+                onClick={() => changeTab(output.id)}
+                bind:active={outputActive[outputsIndex[output.id].index]}
+                {disabled}
+              />
             {/each}
           </ul>
         </details>
