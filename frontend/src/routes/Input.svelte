@@ -63,6 +63,9 @@
   let showModal = $state(false);
   let modalLie = $state();
   let computeDisabled = $state(false);
+	let innerWidth = $state(0);
+
+  let isMobile = $derived(innerWidth < 768);
 
   let saveDisabled = $derived.by(() => {
     if (modalLie != undefined) {
@@ -132,6 +135,11 @@
     waiting = false;
   }
 
+  async function editMobile() {
+    data = undefined;
+    computeDisabled = false;
+  }
+
   async function lieClick() {
     // TODO format more comptly lie bracket
     let tmp = JSON.stringify(
@@ -198,7 +206,9 @@
   }
 </script>
 
-<section>
+<svelte:window bind:innerWidth={innerWidth} />
+
+<section class="{data != undefined ? 'loaded' : ''}">
   <div id="intro">
     <p>
       <strong>bbCalculator</strong> is aimed at computing invariants of bigraded
@@ -223,7 +233,11 @@
     </div>
   </div>
   <div id="input">
-    <h2>Complex nilmanifold:</h2>
+    {#if isMobile && data != undefined}
+      <Button label="Complex nilmanifold: ✏️" onClick={editMobile} slim={true} />
+    {:else}
+      <h2>Complex nilmanifold:</h2>
+    {/if}
     <div class="visual">
       <div class="visualheader">
         <div><h5>Real Lie algebra</h5></div>
@@ -300,10 +314,52 @@
       3px 0 5px 0 rgba(0, 0, 0, 0.12),
       3px 0 2px 0 rgba(0, 0, 0, 0.14);
     padding: 1rem 1.5rem;
-    gap: 0.8rem;min-height: 100%;
+    gap: 0.8rem;
+    min-height: 100%;
     overflow: auto;
     scrollbar-gutter: stable;
     max-height: fit-content;
+  }
+
+  @media screen and (max-width: 768px) {
+    section {
+      width: 100%;
+      z-index: 10;
+      /* position: absolute; */
+      /* top: 0; */
+      /* bottom: 0; */
+      /* transition: height .5s; */
+      /* transition: flex-grow 0.15s ease-out; */
+      transition: flex-grow 1s;
+      /* transition: flex-grow 1s ease-out; */
+      flex-grow: 1;
+      background: white;
+      /* height: 100%; */
+      min-height: initial;
+      /* transition: top 0.5s; */
+    }
+
+    section.loaded {
+      height: fit-content;
+      max-height: 40%;
+      flex-grow: 0;
+    }
+
+    section.loaded > #intro {
+      display: none;
+    }
+
+    section.loaded > #examples {
+      display: none;
+    }
+
+    section.loaded > :global(*):last-child {
+      display: none;
+    }
+
+    section.loaded .visualheader > :global(button) {
+      display: none;
+    }
   }
 
   #intro p {

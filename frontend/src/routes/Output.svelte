@@ -5,53 +5,143 @@
 
   let { data, waiting } = $props();
 
-  let tab = $state();
-  let type = $state();
+  interface Output {
+    id: string
+    label: string
+    type: string
+  }
+  interface ExtOutput extends Output {
+    category: number
+  }
+  interface Category {
+    label: string
+    outputs: Output[]
+  }
+  interface OutputsIndex {
+    [id: string]: ExtOutput;
+  }
+
+  let outputCategories: Category[] = [
+    {
+      label: "Cohomologies",
+      outputs: [
+        {
+          id: "cohomology_aeppli",
+          label: "Aeppli",
+          type: "cohomology"
+        },
+        {
+          id: "cohomology_bottchern",
+          label: "Bott-Chern",
+          type: "cohomology"
+        },
+        {
+          id: "cohomology_delbar",
+          label: "Delbar",
+          type: "cohomology"
+        },
+        {
+          id: "cohomology_dell",
+          label: "Del",
+          type: "cohomology"
+        },
+        {
+          id: "cohomology_reduced_aeppli",
+          label: "Reduced Aeppli",
+          type: "cohomology"
+        },
+        {
+          id: "cohomology_reduced_bottchern",
+          label: "Reduced Bott-Chern",
+          type: "cohomology"
+        }
+      ]
+    },
+    {
+      label: "Other invariants",
+      outputs: [
+        {
+          id: "zigzags",
+          label: "Zigzags",
+          type: "zigzags"
+        },
+        {
+          id: "squares",
+          label: "Squares",
+          type: "squares"
+        }
+      ]
+    }
+  ];
+  function extendOutput(output: Output, categoryIdx: number): ExtOutput {
+    return {
+      category: categoryIdx,
+      ...output
+    };
+  }
+  const listOutputs = outputCategories[0].outputs.map(extendOutput, 0).concat(outputCategories[1].outputs.map(extendOutput, 1));
+  const outputsIndex = listOutputs.reduce(function(result: OutputsIndex, output: ExtOutput) {
+    result[output.id] = output;
+    return result;
+  }, {});
+  const defaultOutput: Output = outputCategories[0].outputs[0];
+
+  let tab: string = $state(defaultOutput.id);
+  // let type: string = $state(defaultOutput.type);
+  let categorySelected: number = $state(0);
   let firstActive = $state(false);
   let active = $state(false);
+	let innerWidth = $state(0);
 
+  let isMobile = $derived(innerWidth < 768);
+	let openMenuAttr = $derived({
+    ...(!isMobile && { open: true })
+  });
   let disabled = $derived(data === undefined);
   let n = $derived(data != undefined ? data.n : undefined);
   let datatab = $derived(data != undefined ? data[tab] : undefined);
+  let type: string = $derived(outputsIndex[tab].type)
 
-  async function changeTab() {
+  async function onChangeTab() {
     active = true;
     firstActive = true;
     active = false;
     firstActive = false;
   }
 
-  async function changeTabCohomology(id) {
-    tab = id;
-    type = "cohomology";
-    changeTab();
+  async function changeTabSelect() {
+    console.log("tab selected")
+    // type = outputSelected.type;
+    onChangeTab();
   }
 
-  async function changeTabOthers(id) {
+  async function changeTab(id: string, newtype: string) {
     tab = id;
-    type = id;
-    changeTab();
+    // categorySelected = outputsIndex[id].category;
+    // if (outputsIndex[id].category != categorySelected) {
+    //   categorySelected = outputsIndex[id].category;
+    // }
+    // type = newtype;
+    onChangeTab();
   }
 
   $effect(() => {
+    tab = defaultOutput.id;
+    // type = defaultOutput.type;
+    active = true;
+    active = false;
     if (data === undefined) {
-      tab = undefined;
-      type = undefined;
-      active = true;
-      active = false;
       firstActive = true;
       firstActive = false;
     } else {
-      tab = "cohomology_aeppli";
-      type = "cohomology";
-      active = true;
-      active = false;
       firstActive = true;
     }
   });
 </script>
 
-<section>
+<svelte:window bind:innerWidth={innerWidth} />
+
+<section class="{data != undefined ? 'loaded' : ''}">
   <div id="table-container-parent">
     <div id="table-container">
       {#if datatab === undefined}
@@ -69,67 +159,54 @@
   </div>
 
   <nav>
-    <div>
-      <h2>Cohomologies</h2>
+     {#if isMobile }
+      <select
+        bind:value={categorySelected}
+        onchange={() => (tab = outputCategories[categorySelected].outputs[0].id)}
+      >
+        {#each outputCategories.entries() as [i, category]}
+          <option value={i}>
+            {category.label}
+          </option>
+        {/each}
+      </select>
+      <select
+        bind:value={tab}
+        onchange={changeTabSelect}
+      >
+        {#each outputCategories[categorySelected].outputs as output}
+          <option value={output.id}>
+            {output.label}
+          </option>
+        {/each}
+      </select>
+    {:else}
+      {#each outputCategories.entries() as [i, category]}
+        <details {...openMenuAttr}>
+          <summary>{category.label}</summary>
 
-      <ul>
-        <StickyButton
-          label="Aeppli"
-          onClick={() => changeTabCohomology("cohomology_aeppli")}
-          active={firstActive}
-          {disabled}
-        />
-        <StickyButton
-          label="Bott-Chern"
-          onClick={() => changeTabCohomology("cohomology_bottchern")}
-          {active}
-          {disabled}
-        />
-        <StickyButton
-          label="Delbar"
-          onClick={() => changeTabCohomology("cohomology_delbar")}
-          {active}
-          {disabled}
-        />
-        <StickyButton
-          label="Del"
-          onClick={() => changeTabCohomology("cohomology_dell")}
-          {active}
-          {disabled}
-        />
-        <StickyButton
-          label="Reduced Aeppli"
-          onClick={() => changeTabCohomology("cohomology_reduced_aeppli")}
-          {active}
-          {disabled}
-        />
-        <StickyButton
-          label="Reduced Bott-Chern"
-          onClick={() => changeTabCohomology("cohomology_reduced_bottchern")}
-          {active}
-          {disabled}
-        />
-      </ul>
-    </div>
-
-    <div id="decomposition">
-      <h2>Other invariants</h2>
-
-      <ul>
-        <StickyButton
-          label="Zigzags"
-          onClick={() => changeTabOthers("zigzags")}
-          {active}
-          {disabled}
-        />
-        <StickyButton
-          label="Squares"
-          onClick={() => changeTabOthers("squares")}
-          {active}
-          {disabled}
-        />
-      </ul>
-    </div>
+          <ul>
+            {#each category.outputs.entries() as [j, output]}
+              {#if i === 0 && j === 0 }
+                <StickyButton
+                  label={output.label}
+                  onClick={() => changeTab(output.id, output.type)}
+                  active={firstActive}
+                  {disabled}
+                />
+              {:else}
+                <StickyButton
+                  label={output.label}
+                  onClick={() => changeTab(output.id, output.type)}
+                  {active}
+                  {disabled}
+                />
+              {/if}
+            {/each}
+          </ul>
+        </details>
+      {/each}
+    {/if}
   </nav>
 </section>
 
@@ -141,6 +218,39 @@
     width: 70%;
     /* margin: 1.8rem; */
     height: 100%;
+  }
+
+  @media screen and (max-width: 768px) {
+    section {
+      width: 100%;
+      z-index: 1;
+      /* position: absolute;
+      top: 0;
+      bottom: 40%; */
+      flex-grow: 0;
+      max-height: 0;
+    }
+
+    section.loaded {
+      flex-direction: column-reverse;
+      height: initial;
+      flex-grow: 1;
+      max-height: initial;
+    }
+
+    section.loaded #table-container-parent {
+      flex-grow: initial;
+      height: initial;
+      width: 100%;
+    }
+
+    section.loaded #table-container {
+      width: fit-content;
+    }
+    
+    /* section.loaded nav {
+      display: none;
+    } */
   }
 
   #table-container-parent {
@@ -166,44 +276,77 @@
     overflow: hidden;
   }
 
-  nav > div {
-    display: flex;
-    flex-direction: column;
-    box-shadow:
-      0 0 4px 0 rgba(0, 0, 0, 0.14),
-      0 0 8px 0 rgba(0, 0, 0, 0.12),
-      0 0 3px -2px rgba(0, 0, 0, 0.2);
+  @media screen and (min-width: 768px) {
+    nav > :last-child {
+      margin-top: 2rem;
+    }
+    
+    nav > details {
+      display: flex;
+      flex-direction: column;
+      box-shadow:
+        0 0 4px 0 rgba(0, 0, 0, 0.14),
+        0 0 8px 0 rgba(0, 0, 0, 0.12),
+        0 0 3px -2px rgba(0, 0, 0, 0.2);
+    }
+
+    summary::marker {
+      content: "";
+    }
+
+    nav summary {
+      font-size: medium;
+      font-weight: bold;
+      text-align: center;
+      pointer-events: none; /* prevents click events */
+      user-select: none; /* prevents text selection */
+    }
+
+    nav ul {
+      list-style: none;
+      padding: 0;
+      width: max-content;
+      display: flex;
+      flex-direction: column;
+      margin: 8px;
+      margin-top: 0;
+    }
+
+    nav > :last-child > ul {
+      width: auto;
+    }
+
+    ul > :global(*) {
+      width: 100%;
+    }
+
+    ul > :global(*):not(:last-child) {
+      margin-bottom: 3px;
+    }
   }
 
-  nav h2 {
-    font-size: medium;
-    font-weight: bold;
-    text-align: center;
-  }
+  @media screen and (max-width: 768px) {
+    nav > :last-child {
+      margin-left: 2rem;
+    }
 
-  nav ul {
-    list-style: none;
-    padding: 0;
-    width: max-content;
-    display: flex;
-    flex-direction: column;
-    margin: 8px;
-    margin-top: 0;
-  }
+    nav {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      padding: 0.5rem 1rem;
+    }
+    
+    section nav {
+      display: none;
+    }
+    
+    section.loaded nav {
+      display: flex;
+    }
 
-  #decomposition {
-    margin-top: 2rem;
-  }
-
-  #decomposition ul {
-    width: auto;
-  }
-
-  ul > :global(*) {
-    width: 100%;
-  }
-
-  ul > :global(*):not(:last-child) {
-    margin-bottom: 3px;
+    nav select {
+      width: 10rem;
+    }
   }
 </style>
