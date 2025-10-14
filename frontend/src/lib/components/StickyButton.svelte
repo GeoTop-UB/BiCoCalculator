@@ -1,5 +1,5 @@
 <script>
-  let { label, onClick, active, disabled = false } = $props();
+  let { label, onClick, active = $bindable(), disabled = false } = $props();
 
   function wrappedOnClick() {
     if (!disabled && !active) {

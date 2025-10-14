@@ -12,6 +12,7 @@
   }
   interface ExtOutput extends Output {
     category: number
+    index: number
   }
   interface Category {
     label: string
@@ -73,24 +74,28 @@
       ]
     }
   ];
-  function extendOutput(output: Output, categoryIdx: number): ExtOutput {
-    return {
-      category: categoryIdx,
-      ...output
-    };
-  }
-  const listOutputs = outputCategories[0].outputs.map(extendOutput, 0).concat(outputCategories[1].outputs.map(extendOutput, 1));
-  const outputsIndex = listOutputs.reduce(function(result: OutputsIndex, output: ExtOutput) {
+  const listOutputs: ExtOutput[] = outputCategories.map((cat, idx) => {
+      return cat.outputs.map((out) => {
+        return {
+          category: idx,
+          ...out
+        }
+      });
+    }).reduce((result, outsCat) => result.concat(outsCat), []).map((out, idx) => {
+      return {
+        index: idx, 
+        ...out
+      }
+    })
+  const outputsIndex = listOutputs.reduce((result: OutputsIndex, output: ExtOutput) => {
     result[output.id] = output;
     return result;
   }, {});
-  const defaultOutput: Output = outputCategories[0].outputs[0];
+  const defaultOutput: string = outputCategories[0].outputs[0].id;
 
-  let tab: string = $state(defaultOutput.id);
-  // let type: string = $state(defaultOutput.type);
+  let tab: string = $state(defaultOutput);
   let categorySelected: number = $state(0);
-  let firstActive = $state(false);
-  let active = $state(false);
+  let outputActive: boolean[] = $state([true, ...Array(listOutputs.length - 1).fill(false)]);
 	let innerWidth = $state(0);
 
   let isMobile = $derived(innerWidth < 768);
@@ -100,41 +105,27 @@
   let disabled = $derived(data === undefined);
   let n = $derived(data != undefined ? data.n : undefined);
   let datatab = $derived(data != undefined ? data[tab] : undefined);
-  let type: string = $derived(outputsIndex[tab].type)
+  let type: string = $derived(outputsIndex[tab].type);
 
   async function onChangeTab() {
-    active = true;
-    firstActive = true;
-    active = false;
-    firstActive = false;
+    const i = outputsIndex[tab].index
+    outputActive = [
+      ...Array(i).fill(false),
+      true,
+      ...Array(listOutputs.length - i - 1).fill(false)
+    ];
   }
 
-  async function changeTabSelect() {
-    console.log("tab selected")
-    // type = outputSelected.type;
-    onChangeTab();
-  }
-
-  async function changeTab(id: string, newtype: string) {
+  async function changeTab(id: string) {
     tab = id;
-    // categorySelected = outputsIndex[id].category;
-    // if (outputsIndex[id].category != categorySelected) {
-    //   categorySelected = outputsIndex[id].category;
-    // }
-    // type = newtype;
+    categorySelected = outputsIndex[id].category;
     onChangeTab();
   }
 
   $effect(() => {
-    tab = defaultOutput.id;
-    // type = defaultOutput.type;
-    active = true;
-    active = false;
     if (data === undefined) {
-      firstActive = true;
-      firstActive = false;
-    } else {
-      firstActive = true;
+      tab = defaultOutput;
+      outputActive = [true, ...Array(listOutputs.length - 1).fill(false)];
     }
   });
 </script>
@@ -162,7 +153,7 @@
      {#if isMobile }
       <select
         bind:value={categorySelected}
-        onchange={() => (tab = outputCategories[categorySelected].outputs[0].id)}
+        onchange={() => changeTab(outputCategories[categorySelected].outputs[0].id)}
       >
         {#each outputCategories.entries() as [i, category]}
           <option value={i}>
@@ -172,7 +163,7 @@
       </select>
       <select
         bind:value={tab}
-        onchange={changeTabSelect}
+        onchange={onChangeTab}
       >
         {#each outputCategories[categorySelected].outputs as output}
           <option value={output.id}>
@@ -190,15 +181,15 @@
               {#if i === 0 && j === 0 }
                 <StickyButton
                   label={output.label}
-                  onClick={() => changeTab(output.id, output.type)}
-                  active={firstActive}
+                  onClick={() => changeTab(output.id)}
+                  bind:active={outputActive[outputsIndex[output.id].index]}
                   {disabled}
                 />
               {:else}
                 <StickyButton
                   label={output.label}
-                  onClick={() => changeTab(output.id, output.type)}
-                  {active}
+                  onClick={() => changeTab(output.id)}
+                  bind:active={outputActive[outputsIndex[output.id].index]}
                   {disabled}
                 />
               {/if}
