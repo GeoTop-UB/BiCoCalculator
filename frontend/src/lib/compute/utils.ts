@@ -1,18 +1,18 @@
 import type { Cohomology, LieBracket, LieBrackets, ZigZag } from "./types";
 
 interface LocatedZigZag {
-  m: number,
-  n: number,
-  z: ZigZag
+  m: number;
+  n: number;
+  z: ZigZag;
 }
 
 interface ZigZagBasis {
-  value: string,
-  type: string,
-  del: string,
-  delbar: string,
-  order?: number,
-  zigzag?: LocatedZigZag
+  value: string;
+  type: string;
+  del: string;
+  delbar: string;
+  order?: number;
+  zigzag?: LocatedZigZag;
 }
 
 interface ZigZagsTracks {
@@ -28,33 +28,39 @@ interface ZigZagsBasis {
 }
 
 interface PostZigZag {
-  tracks: ZigZagsTracks,
-  basis: ZigZagsBasis
-};
+  tracks: ZigZagsTracks;
+  basis: ZigZagsBasis;
+}
 
 interface CC {
   [bidegree: string]: number;
 }
 
 interface CCO {
-  [idConnectedComponent: number]: string[]
+  [idConnectedComponent: number]: string[];
 }
 
 export function makeTmpNames(dim: number): string[] {
-  return [...Array(dim).keys()].map(i => `v${i}`);
+  return [...Array(dim).keys()].map((i) => `v${i}`);
 }
 
 export function computeTmpLieBracket(lieBracket: LieBrackets, tmpNames: string[]): LieBrackets {
-  return Object.keys(lieBracket).reduce(function(result: LieBrackets, key: string) {
-    const bd = key.substring(1, key.length - 1).split(",").map((b) => parseInt(b.trim()));
-    const newKey = `${tmpNames[bd[0] - 1]},${tmpNames[bd[1] - 1]}`; 
-    result[newKey] = Object.keys(lieBracket[key]).reduce(function(result2: LieBracket, key2: string) {
+  return Object.keys(lieBracket).reduce(function (result: LieBrackets, key: string) {
+    const bd = key
+      .substring(1, key.length - 1)
+      .split(",")
+      .map((b) => parseInt(b.trim()));
+    const newKey = `${tmpNames[bd[0] - 1]},${tmpNames[bd[1] - 1]}`;
+    result[newKey] = Object.keys(lieBracket[key]).reduce(function (
+      result2: LieBracket,
+      key2: string
+    ) {
       const newKey2 = tmpNames[parseInt(key2) - 1];
       result2[newKey2] = lieBracket[key][key2];
       return result2;
     }, {});
     return result;
-  }, {})
+  }, {});
 }
 
 function replaceNames(tmpNames: string[], displayNames: string[], formula: string): string {
@@ -72,18 +78,28 @@ function replaceNames(tmpNames: string[], displayNames: string[], formula: strin
   return newFormula;
 }
 
-export function replaceNamesCohomology(tmpNames: string[], displayNames: string[], cohomology: Cohomology): Cohomology {
-  return Object.keys(cohomology).reduce(function(result: Cohomology, key: string) {
-    result[key] = cohomology[key].map(formula => replaceNames(tmpNames, displayNames, formula));
+export function replaceNamesCohomology(
+  tmpNames: string[],
+  displayNames: string[],
+  cohomology: Cohomology
+): Cohomology {
+  return Object.keys(cohomology).reduce(function (result: Cohomology, key: string) {
+    result[key] = cohomology[key].map((formula) => replaceNames(tmpNames, displayNames, formula));
     return result;
   }, {});
 }
 
-export function replaceNamesZigZags(tmpNames: string[], displayNames: string[], zigzags: ZigZag[]): ZigZag[] {
-  return zigzags.map(zigzag => Object.keys(zigzag).reduce(function(result: ZigZag, key: string) {
-    result[key] = replaceNames(tmpNames, displayNames, zigzag[key]);
-    return result;
-  }, {}));
+export function replaceNamesZigZags(
+  tmpNames: string[],
+  displayNames: string[],
+  zigzags: ZigZag[]
+): ZigZag[] {
+  return zigzags.map((zigzag) =>
+    Object.keys(zigzag).reduce(function (result: ZigZag, key: string) {
+      result[key] = replaceNames(tmpNames, displayNames, zigzag[key]);
+      return result;
+    }, {})
+  );
 }
 
 function zigzagout(z: ZigZag): LocatedZigZag {
@@ -113,7 +129,7 @@ function zigzagout(z: ZigZag): LocatedZigZag {
   return {
     n: nsmax - nsmin + 1,
     m: msmax - msmin + 1,
-    z: newz,
+    z: newz
   };
 }
 
@@ -137,7 +153,7 @@ export function computeZigzags(d: ZigZag[]): PostZigZag {
           value: v,
           del: "0",
           delbar: "0",
-          type: "point",
+          type: "point"
         });
       }
     } else {
@@ -160,11 +176,7 @@ export function computeZigzags(d: ZigZag[]): PostZigZag {
         const delk = "(" + (bdt[0] + 1) + ", " + bdt[1] + ")";
         const delbark = "(" + bdt[0] + ", " + (bdt[1] + 1) + ")";
         if (delk in z && delbark in z) {
-          if (
-            cc[bd] === undefined &&
-            cc[delk] === undefined &&
-            cc[delbark] === undefined
-          ) {
+          if (cc[bd] === undefined && cc[delk] === undefined && cc[delbark] === undefined) {
             cc[bd] = ccc;
             cc[delk] = ccc;
             cc[delbark] = ccc;
@@ -206,11 +218,7 @@ export function computeZigzags(d: ZigZag[]): PostZigZag {
             }
             delete cco[cc[delk]];
             delete cco[cc[delbark]];
-          } else if (
-            cc[bd] != undefined &&
-            cc[delk] != undefined &&
-            cc[bd] != cc[delk]
-          ) {
+          } else if (cc[bd] != undefined && cc[delk] != undefined && cc[bd] != cc[delk]) {
             cco[cc[bd]].concat(cco[cc[delk]]);
             for (const bbbd of cco[cc[delk]]) {
               cc[bbbd] = cc[bd];
@@ -220,11 +228,7 @@ export function computeZigzags(d: ZigZag[]): PostZigZag {
               cc[delbark] = cc[bd];
               cco[cc[bd]].push(delbark);
             }
-          } else if (
-            cc[bd] != undefined &&
-            cc[delbark] != undefined &&
-            cc[bd] != cc[delbark]
-          ) {
+          } else if (cc[bd] != undefined && cc[delbark] != undefined && cc[bd] != cc[delbark]) {
             cco[cc[bd]].concat(cco[cc[delbark]]);
             for (const bbbd of cco[cc[delbark]]) {
               cc[bbbd] = cc[bd];
@@ -234,11 +238,7 @@ export function computeZigzags(d: ZigZag[]): PostZigZag {
               cc[delk] = cc[bd];
               cco[cc[bd]].push(delk);
             }
-          } else if (
-            cc[delk] != undefined &&
-            cc[delbark] != undefined &&
-            cc[delbark] != cc[delk]
-          ) {
+          } else if (cc[delk] != undefined && cc[delbark] != undefined && cc[delbark] != cc[delk]) {
             cco[cc[delk]].concat(cco[cc[delbark]]);
             for (const bbbd of cco[cc[delbark]]) {
               cc[bbbd] = cc[delk];
@@ -254,7 +254,7 @@ export function computeZigzags(d: ZigZag[]): PostZigZag {
             del: z[delk],
             delbar: z[delbark],
             type: "start",
-            zigzag: zigzagout(z),
+            zigzag: zigzagout(z)
           };
         } else if (delk in z) {
           if (cc[bd] === undefined && cc[delk] === undefined) {
@@ -282,7 +282,7 @@ export function computeZigzags(d: ZigZag[]): PostZigZag {
             del: z[delk],
             delbar: "0",
             type: "start",
-            zigzag: zigzagout(z),
+            zigzag: zigzagout(z)
           };
         } else if (delbark in z) {
           if (cc[bd] === undefined && cc[delbark] === undefined) {
@@ -310,7 +310,7 @@ export function computeZigzags(d: ZigZag[]): PostZigZag {
             del: "0",
             delbar: z[delbark],
             type: "start",
-            zigzag: zigzagout(z),
+            zigzag: zigzagout(z)
           };
         } else {
           nzz[bd] = {
@@ -318,7 +318,7 @@ export function computeZigzags(d: ZigZag[]): PostZigZag {
             del: "0",
             delbar: "0",
             type: "end",
-            zigzag: zigzagout(z),
+            zigzag: zigzagout(z)
           };
         }
       }
@@ -337,7 +337,7 @@ export function computeZigzags(d: ZigZag[]): PostZigZag {
           delbar: v.delbar,
           type: v.type,
           zigzag: v.zigzag,
-          order: max - 1,
+          order: max - 1
         });
       }
     }
@@ -367,6 +367,6 @@ export function computeZigzags(d: ZigZag[]): PostZigZag {
 
   return {
     tracks: t,
-    basis: nz,
+    basis: nz
   };
 }

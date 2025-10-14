@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { base } from '$app/paths';
+  import { base } from "$app/paths";
   import favicon from "$lib/images/favicon.svg";
   import Input from "./Input.svelte";
   import Output from "./Output.svelte";
-  import '../app.css';
+  import "../app.css";
 
   let data = $state();
   let waiting: boolean = $state(false);
 </script>
 
 <svelte:head>
-    <title>bbCalculator</title>
-	<meta name="description" content="Svelte demo app" />
+  <title>bbCalculator</title>
+  <meta name="description" content="Svelte demo app" />
 </svelte:head>
 
 <div id="app">

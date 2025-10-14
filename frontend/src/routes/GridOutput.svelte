@@ -4,9 +4,7 @@
 
   let { datatab, n, type } = $props();
 
-  let grid = $derived(
-    type === "zigzags" || type === "squares" ? datatab.basis : datatab,
-  );
+  let grid = $derived(type === "zigzags" || type === "squares" ? datatab.basis : datatab);
 
   function compare(a, b) {
     const ka = a[0]

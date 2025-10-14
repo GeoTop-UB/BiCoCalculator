@@ -13,8 +13,8 @@
     lie: {
       names: ["X", "Y", "Z", "W"],
       bracket: {
-        "(1, 2)": { "3": -1 },
-      },
+        "(1, 2)": { "3": -1 }
+      }
     },
     acs: {
       names: ["a", "b", "\\bar{a}", "\\bar{b}"],
@@ -22,10 +22,10 @@
         [0, -1, 0, 0],
         [1, 0, 0, 0],
         [0, 0, 0, -1],
-        [0, 0, 1, 0],
+        [0, 0, 1, 0]
       ],
-      norm: undefined,
-    },
+      norm: undefined
+    }
   };
   const iwe = {
     dim: 6,
@@ -35,8 +35,8 @@
         "(1, 3)": { "5": 1 },
         "(1, 4)": { "6": 1 },
         "(2, 3)": { "6": 1 },
-        "(2, 4)": { "5": -1 },
-      },
+        "(2, 4)": { "5": -1 }
+      }
     },
     acs: {
       names: ["a", "b", "c", "\\bar{a}", "\\bar{b}", "\\bar{c}"],
@@ -46,10 +46,10 @@
         [0, 0, 0, 1, 0, 0],
         [0, 0, -1, 0, 0, 0],
         [0, 0, 0, 0, 0, 1],
-        [0, 0, 0, 0, -1, 0],
+        [0, 0, 0, 0, -1, 0]
       ],
-      norm: [0.5, 1, 1, 0.5, 1, 1],
-    },
+      norm: [0.5, 1, 1, 0.5, 1, 1]
+    }
   };
 
   let dim = $state(kte.dim);
@@ -63,7 +63,7 @@
   let showModal = $state(false);
   let modalLie = $state();
   let computeDisabled = $state(false);
-	let innerWidth = $state(0);
+  let innerWidth = $state(0);
 
   let isMobile = $derived(innerWidth < 768);
 
@@ -146,20 +146,20 @@
       {
         lie: {
           names: "lieNames",
-          bracket: lieBracket,
+          bracket: lieBracket
         },
         acs: {
           names: "acsNames",
           matrix: [
             ...Array(acsMatrix.length)
               .keys()
-              .map((i) => "acsMatrix-" + i),
+              .map((i) => "acsMatrix-" + i)
           ],
-          ...(acsNorm != undefined && { norm: "acsNorm" }),
-        },
+          ...(acsNorm != undefined && { norm: "acsNorm" })
+        }
       },
       null,
-      4,
+      4
     )
       .replace('"lieNames"', JSON.stringify(lieNames))
       .replace('"acsNames"', JSON.stringify(acsNames));
@@ -184,11 +184,7 @@
     acsMatrix = a.acs.matrix;
     acsNorm = a.acs.norm;
     computeDisabled = false;
-    if (
-      dim === kte.dim &&
-      JSON.stringify(lieBracket) === kteBr &&
-      acsMatrix.toString() === kteJ
-    ) {
+    if (dim === kte.dim && JSON.stringify(lieBracket) === kteBr && acsMatrix.toString() === kteJ) {
       ktActive = true;
       iwActive = false;
     } else if (
@@ -206,30 +202,20 @@
   }
 </script>
 
-<svelte:window bind:innerWidth={innerWidth} />
+<svelte:window bind:innerWidth />
 
-<section class="{data != undefined ? 'loaded' : ''}">
+<section class={data != undefined ? "loaded" : ""}>
   <div id="intro">
     <p>
-      <strong>bbCalculator</strong> is aimed at computing invariants of bigraded
-      complexes, in particular from complex nilmanifolds.
+      <strong>bbCalculator</strong> is aimed at computing invariants of bigraded complexes, in particular
+      from complex nilmanifolds.
     </p>
   </div>
   <div id="examples">
     <h2>Some examples to try:</h2>
     <div>
-      <StickyButton
-        label="Kodaira-Thurston"
-        onClick={setKt}
-        active={ktActive}
-        disabled={false}
-      />
-      <StickyButton
-        label="Iwasawa"
-        onClick={setIw}
-        active={iwActive}
-        disabled={false}
-      />
+      <StickyButton label="Kodaira-Thurston" onClick={setKt} active={ktActive} disabled={false} />
+      <StickyButton label="Iwasawa" onClick={setIw} active={iwActive} disabled={false} />
     </div>
   </div>
   <div id="input">
@@ -260,10 +246,9 @@
                 Object.entries(value)
                   .map(
                     ([kk, vv], ii) =>
-                      (vv < 0 ? "-" : ii != 0 ? "+" : "") +
-                      lieNames[parseInt(kk) - 1],
+                      (vv < 0 ? "-" : ii != 0 ? "+" : "") + lieNames[parseInt(kk) - 1]
                   )
-                  .join(" "),
+                  .join(" ")
             )}
           {/each}
         </div>
@@ -275,25 +260,16 @@
         {@html math(
           "\\begin{pmatrix}" +
             acsMatrix.map((row) => row.join(" & ")).join(" \\\\") +
-            "\\end{pmatrix}",
+            "\\end{pmatrix}"
         )}
       </div>
     </div>
   </div>
 
-  <Button
-    label="Compute invariants"
-    onClick={loadData}
-    disabled={computeDisabled}
-  />
+  <Button label="Compute invariants" onClick={loadData} disabled={computeDisabled} />
 </section>
 
-<Modal
-  bind:showModal
-  buttonLabel="Save"
-  buttonDisabled={saveDisabled}
-  onClose={save}
->
+<Modal bind:showModal buttonLabel="Save" buttonDisabled={saveDisabled} onClose={save}>
   {#snippet header()}
     <h2>Edit the complex nilmanifold</h2>
   {/snippet}

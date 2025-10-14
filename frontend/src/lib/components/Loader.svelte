@@ -4,12 +4,7 @@
   .loader {
     width: 35px;
     aspect-ratio: 1;
-    --_c: no-repeat
-      radial-gradient(
-        farthest-side,
-        var(--color-accent-strong) 92%,
-        transparent
-      );
+    --_c: no-repeat radial-gradient(farthest-side, var(--color-accent-strong) 92%, transparent);
     background:
       var(--_c) top,
       var(--_c) left,

@@ -3,7 +3,7 @@ export interface LieBracket {
 }
 
 export interface LieBrackets {
-  [bidegree: string]: LieBracket
+  [bidegree: string]: LieBracket;
 }
 
 export interface Cohomology {
@@ -14,4 +14,9 @@ export interface ZigZag {
   [bidegree: string]: string;
 }
 
-export type ComputeBackend = (varNames: string[], lieBracket: LieBrackets, acsMatrix: number[][], acsNorm?: number[]) => Promise<string>;
+export type ComputeBackend = (
+  varNames: string[],
+  lieBracket: LieBrackets,
+  acsMatrix: number[][],
+  acsNorm?: number[]
+) => Promise<string>;

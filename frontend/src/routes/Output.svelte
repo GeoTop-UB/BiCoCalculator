@@ -6,17 +6,17 @@
   let { data, waiting } = $props();
 
   interface Output {
-    id: string
-    label: string
-    type: string
+    id: string;
+    label: string;
+    type: string;
   }
   interface ExtOutput extends Output {
-    category: number
-    index: number
+    category: number;
+    index: number;
   }
   interface Category {
-    label: string
-    outputs: Output[]
+    label: string;
+    outputs: Output[];
   }
   interface OutputsIndex {
     [id: string]: ExtOutput;
@@ -74,19 +74,22 @@
       ]
     }
   ];
-  const listOutputs: ExtOutput[] = outputCategories.map((cat, idx) => {
+  const listOutputs: ExtOutput[] = outputCategories
+    .map((cat, idx) => {
       return cat.outputs.map((out) => {
         return {
           category: idx,
           ...out
-        }
+        };
       });
-    }).reduce((result, outsCat) => result.concat(outsCat), []).map((out, idx) => {
-      return {
-        index: idx, 
-        ...out
-      }
     })
+    .reduce((result, outsCat) => result.concat(outsCat), [])
+    .map((out, idx) => {
+      return {
+        index: idx,
+        ...out
+      };
+    });
   const outputsIndex = listOutputs.reduce((result: OutputsIndex, output: ExtOutput) => {
     result[output.id] = output;
     return result;
@@ -96,10 +99,10 @@
   let tab: string = $state(defaultOutput);
   let categorySelected: number = $state(0);
   let outputActive: boolean[] = $state([true, ...Array(listOutputs.length - 1).fill(false)]);
-	let innerWidth = $state(0);
+  let innerWidth = $state(0);
 
   let isMobile = $derived(innerWidth < 768);
-	let openMenuAttr = $derived({
+  let openMenuAttr = $derived({
     ...(!isMobile && { open: true })
   });
   let disabled = $derived(data === undefined);
@@ -108,7 +111,7 @@
   let type: string = $derived(outputsIndex[tab].type);
 
   async function onChangeTab() {
-    const i = outputsIndex[tab].index
+    const i = outputsIndex[tab].index;
     outputActive = [
       ...Array(i).fill(false),
       true,
@@ -130,9 +133,9 @@
   });
 </script>
 
-<svelte:window bind:innerWidth={innerWidth} />
+<svelte:window bind:innerWidth />
 
-<section class="{data != undefined ? 'loaded' : ''}">
+<section class={data != undefined ? "loaded" : ""}>
   <div id="table-container-parent">
     <div id="table-container">
       {#if datatab === undefined}
@@ -150,7 +153,7 @@
   </div>
 
   <nav>
-     {#if isMobile }
+    {#if isMobile}
       <select
         bind:value={categorySelected}
         onchange={() => changeTab(outputCategories[categorySelected].outputs[0].id)}
@@ -161,10 +164,7 @@
           </option>
         {/each}
       </select>
-      <select
-        bind:value={tab}
-        onchange={onChangeTab}
-      >
+      <select bind:value={tab} onchange={onChangeTab}>
         {#each outputCategories[categorySelected].outputs as output}
           <option value={output.id}>
             {output.label}
@@ -229,7 +229,7 @@
     section.loaded #table-container {
       width: fit-content;
     }
-    
+
     /* section.loaded nav {
       display: none;
     } */
@@ -262,7 +262,7 @@
     nav > :last-child {
       margin-top: 2rem;
     }
-    
+
     nav > details {
       display: flex;
       flex-direction: column;
@@ -318,11 +318,11 @@
       width: 100%;
       padding: 0.5rem 1rem;
     }
-    
+
     section nav {
       display: none;
     }
-    
+
     section.loaded nav {
       display: flex;
     }

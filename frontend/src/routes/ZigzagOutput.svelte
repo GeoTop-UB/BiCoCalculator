@@ -13,12 +13,8 @@
   }
 
   function adjustLine(from, to, line, vertical) {
-    const remToPx = parseFloat(
-      getComputedStyle(document.documentElement).fontSize,
-    );
-    const marginRem = parseFloat(
-      getComputedStyle(line).getPropertyValue("--margin-hover"),
-    );
+    const remToPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const marginRem = parseFloat(getComputedStyle(line).getPropertyValue("--margin-hover"));
     const margin = marginRem * remToPx;
 
     const fT = from.offsetTop + from.offsetHeight / 2;
@@ -44,7 +40,7 @@
         document.getElementById("start-" + v),
         document.getElementById("end-" + w),
         node,
-        vertical,
+        vertical
       );
 
       return () => {};
@@ -53,10 +49,7 @@
 </script>
 
 <div id="cell">
-  <div
-    class="points tooltip"
-    style="--n-points: {Math.ceil(Math.sqrt(points.length))}"
-  >
+  <div class="points tooltip" style="--n-points: {Math.ceil(Math.sqrt(points.length))}">
     <div class="node"></div>
     <div class="exp">{@html math(points.length.toString())}</div>
     <div class="tooltiptext pointstool">
@@ -87,9 +80,8 @@
                 .map((b) => parseInt(b.trim()))}
               <div
                 class="zigzagnodetool"
-                style="grid-area: {-(kdim[1] + 1)} / {kdim[0] + 1} / {-(
-                  kdim[1] + 2
-                )} / {kdim[0] + 2};"
+                style="grid-area: {-(kdim[1] + 1)} / {kdim[0] + 1} / {-(kdim[1] + 2)} / {kdim[0] +
+                  2};"
               >
                 <div>{@html math(zv)}</div>
               </div>
@@ -98,10 +90,7 @@
         </div>
       {/if}
       {#if islinedelbar}
-        <div
-          id="aaa"
-          use:myaction={{ v: b.value, w: b.delbar, vertical: true }}
-        >
+        <div id="aaa" use:myaction={{ v: b.value, w: b.delbar, vertical: true }}>
           <div class="line linev"></div>
           <span
             class="tooltiptext ver zigzagtool"
@@ -114,9 +103,8 @@
                 .map((b) => parseInt(b.trim()))}
               <div
                 class="zigzagnodetool"
-                style="grid-area: {-(kdim[1] + 1)} / {kdim[0] + 1} / {-(
-                  kdim[1] + 2
-                )} / {kdim[0] + 2};"
+                style="grid-area: {-(kdim[1] + 1)} / {kdim[0] + 1} / {-(kdim[1] + 2)} / {kdim[0] +
+                  2};"
               >
                 <div>{@html math(zv)}</div>
               </div>
@@ -127,9 +115,7 @@
       <div
         {id}
         class="node"
-        style="grid-area: {-(b.order + 1)} / {b.order + 1} / {-(
-          b.order + 2
-        )} / {b.order + 2};"
+        style="grid-area: {-(b.order + 1)} / {b.order + 1} / {-(b.order + 2)} / {b.order + 2};"
       ></div>
     {/each}
   </div>
