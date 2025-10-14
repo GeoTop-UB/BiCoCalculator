@@ -44,7 +44,12 @@
         # };
 
         devShell = pkgs.mkShell {
-          buildInputs = [pkgs.yarn pkgs.nodejs];
+          buildInputs = with pkgs; [
+            yarn 
+            nodejs
+            uv
+            sshpass
+          ];
         };
       }
     );
