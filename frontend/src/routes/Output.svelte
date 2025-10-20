@@ -3,7 +3,7 @@
   import Button from "$lib/components/Button.svelte";
   import Loader from "$lib/components/Loader.svelte";
 
-  let { data, waiting } = $props();
+  let { data, waiting, isMobile } = $props();
 
   interface Output {
     id: string;
@@ -99,9 +99,7 @@
   let tab: string = $state(defaultOutput);
   let categorySelected: number = $state(0);
   let outputActive: boolean[] = $state([true, ...Array(listOutputs.length - 1).fill(false)]);
-  let innerWidth = $state(0);
 
-  let isMobile = $derived(innerWidth < 768);
   let openMenuAttr = $derived({
     ...(!isMobile && { open: true })
   });
@@ -132,8 +130,6 @@
     }
   });
 </script>
-
-<svelte:window bind:innerWidth />
 
 <section class={data != undefined ? "loaded" : ""}>
   <div id="table-container-parent">

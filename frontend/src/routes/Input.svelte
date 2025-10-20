@@ -6,7 +6,7 @@
   import Modal from "$lib/components/Modal.svelte";
   import Button from "$lib/components/Button.svelte";
 
-  let { data = $bindable(), waiting = $bindable() } = $props();
+  let { data = $bindable(), waiting = $bindable(), isMobile } = $props();
 
   const kte = {
     dim: 4,
@@ -63,9 +63,6 @@
   let showModal = $state(false);
   let modalLie = $state();
   let computeDisabled = $state(false);
-  let innerWidth = $state(0);
-
-  let isMobile = $derived(innerWidth < 768);
 
   let saveDisabled = $derived.by(() => {
     if (modalLie != undefined) {
@@ -201,8 +198,6 @@
     return true;
   }
 </script>
-
-<svelte:window bind:innerWidth />
 
 <section class={data != undefined ? "loaded" : ""}>
   <div id="intro">

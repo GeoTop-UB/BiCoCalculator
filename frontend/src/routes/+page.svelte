@@ -7,12 +7,17 @@
 
   let data = $state();
   let waiting: boolean = $state(false);
+  let innerWidth = $state(0);
+
+  let isMobile = $derived(innerWidth < 768);
 </script>
 
 <svelte:head>
   <title>bbCalculator</title>
   <meta name="description" content="Svelte demo app" />
 </svelte:head>
+
+<svelte:window bind:innerWidth />
 
 <div id="app">
   <header>
@@ -26,8 +31,8 @@
     </div>
   </header>
   <main class="content">
-    <Input bind:data bind:waiting />
-    <Output {data} {waiting} />
+    <Input bind:data bind:waiting {isMobile} />
+    <Output {data} {waiting} {isMobile} />
   </main>
 </div>
 
