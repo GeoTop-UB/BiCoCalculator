@@ -2,7 +2,6 @@
   import { math } from "mathlifier";
 
   import { compute } from "$lib/compute";
-  import StickyButton from "$lib/components/StickyButton.svelte";
   import Modal from "$lib/components/Modal.svelte";
   import Button from "$lib/components/Button.svelte";
 
@@ -209,8 +208,8 @@
   <div id="examples">
     <h2>Some examples to try:</h2>
     <div>
-      <StickyButton label="Kodaira-Thurston" onClick={setKt} active={ktActive} disabled={false} />
-      <StickyButton label="Iwasawa" onClick={setIw} active={iwActive} disabled={false} />
+      <Button label="Kodaira-Thurston" onClick={setKt} bind:active={ktActive} />
+      <Button label="Iwasawa" onClick={setIw} bind:active={iwActive} />
     </div>
   </div>
   <div id="input">
