@@ -25,7 +25,7 @@
       <a href="{resolve('/')}" target="_blank" rel="noreferrer">
         <img src={favicon} class="logo" alt="bbCalculator" />
       </a>
-      <a href="{resolve('/')}/" target="_blank" rel="noreferrer">
+      <a href="{resolve('/')}" target="_blank" rel="noreferrer">
         <h1>bbCalculator</h1>
       </a>
     </div>
