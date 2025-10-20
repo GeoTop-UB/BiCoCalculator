@@ -268,9 +268,9 @@
     grid-template-rows: repeat(var(--n-points), 2.25ex);
   }
 
-  [role="tooltip"] {
+  /* [role="tooltip"] {
     display: none;
-  }
+  } */
 
   .tooltip {
     position: relative;
