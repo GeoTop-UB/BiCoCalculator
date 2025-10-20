@@ -1,22 +1,10 @@
 import SageCellClient from "./sagecell.js";
 import type { ComputeBackend } from "./types";
 
-import bicoLib from "./bico.py.sage?raw";
-
 // const version =
 const apiUrl = "http://127.0.0.1:5001/";
-const client = new SageCellClient({
-  // onstatuschange: (status) => {
-  //   console.log("status change", status);
-  // },
-  // onmessage: (msg) => {
-  //   console.log("msg", msg);
-  // },
-  // onerror: (from, err) => {
-  //   console.log("err", from, err);
-  // },
-  timeout: 30
-});
+const client = new SageCellClient({timeout: 30});
+let bicoLib: string | undefined = undefined;
 
 export const computeSelfhosted: ComputeBackend = async (
   varNames,
@@ -48,6 +36,9 @@ export const computeSelfhosted: ComputeBackend = async (
 export const computeSageCell: ComputeBackend = async (varNames, lieBracket, acsMatrix, acsNorm) => {
   if (!client.connected) {
     client.connect();
+    if (bicoLib === undefined) {
+      bicoLib = await import("$lib/assets/bico.py.sage?raw").then(m => m.default);
+    }
     await client.sendCommand(null, bicoLib);
   }
   const sLieNames = varNames.join(",");
