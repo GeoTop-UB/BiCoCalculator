@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { base } from "$app/paths";
+  import { resolve } from "$app/paths";
   import favicon from "$lib/images/favicon.svg";
   import Input from "./Input.svelte";
   import Output from "./Output.svelte";
@@ -17,10 +17,10 @@
 <div id="app">
   <header>
     <div class="content">
-      <a href="{base}/" target="_blank" rel="noreferrer">
+      <a href="{resolve('/')}" target="_blank" rel="noreferrer">
         <img src={favicon} class="logo" alt="bbCalculator" />
       </a>
-      <a href="{base}/" target="_blank" rel="noreferrer">
+      <a href="{resolve('/')}/" target="_blank" rel="noreferrer">
         <h1>bbCalculator</h1>
       </a>
     </div>
