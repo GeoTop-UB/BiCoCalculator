@@ -14,7 +14,7 @@
 
 <svelte:head>
   <title>bbCalculator</title>
-  <meta name="description" content="Svelte demo app" />
+  <meta name="description" content="An application aimed at computing invariants of bigraded complexes, in particular from complex nilmanifolds" />
 </svelte:head>
 
 <svelte:window bind:innerWidth />
