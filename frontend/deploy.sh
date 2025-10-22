@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+make build-static
 sshpass -f <passwordfile> sftp -oBatchMode=no -b - <hosturl> << !
    cd bbcalculator
    rm _app/immutable/assets/*

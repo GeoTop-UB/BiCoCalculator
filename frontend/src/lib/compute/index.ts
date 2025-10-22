@@ -9,6 +9,7 @@ import {
   replaceNamesZigZags,
   computeZigzags
 } from "./utils";
+import { PUBLIC_ADAPTER } from "$env/static/public";
 
 // @ts-ignore
 import ktResult from "../precomputations/KT_Result.json?raw";
@@ -52,32 +53,39 @@ async function computeCanonical(
   acsMatrix: number[][],
   acsNorm?: number[]
 ): Promise<ComputationResult> {
-  // const backend: string = "selfHosted";
-  const backend: string = "sageCell";
+  const isStatic = PUBLIC_ADAPTER === "static";
+  const enableCache = isStatic;
+  const backend: string = isStatic? "sageCell" : "selfHosted";
   if (!Object.keys(computeBackends).includes(backend)) {
     throw new Error(
       `Invalid compute backend: ${backend} is not one of the available backends ${JSON.stringify(Object.keys(computeBackends))}`
     );
   }
 
-  const inputHash: string = hash({
-    varNames: varNames,
-    lieBracket: lieBracket,
-    acsMatrix: acsMatrix,
-    ...(acsNorm != undefined && { acsNorm: acsNorm })
-  });
-  var result: string | null = window.localStorage.getItem(inputHash);
-  if (result == null) {
-    if (inputHash in precomputedExamples) {
-      console.log("Precomputed at the server...");
-      result = precomputedExamples[inputHash];
+  var result: string | null = null;
+  if (!enableCache) {
+    console.log(`No cache enabled, computed in backend: ${backend}`);
+    result = await computeBackends[backend](varNames, lieBracket, acsMatrix, acsNorm);
+  } else{
+    const inputHash: string = hash({
+      varNames: varNames,
+      lieBracket: lieBracket,
+      acsMatrix: acsMatrix,
+      ...(acsNorm != undefined && { acsNorm: acsNorm })
+    });
+    result = window.localStorage.getItem(inputHash);
+    if (result === null) {
+      if (inputHash in precomputedExamples) {
+        console.log("Precomputed at the server");
+        result = precomputedExamples[inputHash];
+      } else {
+        console.log(`Computed in backend: ${backend}`);
+        result = await computeBackends[backend](varNames, lieBracket, acsMatrix, acsNorm);
+      }
+      window.localStorage.setItem(inputHash, result);
     } else {
-      console.log("Computed in backend...");
-      result = await computeBackends[backend](varNames, lieBracket, acsMatrix, acsNorm);
+      console.log("Cached in local storage");
     }
-    window.localStorage.setItem(inputHash, result);
-  } else {
-    console.log("Cached in local storage");
   }
 
   return JSON.parse(result);

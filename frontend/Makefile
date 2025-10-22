@@ -1,20 +1,32 @@
 all: run
 
-run: prepare
-	yarn run dev --open
-.PHONY: run
+run-server: prepare
+	yarn run dev-server --open
+.PHONY: run-server
+
+run-static: prepare
+	yarn run dev-static --open
+.PHONY: run-static
 
 prepare: package.json
 	yarn
 .PHONY: prepare
 
-build:
-	yarn build
-.PHONY: build
+build-server: prepare
+	yarn build-server
+.PHONY: build-server
 
-preview: build
-	yarn preview --open
-.PHONY: preview
+build-static: prepare
+	yarn build-static
+.PHONY: build-static
+
+preview-server: build-server
+	yarn preview-server --open
+.PHONY: preview-server
+
+preview-static: build-static
+	yarn preview-static --open
+.PHONY: preview-static
 
 deploy:
 	./deploy.sh
