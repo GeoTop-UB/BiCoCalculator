@@ -1,10 +1,35 @@
-.PHONY: frontend backend
+all: run
 
-frontend:
-	cd frontend && nix develop --command make
+run-server: prepare
+	yarn run dev-server --open
+.PHONY: run-server
 
-backend:
-	cd backend && nix develop --command make
+run-static: prepare
+	yarn run dev-static --open
+.PHONY: run-static
 
-bundle:
-	nix bundle --bundler github:DavHau/nix-portable ./backend
+prepare: package.json
+	yarn
+.PHONY: prepare
+
+build-server: prepare
+	yarn build-server
+.PHONY: build-server
+
+build-static: prepare
+	yarn build-static
+.PHONY: build-static
+
+preview-server: build-server
+	yarn preview-server --open
+.PHONY: preview-server
+
+preview-static: build-static
+	yarn preview-static --open
+.PHONY: preview-static
+
+deploy:
+	./deploy.sh
+.PHONY: deploy
+
+# uv run --with python-minifier==3.0.0 pyminify ../../BiCo/bigraded_complexes.py.sage --in-place --no-remove-pass --no-combine-imports --no-constant-folding --no-convert-posargs-to-args --no-remove-object-base --no-rename-locals --no-hoist-literals --remove-literal-statements
