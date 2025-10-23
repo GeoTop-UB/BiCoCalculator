@@ -49,6 +49,7 @@
             nodejs
             uv
             sshpass
+            sageWithDoc
           ];
         };
       }

@@ -1,8 +1,9 @@
 import SageCellClient from "./sagecell.js";
 import type { ComputeBackend } from "./types";
+import { resolve } from "$app/paths";
 
 // const version =
-const apiUrl = "http://127.0.0.1:5001/";
+const apiUrl: string = resolve("/api/compute/");
 const client = new SageCellClient({timeout: 30});
 let bicoLib: string | undefined = undefined;
 
