@@ -10,7 +10,7 @@ const config = {
 	kit: { 
 		adapter: adapterStatic(),
 		adapter: process.env.PUBLIC_ADAPTER === "static"
-			? adapterStatic()
+			? adapterStatic({strict: false})
 			: adapterNode(),
 		paths: {
 			base: "/topologia/bbcalculator",
