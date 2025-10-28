@@ -5,9 +5,6 @@ import sys
 
 from sage.all import *
 
-# load("https://raw.githubusercontent.com/GeoTop-UB/BiCo/refs/heads/main/bigraded_complexes.py.sage")
-load("src/lib/assets/bico.py.sage")
-
 
 def build(lie_names, lie_bracket, acs_matrix, acs_names, acs_norm=None):
     bfield = QuadraticField(-1, 'I')
@@ -48,8 +45,12 @@ def compute(lie_names, lie_bracket, acs_matrix, acs_names, acs_norm):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("bico_path", help="URL or path to the Sage code of BiCo")
     parser.add_argument("input", help="Input complex manifold to compute the BiCo results")
     args = parser.parse_args()
+
+    load(args.bico_path)
+
     input = json.loads(args.input)
 
     print(compute(

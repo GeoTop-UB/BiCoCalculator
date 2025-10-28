@@ -1,17 +1,22 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestEvent, RequestHandler } from './$types';
 import { spawn } from "child_process";
+import { SERVER_BICO_PATH } from "$env/static/private";
 
 let runBico = (input: string) => {
-    return new Promise(function(success, nosuccess) {
-        // const { spawn } = require("child_process");
-        const pyprog = spawn("sage", ["--python", "src/routes/api/compute/bico.py", input]);
+    return new Promise((resolve, reject) => {
+        const pyprog = spawn("sage", [
+            "--python", 
+            "src/routes/api/compute/bico.py", 
+            SERVER_BICO_PATH, 
+            input
+        ]);
 
         pyprog.stdout.on("data", (data) => {
-            success(data);
+            resolve(data);
         });
         pyprog.stderr.on("data", (data) => {
-            nosuccess(data);
+            reject(data);
         });
     });
 }
