@@ -9,7 +9,7 @@ import {
   replaceNamesZigZags,
   computeZigzags
 } from "./utils";
-import { PUBLIC_ADAPTER } from "$env/static/public";
+import { PUBLIC_ADAPTER, PUBLIC_COMPUTATION_TIME_MIN } from "$env/static/public";
 
 // @ts-ignore
 import ktResult from "../precomputations/KT_Result.json?raw";
@@ -100,14 +100,12 @@ export async function compute(
 ) {
   const tmpNames = makeTmpNames(dim);
   const tmpLieBracket = computeTmpLieBracket(lieBracket, tmpNames);
-  console.log(dim);
-  console.log(lieBracket);
-  console.log(tmpLieBracket);
-  console.log(acsNames);
-  console.log(tmpNames);
-  console.log(acsMatrix);
-  console.log(acsNorm);
-  const d = await computeCanonical(tmpNames, tmpLieBracket, acsMatrix, acsNorm);
+  const d = await Promise.all([
+    computeCanonical(tmpNames, tmpLieBracket, acsMatrix, acsNorm),
+    new Promise((resolve, _) => { 
+      setTimeout(resolve, PUBLIC_COMPUTATION_TIME_MIN, "Mininum timeout ended!");
+    })
+  ]).then((result) => result[0]);
   return {
     n: d.n,
     m: d.m,
