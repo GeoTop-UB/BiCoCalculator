@@ -48,7 +48,6 @@ export const computeSageCell: ComputeBackend = async (varNames, lieBracket, acsM
   const sAcsNames = JSON.stringify(varNames);
   const sAcsNorm = acsNorm != undefined ? JSON.stringify(acsNorm) : "None";
   const command = `compute("${sLieNames}", ${sLieBracket}, ${sAcsMatrix}, ${sAcsNames}, ${sAcsNorm})`;
-  console.log(command);
   const r = await client.sendCommand(null, command);
   return r.data.substring(1, r.data.length - 1);
 };

@@ -139,7 +139,6 @@ export default class SageCellClient {
   async sendCommand(id, command) {
     try {
       await this.waitForOpenConnection();
-      console.log(command);
       return this.send(id, "execute_request", this.getCodeContent(command));
     } catch (err) {
       console.error(err);
