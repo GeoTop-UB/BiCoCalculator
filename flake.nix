@@ -6,9 +6,13 @@
       url = "github:hercules-ci/gitignore.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    bico = {
+      url = "git+ssh://git@github.com/GeoTop-UB/BiCo.git?ref=main";
+      flake = false;
+    };
   };
 
-  outputs = {
+  outputs = inputs @ {
     self,
     nixpkgs,
     gitignore,
@@ -51,6 +55,9 @@
             sshpass
             sageWithDoc
           ];
+          # shellHook = ''
+          #   uv run --with python-minifier==3.0.0 pyminify "${inputs.bico}/bigraded_complexes.py.sage" --output src/lib/assets/bico.py.sage --no-combine-imports --remove-literal-statements
+          # '';
         };
       }
     );

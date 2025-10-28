@@ -1,5 +1,22 @@
 {
   "nodes": {
+    "bico": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1761593774,
+        "narHash": "sha256-k07uRrUKCB20c+DtaJhyHXccK7vZOh9i2bme6/oT44g=",
+        "ref": "main",
+        "rev": "98c943b28fecf006854edf0c88cdc96d5824106e",
+        "revCount": 10,
+        "type": "git",
+        "url": "ssh://git@github.com/GeoTop-UB/BiCo.git"
+      },
+      "original": {
+        "ref": "main",
+        "type": "git",
+        "url": "ssh://git@github.com/GeoTop-UB/BiCo.git"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -56,6 +73,7 @@
     },
     "root": {
       "inputs": {
+        "bico": "bico",
         "flake-utils": "flake-utils",
         "gitignore": "gitignore",
         "nixpkgs": "nixpkgs"
