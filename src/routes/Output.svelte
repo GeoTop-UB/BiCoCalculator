@@ -133,7 +133,7 @@
 
 <section class={data != undefined ? "loaded" : ""}>
   <div id="table-container-parent">
-    <div id="table-container">
+    <div id="table-container" class={type}>
       {#if datatab === undefined}
         {#if waiting}
           <Loader />
@@ -242,7 +242,7 @@
   }
 
   #table-container {
-    width: 100%;
+    min-width: 100%;
     /* height: 100%; */
     /* max-width: 72.59%; */
     display: flex;
@@ -252,6 +252,10 @@
     scrollbar-gutter: stable; */
     position: relative;
     overflow: hidden;
+  }
+
+  #table-container.zigzags {
+    width: max-content;
   }
 
   @media screen and (min-width: 768px) {
