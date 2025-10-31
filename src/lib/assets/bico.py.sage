@@ -1209,5 +1209,5 @@ def compute(lie_names, lie_bracket, acs_matrix, acs_names, norm):
             ]
         },
         "zigzags": list(map(lambda a: {str(bidegree): str(v) for (bidegree, v) in a.items()}, bbc.zigzags_decomposition())),
-        "squares": list(map(lambda a: str(a), bbc.squares_decomposition()))
+        "squares": list(map(lambda a: {str(bidegree): str(v) for (bidegree, v) in a.items()}, bbc.squares_decomposition()))
     })

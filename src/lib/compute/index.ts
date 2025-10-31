@@ -88,7 +88,7 @@ async function computeCanonical(
     }
   }
 
-  return JSON.parse(result.replaceAll("\'", '"'));
+  return JSON.parse(result);
 }
 
 export async function compute(
