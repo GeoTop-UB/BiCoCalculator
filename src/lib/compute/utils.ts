@@ -133,6 +133,15 @@ function zigzagout(z: ZigZag): LocatedZigZag {
   };
 }
 
+function mergeCCs(cc: CC, cco: CCO, bda: string, bdb: string) {
+  const ccbdb = cc[bdb];
+  cco[cc[bda]] = cco[cc[bda]].concat(cco[ccbdb]);
+  for (const bbbd of cco[ccbdb]) {
+    cc[bbbd] = cc[bda];
+  }
+  delete cco[ccbdb];
+}
+
 export function computeZigzags(d: ZigZag[]): PostZigZag {
   let t: ZigZagsTracks = {};
   let nz: ZigZagsBasis = {};
@@ -164,14 +173,10 @@ export function computeZigzags(d: ZigZag[]): PostZigZag {
           .substring(1, bd.length - 1)
           .split(",")
           .map((s) => parseInt(s.trim()));
-        // const diag = bdt[0] + bdt[1];
         if (!t[bd]) {
           t[bd] = 0;
         }
         tt[bd] = t[bd] + 1;
-        // if (!nzz[bd]) {
-        //   nzz[bd] = [];
-        // }
 
         const delk = "(" + (bdt[0] + 1) + ", " + bdt[1] + ")";
         const delbark = "(" + bdt[0] + ", " + (bdt[1] + 1) + ")";
@@ -208,42 +213,22 @@ export function computeZigzags(d: ZigZag[]): PostZigZag {
             cc[bd] != cc[delbark] &&
             cc[delbark] != cc[delk]
           ) {
-            cco[cc[bd]].concat(cco[cc[delk]]);
-            cco[cc[bd]].concat(cco[cc[delbark]]);
-            for (const bbbd of cco[cc[delk]]) {
-              cc[bbbd] = cc[bd];
-            }
-            for (const bbbd of cco[cc[delbark]]) {
-              cc[bbbd] = cc[bd];
-            }
-            delete cco[cc[delk]];
-            delete cco[cc[delbark]];
+            mergeCCs(cc, cco, bd, delk);
+            mergeCCs(cc, cco, bd, delbark);
           } else if (cc[bd] != undefined && cc[delk] != undefined && cc[bd] != cc[delk]) {
-            cco[cc[bd]].concat(cco[cc[delk]]);
-            for (const bbbd of cco[cc[delk]]) {
-              cc[bbbd] = cc[bd];
-            }
-            delete cco[cc[delk]];
+            mergeCCs(cc, cco, bd, delk);
             if (cc[delbark] === undefined) {
               cc[delbark] = cc[bd];
               cco[cc[bd]].push(delbark);
             }
           } else if (cc[bd] != undefined && cc[delbark] != undefined && cc[bd] != cc[delbark]) {
-            cco[cc[bd]].concat(cco[cc[delbark]]);
-            for (const bbbd of cco[cc[delbark]]) {
-              cc[bbbd] = cc[bd];
-            }
-            delete cco[cc[delbark]];
+            mergeCCs(cc, cco, bd, delbark);
             if (cc[delk] === undefined) {
               cc[delk] = cc[bd];
               cco[cc[bd]].push(delk);
             }
           } else if (cc[delk] != undefined && cc[delbark] != undefined && cc[delbark] != cc[delk]) {
-            cco[cc[delk]].concat(cco[cc[delbark]]);
-            for (const bbbd of cco[cc[delbark]]) {
-              cc[bbbd] = cc[delk];
-            }
-            delete cco[cc[delbark]];
+            mergeCCs(cc, cco, delk, delbark);
             if (cc[bd] === undefined) {
               cc[bd] = cc[delk];
               cco[cc[delk]].push(bd);
@@ -271,11 +256,7 @@ export function computeZigzags(d: ZigZag[]): PostZigZag {
             cc[delk] = cc[bd];
             cco[cc[bd]].push(delk);
           } else if (cc[bd] != cc[delk]) {
-            cco[cc[bd]].concat(cco[cc[delk]]);
-            for (const bbbd of cco[cc[delk]]) {
-              cc[bbbd] = cc[bd];
-            }
-            delete cco[cc[delk]];
+            mergeCCs(cc, cco, bd, delk);
           }
           nzz[bd] = {
             value: v,
@@ -299,11 +280,7 @@ export function computeZigzags(d: ZigZag[]): PostZigZag {
             cc[delbark] = cc[bd];
             cco[cc[bd]].push(delbark);
           } else if (cc[bd] != cc[delbark]) {
-            cco[cc[bd]].concat(cco[cc[delbark]]);
-            for (const bbbd of cco[cc[delbark]]) {
-              cc[bbbd] = cc[bd];
-            }
-            delete cco[cc[delbark]];
+            mergeCCs(cc, cco, bd, delbark);
           }
           nzz[bd] = {
             value: v,
