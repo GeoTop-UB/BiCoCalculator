@@ -4,7 +4,7 @@ import { resolve } from "$app/paths";
 
 // const version =
 const apiUrl: string = resolve("/api/compute/");
-const client = new SageCellClient({timeout: 30});
+const client = new SageCellClient({ timeout: 30 });
 let bicoLib: string | undefined = undefined;
 
 export const computeSelfhosted: ComputeBackend = async (
@@ -38,7 +38,7 @@ export const computeSageCell: ComputeBackend = async (varNames, lieBracket, acsM
   if (!client.connected) {
     client.connect();
     if (bicoLib === undefined) {
-      bicoLib = await import("$lib/assets/bico.py.sage?raw").then(m => m.default);
+      bicoLib = await import("$lib/assets/bico.py.sage?raw").then((m) => m.default);
     }
     await client.sendCommand(null, bicoLib);
   }

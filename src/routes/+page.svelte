@@ -14,7 +14,10 @@
 
 <svelte:head>
   <title>bbCalculator</title>
-  <meta name="description" content="An application aimed at computing invariants of bigraded complexes, in particular from complex nilmanifolds" />
+  <meta
+    name="description"
+    content="An application aimed at computing invariants of bigraded complexes, in particular from complex nilmanifolds"
+  />
 </svelte:head>
 
 <svelte:window bind:innerWidth />
@@ -22,10 +25,10 @@
 <div id="app">
   <header>
     <div class="content">
-      <a href="{resolve('/')}" target="_blank" rel="noreferrer">
+      <a href={resolve("/")} target="_blank" rel="noreferrer">
         <img src={favicon} class="logo" alt="bbCalculator" />
       </a>
-      <a href="{resolve('/')}" target="_blank" rel="noreferrer">
+      <a href={resolve("/")} target="_blank" rel="noreferrer">
         <h1>bbCalculator</h1>
       </a>
     </div>

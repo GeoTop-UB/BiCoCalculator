@@ -12,11 +12,15 @@ It has been funded by the project **Europa Excelencia "Homotopical Invariants of
 ## Set up
 
 The easy way to use the application is to install [Nix](https://nixos.org/). The backend of the application can be spawn with the command:
+
 ```shell
 make backend
 ```
+
 Once the backend is running, the frontend can be run on any other terminal using the following command:
+
 ```shell
 make frontend
 ```
+
 Then you can open [http://localhost:5173/](http://localhost:5173/) to see the web application.

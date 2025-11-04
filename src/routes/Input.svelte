@@ -201,7 +201,8 @@
 <section class={data != undefined ? "loaded" : ""}>
   <div id="intro">
     <p>
-      <strong>bbCalculator</strong> is aimed at computing invariants of bigraded complexes, in particular from complex nilmanifolds.
+      <strong>bbCalculator</strong> is aimed at computing invariants of bigraded complexes, in particular
+      from complex nilmanifolds.
     </p>
   </div>
   <div id="examples">

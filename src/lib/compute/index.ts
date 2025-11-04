@@ -55,7 +55,7 @@ async function computeCanonical(
 ): Promise<ComputationResult> {
   const isStatic = PUBLIC_ADAPTER === "static";
   const enableCache = isStatic;
-  const backend: string = isStatic? "sageCell" : "selfHosted";
+  const backend: string = isStatic ? "sageCell" : "selfHosted";
   if (!Object.keys(computeBackends).includes(backend)) {
     throw new Error(
       `Invalid compute backend: ${backend} is not one of the available backends ${JSON.stringify(Object.keys(computeBackends))}`
@@ -66,7 +66,7 @@ async function computeCanonical(
   if (!enableCache) {
     console.log(`No cache enabled, computed in backend: ${backend}`);
     result = await computeBackends[backend](varNames, lieBracket, acsMatrix, acsNorm);
-  } else{
+  } else {
     const inputHash: string = hash({
       varNames: varNames,
       lieBracket: lieBracket,
@@ -102,7 +102,7 @@ export async function compute(
   const tmpLieBracket = computeTmpLieBracket(lieBracket, tmpNames);
   const d = await Promise.all([
     computeCanonical(tmpNames, tmpLieBracket, acsMatrix, acsNorm),
-    new Promise((resolve, _) => { 
+    new Promise((resolve, _) => {
       setTimeout(resolve, PUBLIC_COMPUTATION_TIME_MIN, "Mininum timeout ended!");
     })
   ]).then((result) => result[0]);
