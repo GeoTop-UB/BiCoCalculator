@@ -32,4 +32,8 @@ deploy:
 	./deploy.sh
 .PHONY: deploy
 
+format:
+	yarn run format
+.PHONY: format
+
 # uv run --with python-minifier==3.0.0 pyminify ../../BiCo/bigraded_complexes.py.sage --in-place --no-remove-pass --no-combine-imports --no-constant-folding --no-convert-posargs-to-args --no-remove-object-base --no-rename-locals --no-hoist-literals --remove-literal-statements
