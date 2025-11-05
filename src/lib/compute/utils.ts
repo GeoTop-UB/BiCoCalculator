@@ -74,7 +74,7 @@ function replaceNames(tmpNames: string[], displayNames: string[], formula: strin
   }
   newFormula = newFormula.replaceAll("-", "\\textup{\\texttt{-}}");
   newFormula = newFormula.replaceAll("+", "\\textup{\\texttt{+}}");
-  newFormula = newFormula.replaceAll("*", "");
+  newFormula = newFormula.replaceAll("*", " ");
   return newFormula;
 }
 
