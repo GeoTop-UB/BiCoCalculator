@@ -1,67 +1,53 @@
 <script lang="ts">
   import { math } from "mathlifier";
 
-  import { compute } from "$lib/compute";
+  import { compute, findExample } from "$lib/compute";
   import Modal from "$lib/components/Modal.svelte";
   import Button from "$lib/components/Button.svelte";
+  import ktInput from "$lib/precomputations/KT_Input.json";
+  import iwInput from "$lib/precomputations/IW_Input.json";
+  // import jnInput from "$lib/precomputations/JN_Input.json";
 
   let { data = $bindable(), waiting = $bindable(), isMobile } = $props();
 
-  const kte = {
-    dim: 4,
+  interface LieBracket {
+    [result: string]: number;
+  }
+  interface LieBrackets {
+    [bidegree: string]: LieBracket;
+  }
+  interface Input {
+    dim: number;
     lie: {
-      names: ["X", "Y", "Z", "W"],
-      bracket: {
-        "(1, 2)": { "3": -1 }
-      }
-    },
+      names: string[];
+      bracket: LieBrackets;
+    };
     acs: {
-      names: ["a", "b", "\\bar{a}", "\\bar{b}"],
-      matrix: [
-        [0, -1, 0, 0],
-        [1, 0, 0, 0],
-        [0, 0, 0, -1],
-        [0, 0, 1, 0]
-      ],
-      norm: undefined
-    }
-  };
-  const iwe = {
-    dim: 6,
-    lie: {
-      names: ["p", "ip", "q", "iq", "z", "iz"],
-      bracket: {
-        "(1, 3)": { "5": 1 },
-        "(1, 4)": { "6": 1 },
-        "(2, 3)": { "6": 1 },
-        "(2, 4)": { "5": -1 }
-      }
-    },
-    acs: {
-      names: ["a", "b", "c", "\\bar{a}", "\\bar{b}", "\\bar{c}"],
-      matrix: [
-        [0, 1, 0, 0, 0, 0],
-        [-1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 1, 0, 0],
-        [0, 0, -1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1],
-        [0, 0, 0, 0, -1, 0]
-      ],
-      norm: [0.5, 1, 1, 0.5, 1, 1]
-    }
-  };
+      names: string[];
+      matrix: number[][];
+      norm?: number[];
+    };
+  }
+  // interface Data {
+  //   n: number;
+  //   m: number;
+  //   cohomology: {
+  //     dell: Cohomology;
+  //     delbar: Cohomology;
+  //     bottchern: Cohomology;
+  //     aeppli: Cohomology;
+  //     reduced_aeppli: Cohomology;
+  //     reduced_bottchern: Cohomology;
+  //   };
+  //   zigzags: ZigZag[];
+  //   squares: ZigZag[];
+  // }
 
-  let dim = $state(kte.dim);
-  let lieNames = $state(kte.lie.names);
-  let lieBracket = $state.raw(kte.lie.bracket);
-  let acsNames = $state(kte.acs.names);
-  let acsMatrix = $state.raw(kte.acs.matrix);
-  let acsNorm = $state(kte.acs.norm);
-  let ktActive = $state(true);
+  let input: Input | undefined = $state.raw();
+  let ktActive = $state(false);
   let iwActive = $state(false);
   let showModal = $state(false);
   let modalLie = $state();
-  let computeDisabled = $state(false);
 
   let saveDisabled = $derived.by(() => {
     if (modalLie != undefined) {
@@ -87,23 +73,9 @@
     return true;
   });
 
-  const kteBr = JSON.stringify(kte.lie.bracket);
-  const kteJ = kte.acs.matrix.toString();
-  const iweBr = JSON.stringify(iwe.lie.bracket);
-  const iweJ = iwe.acs.matrix.toString();
-  // let ktActive = $derived(dim === kte.dim && JSON.stringify(lieBracket) === kteBr && acsMatrix.toString() === kteJ);
-  // let iwActive = $derived(dim === iwe.dim && JSON.stringify(lieBracket) === iweBr && acsMatrix.toString() === iweJ);
-
   async function setKt() {
     if (!ktActive) {
-      data = undefined;
-      dim = kte.dim;
-      lieNames = kte.lie.names;
-      lieBracket = kte.lie.bracket;
-      acsNames = kte.acs.names;
-      acsMatrix = kte.acs.matrix;
-      acsNorm = kte.acs.norm;
-      computeDisabled = false;
+      input = ktInput;
       ktActive = true;
       iwActive = false;
     }
@@ -111,60 +83,59 @@
 
   async function setIw() {
     if (!iwActive) {
-      data = undefined;
-      dim = iwe.dim;
-      lieNames = iwe.lie.names;
-      lieBracket = iwe.lie.bracket;
-      acsNames = iwe.acs.names;
-      acsMatrix = iwe.acs.matrix;
-      acsNorm = iwe.acs.norm;
-      computeDisabled = false;
+      input = iwInput;
       ktActive = false;
       iwActive = true;
     }
   }
-  async function loadData() {
-    computeDisabled = true;
+
+  async function loadData(input: Input) {
+    data = undefined;
     waiting = true;
-    data = await compute(dim, lieBracket, acsNames, acsMatrix, acsNorm);
-    console.log(data);
+    data = await compute(
+      input.dim,
+      input.lie.bracket,
+      input.acs.names,
+      input.acs.matrix,
+      input.acs.norm
+    );
     waiting = false;
   }
 
   async function editMobile() {
     data = undefined;
-    computeDisabled = false;
   }
 
   async function lieClick() {
     // TODO format more comptly lie bracket
+    const iii: Input = input != undefined ? input : ktInput;
     let tmp = JSON.stringify(
       {
         lie: {
           names: "lieNames",
-          bracket: lieBracket
+          bracket: iii.lie.bracket
         },
         acs: {
           names: "acsNames",
           matrix: [
-            ...Array(acsMatrix.length)
+            ...Array(iii.acs.matrix.length)
               .keys()
               .map((i) => "acsMatrix-" + i)
           ],
-          ...(acsNorm != undefined && { norm: "acsNorm" })
+          ...(iii.acs.norm != undefined && { norm: "acsNorm" })
         }
       },
       null,
       4
     )
-      .replace('"lieNames"', JSON.stringify(lieNames))
-      .replace('"acsNames"', JSON.stringify(acsNames));
+      .replace('"lieNames"', JSON.stringify(iii.lie.names))
+      .replace('"acsNames"', JSON.stringify(iii.acs.names));
 
-    for (let i = 0; i < acsMatrix.length; i++) {
-      tmp = tmp.replace('"acsMatrix-' + i + '"', JSON.stringify(acsMatrix[i]));
+    for (let i = 0; i < iii.acs.matrix.length; i++) {
+      tmp = tmp.replace('"acsMatrix-' + i + '"', JSON.stringify(iii.acs.matrix[i]));
     }
-    if (acsNorm != undefined) {
-      tmp = tmp.replace('"acsNorm"', JSON.stringify(acsNorm));
+    if (iii.acs.norm != undefined) {
+      tmp = tmp.replace('"acsNorm"', JSON.stringify(iii.acs.norm));
     }
     modalLie = tmp;
     showModal = true;
@@ -172,22 +143,16 @@
 
   async function save() {
     let a = JSON.parse(modalLie);
-    data = undefined;
-    dim = a.lie.names.length;
-    lieNames = a.lie.names;
-    lieBracket = a.lie.bracket;
-    acsNames = a.acs.names;
-    acsMatrix = a.acs.matrix;
-    acsNorm = a.acs.norm;
-    computeDisabled = false;
-    if (dim === kte.dim && JSON.stringify(lieBracket) === kteBr && acsMatrix.toString() === kteJ) {
+    const newInput: Input = {
+      dim: a.lie.names.length,
+      ...a
+    };
+    input = newInput;
+    const ex = findExample(newInput);
+    if (ex === "KT") {
       ktActive = true;
       iwActive = false;
-    } else if (
-      dim === iwe.dim &&
-      JSON.stringify(lieBracket) === iweBr &&
-      acsMatrix.toString() === iweJ
-    ) {
+    } else if (ex === "IW") {
       ktActive = false;
       iwActive = true;
     } else {
@@ -196,6 +161,26 @@
     }
     return true;
   }
+
+  $effect(() => {
+    if (input != undefined) {
+      console.log("Input updated to:");
+      console.log($state.snapshot(input));
+      loadData(input);
+    } else {
+      console.log("Input reset");
+      data = undefined;
+    }
+  });
+
+  $effect(() => {
+    if (data != undefined) {
+      console.log("Data updated to:");
+      console.log($state.snapshot(data));
+    } else {
+      console.log("Data reset");
+    }
+  });
 </script>
 
 <section class={data != undefined ? "loaded" : ""}>
@@ -212,55 +197,55 @@
       <Button label="Iwasawa" onClick={setIw} bind:active={iwActive} />
     </div>
   </div>
-  <div id="input">
-    {#if isMobile && data != undefined}
-      <Button label="Complex nilmanifold: ✏️" onClick={editMobile} slim={true} />
-    {:else}
-      <h2>Complex nilmanifold:</h2>
-    {/if}
-    <div class="visual">
-      <div class="visualheader">
-        <div><h5>Real Lie algebra</h5></div>
-        <Button label="Edit" onClick={lieClick} slim={true} />
-      </div>
-      <div class="visualcontent">
-        {@html math("\\Lambda(" + lieNames.join(", ") + ")")}
-        <div id="brackets">
-          {#each Object.entries(lieBracket) as [key, value]}
-            {@const k = key
-              .substring(1, key.length - 1)
-              .split(",")
-              .map((b) => parseInt(b.trim()))}
-            {@html math(
-              "[" +
-                lieNames[k[0] - 1] +
-                ", " +
-                lieNames[k[1] - 1] +
-                "] = " +
-                Object.entries(value)
-                  .map(
-                    ([kk, vv], ii) =>
-                      (vv < 0 ? "-" : ii != 0 ? "+" : "") + lieNames[parseInt(kk) - 1]
-                  )
-                  .join(" ")
-            )}
-          {/each}
+  {#if input != undefined}
+    <div id="input">
+      {#if isMobile && data != undefined}
+        <Button label="Complex nilmanifold: ✏️" onClick={editMobile} slim={true} />
+      {:else}
+        <h2>Complex nilmanifold:</h2>
+      {/if}
+      <div class="visual">
+        <div class="visualheader">
+          <div><h5>Real Lie algebra</h5></div>
+          <Button label="Edit" onClick={lieClick} slim={true} />
+        </div>
+        <div class="visualcontent">
+          {@html math("\\Lambda(" + input.lie.names.join(", ") + ")")}
+          <div id="brackets">
+            {#each Object.entries(input.lie.bracket) as [key, value]}
+              {@const k = key
+                .substring(1, key.length - 1)
+                .split(",")
+                .map((b) => parseInt(b.trim()))}
+              {@html math(
+                "[" +
+                  input.lie.names[k[0] - 1] +
+                  ", " +
+                  input.lie.names[k[1] - 1] +
+                  "] = " +
+                  Object.entries(value)
+                    .map(
+                      ([kk, vv], ii) =>
+                        (vv < 0 ? "-" : ii != 0 ? "+" : "") + input.lie.names[parseInt(kk) - 1]
+                    )
+                    .join(" ")
+              )}
+            {/each}
+          </div>
+        </div>
+        <div class="visualheader">
+          <h5>Almost complex structure</h5>
+        </div>
+        <div class="visualcontent">
+          {@html math(
+            "\\begin{pmatrix}" +
+              input.acs.matrix.map((row) => row.join(" & ")).join(" \\\\") +
+              "\\end{pmatrix}"
+          )}
         </div>
       </div>
-      <div class="visualheader">
-        <h5>Almost complex structure</h5>
-      </div>
-      <div class="visualcontent">
-        {@html math(
-          "\\begin{pmatrix}" +
-            acsMatrix.map((row) => row.join(" & ")).join(" \\\\") +
-            "\\end{pmatrix}"
-        )}
-      </div>
     </div>
-  </div>
-
-  <Button label="Compute invariants" onClick={loadData} disabled={computeDisabled} />
+  {/if}
 </section>
 
 <Modal bind:showModal buttonLabel="Save" buttonDisabled={saveDisabled} onClose={save}>

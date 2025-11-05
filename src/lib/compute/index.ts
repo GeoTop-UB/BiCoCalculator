@@ -11,10 +11,25 @@ import {
 } from "./utils";
 import { PUBLIC_ADAPTER, PUBLIC_COMPUTATION_TIME_MIN } from "$env/static/public";
 
-// @ts-ignore
-import ktResult from "../precomputations/KT_Result.json?raw";
-// @ts-ignore
-import iwResult from "../precomputations/IW_Result.json?raw";
+import ktResult from "$lib/precomputations/KT_Result.json?raw";
+import ktHash from "$lib/precomputations/KT_Hash.txt?raw";
+import iwResult from "$lib/precomputations/IW_Result.json?raw";
+import iwHash from "$lib/precomputations/IW_Hash.txt?raw";
+import jnResult from "$lib/precomputations/JN_Result.json?raw";
+import jnHash from "$lib/precomputations/JN_Hash.txt?raw";
+
+interface Input {
+  dim: number;
+  lie: {
+    names: string[];
+    bracket: LieBrackets;
+  };
+  acs: {
+    names: string[];
+    matrix: number[][];
+    norm?: number[];
+  };
+}
 
 interface NamedBackends {
   [backend: string]: ComputeBackend;
@@ -25,11 +40,27 @@ const computeBackends: NamedBackends = {
 };
 
 interface PrecomputedExamples {
-  [hash: string]: string;
+  [hash: string]: {
+    id: string;
+    result: string;
+  };
 }
 const precomputedExamples: PrecomputedExamples = {
-  f98765fc914692d6fd1b4062b72ecce95fedec43: ktResult, // Kodaira-Thurston
-  "52be107def827888912cd0de7b3e80df05471a5f": iwResult // Iwasawa
+  [ktHash]: {
+    // Kodaira-Thurston
+    id: "KT",
+    result: ktResult
+  },
+  [iwHash]: {
+    // Iwasawa
+    id: "IW",
+    result: iwResult
+  },
+  [jnHash]: {
+    // Jonas
+    id: "JN",
+    result: jnResult
+  }
 };
 
 interface ComputationResult {
@@ -73,11 +104,13 @@ async function computeCanonical(
       acsMatrix: acsMatrix,
       ...(acsNorm != undefined && { acsNorm: acsNorm })
     });
+    console.log(`Input has hash: ${inputHash}`);
+
     result = window.localStorage.getItem(inputHash);
     if (result === null) {
       if (inputHash in precomputedExamples) {
         console.log("Precomputed at the server");
-        result = precomputedExamples[inputHash];
+        result = precomputedExamples[inputHash].result;
       } else {
         console.log(`Computed in backend: ${backend}`);
         result = await computeBackends[backend](varNames, lieBracket, acsMatrix, acsNorm);
@@ -89,6 +122,22 @@ async function computeCanonical(
   }
 
   return JSON.parse(result);
+}
+
+export function findExample(input: Input): string | null {
+  const tmpNames = makeTmpNames(input.dim);
+  const tmpLieBracket = computeTmpLieBracket(input.lie.bracket, tmpNames);
+  const inputHash: string = hash({
+    varNames: tmpNames,
+    lieBracket: tmpLieBracket,
+    acsMatrix: input.acs.matrix,
+    ...(input.acs.norm != undefined && { acsNorm: input.acs.norm })
+  });
+  if (inputHash in precomputedExamples) {
+    return precomputedExamples[inputHash].id;
+  } else {
+    return null;
+  }
 }
 
 export async function compute(
