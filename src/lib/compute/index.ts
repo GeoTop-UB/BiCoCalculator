@@ -32,11 +32,17 @@ import iwHash from "$lib/precomputations/IW_Hash.txt?raw";
 import jnResult from "$lib/precomputations/JN_Result.json?raw";
 import jnHash from "$lib/precomputations/JN_Hash.txt?raw";
 
-export const enum ExamplesID {
-  KT,
-  IW,
-  JN
-}
+// export const enum ExamplesID {
+//   KT = "KT",
+//   IW = "IW",
+//   // JN = "JN"
+// }
+export const ExamplesID = {
+  KT: "KT",
+  IW: "IW",
+  JN: "JN"
+} as const;
+export type ExamplesID = (typeof ExamplesID)[keyof typeof ExamplesID];
 interface PrecomputedExamples {
   [hash: string]: {
     id: ExamplesID;

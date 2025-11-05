@@ -3,26 +3,66 @@
   import { untrack } from "svelte";
 
   import { compute, processResult, findExample, ExamplesID, hashInput } from "$lib/compute";
-  import type { Data, Input, ComputationResult } from "$lib/compute";
+  import type { Data, Input, ComputationResult, ExamplesID as ExamplesIDT } from "$lib/compute";
   import Modal from "$lib/components/Modal.svelte";
   import Button from "$lib/components/Button.svelte";
   import ktInput from "$lib/precomputations/KT_Input.json";
   import iwInput from "$lib/precomputations/IW_Input.json";
-  // import jnInput from "$lib/precomputations/JN_Input.json";
+  import jnInput from "$lib/precomputations/JN_Input.json";
 
   interface Props {
     data: Data | undefined;
     waiting: boolean;
     isMobile: boolean;
   }
+
+  const MoreOptions = {
+    CUSTOM: "CUSTOM"
+  } as const;
+  type MoreOptions = (typeof MoreOptions)[keyof typeof MoreOptions];
+  const InputOptions = { ...ExamplesID, ...MoreOptions };
+  type InputOptions = ExamplesIDT | MoreOptions;
+  type MetadataInputOptions = {
+    [e in InputOptions]: {
+      label: string;
+      callback: () => Promise<Input>;
+    };
+  };
+  const inputOptions: MetadataInputOptions = {
+    [InputOptions.KT]: {
+      label: "Kodaira-Thurston",
+      callback: () => {
+        return Promise.resolve(ktInput);
+      }
+    },
+    [InputOptions.IW]: {
+      label: "Iwasawa",
+      callback: () => {
+        return Promise.resolve(iwInput);
+      }
+    },
+    [InputOptions.JN]: {
+      label: "Jonas",
+      callback: () => {
+        return Promise.resolve(jnInput);
+      }
+    },
+    [InputOptions.CUSTOM]: {
+      label: "Custom nilmanifold",
+      callback: lieClick
+    }
+  };
+
   let { data = $bindable(), waiting = $bindable(), isMobile }: Props = $props();
 
   let input: Input | undefined = $state.raw();
+  let inputOption: ExamplesID | "" = $state("");
+  let prevInputOption: ExamplesID | "" = $state("");
   let result: ComputationResult | undefined = $state.raw();
-  let ktActive = $state(false);
-  let iwActive = $state(false);
   let showModal = $state(false);
   let modalLie = $state();
+  let modalSave = $state();
+  let modalAbort = $state();
 
   let inputHash: string | undefined = $derived(input != undefined ? hashInput(input) : undefined);
   let saveDisabled = $derived.by(() => {
@@ -53,18 +93,21 @@
     input = i;
     console.log("Input updated to:");
     console.log($state.snapshot(input));
-    ktActive = false;
-    iwActive = false;
+    // ktActive = false;
+    // iwActive = false;
   }
 
-  async function setKt() {
-    setInput(ktInput);
-    ktActive = true;
-  }
-
-  async function setIw() {
-    setInput(iwInput);
-    iwActive = true;
+  async function setInputOption() {
+    if (inputOption != "") {
+      try {
+        const i = await inputOptions[inputOption].callback();
+        setInput(i);
+        prevInputOption = inputOption;
+      } catch (_) {
+        console.log("Modal closed, reverting to previous option");
+        inputOption = prevInputOption;
+      }
+    }
   }
 
   async function computeResult(i: Input) {
@@ -90,7 +133,7 @@
     data = undefined;
   }
 
-  async function lieClick() {
+  async function lieClick(): Promise<Input> {
     // TODO format more comptly lie bracket
     const iii: Input = input != undefined ? input : ktInput;
     let tmp = JSON.stringify(
@@ -123,6 +166,28 @@
     }
     modalLie = tmp;
     showModal = true;
+
+    return new Promise((resolve, reject) => {
+      modalSave = () => {
+        let a = JSON.parse(modalLie);
+        const newInput: Input = {
+          dim: a.lie.names.length,
+          ...a
+        };
+        // setInput(newInput);
+        // modalSave(newInput)
+        const ex = findExample(newInput);
+        if (ex === ExamplesID.KT) {
+          inputOption = ExamplesID.KT;
+        } else if (ex === ExamplesID.IW) {
+          inputOption = ExamplesID.IW;
+        }
+        resolve(newInput);
+      };
+      modalAbort = () => {
+        reject("Error, aborted");
+      };
+    });
   }
 
   async function save() {
@@ -131,12 +196,13 @@
       dim: a.lie.names.length,
       ...a
     };
-    setInput(newInput);
+    // setInput(newInput);
+    modalSave(newInput);
     const ex = findExample(newInput);
     if (ex === ExamplesID.KT) {
-      ktActive = true;
+      inputOption = ExamplesID.KT;
     } else if (ex === ExamplesID.IW) {
-      iwActive = true;
+      inputOption = ExamplesID.IW;
     }
     return true;
   }
@@ -148,6 +214,8 @@
       console.log("Result reset");
       data = undefined;
       console.log("Data reset");
+      inputOption = "";
+      console.log("Input option reset");
     }
   });
 
@@ -179,10 +247,21 @@
   </div>
   <div id="examples">
     <h2>Some examples to try:</h2>
-    <div>
+    <!-- <div>
       <Button label="Kodaira-Thurston" onClick={setKt} bind:active={ktActive} />
       <Button label="Iwasawa" onClick={setIw} bind:active={iwActive} />
-    </div>
+    </div> -->
+    <form>
+      <label for="pet-select">Select pet:</label>
+      <select bind:value={inputOption} onchange={setInputOption}>
+        <option value="" selected disabled hidden>Choose here</option>
+        {#each Object.entries(inputOptions) as [key, option]}
+          <option value={key}>
+            {option.label}
+          </option>
+        {/each}
+      </select>
+    </form>
   </div>
   {#if input != undefined}
     <div id="input">
@@ -235,7 +314,13 @@
   {/if}
 </section>
 
-<Modal bind:showModal buttonLabel="Save" buttonDisabled={saveDisabled} onClose={save}>
+<Modal
+  bind:showModal
+  buttonLabel="Save"
+  buttonDisabled={saveDisabled}
+  onClose={save}
+  onAbort={modalAbort}
+>
   {#snippet header()}
     <h2>Edit the complex nilmanifold</h2>
   {/snippet}

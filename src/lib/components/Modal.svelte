@@ -4,6 +4,7 @@
   let {
     showModal = $bindable(),
     onClose,
+    onAbort,
     buttonLabel,
     buttonDisabled,
     header,
@@ -26,7 +27,10 @@
   bind:this={dialog}
   onclose={() => (showModal = false)}
   onclick={(e) => {
-    if (e.target === dialog) dialog.close();
+    if (e.target === dialog) {
+      onAbort();
+      dialog.close();
+    }
   }}
 >
   <div>
