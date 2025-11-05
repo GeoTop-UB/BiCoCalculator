@@ -2,9 +2,11 @@ import SageCellClient from "./sagecell.js";
 import type { ComputeBackend } from "./types";
 import { resolve } from "$app/paths";
 
+import { PUBLIC_SAGECELL_TIMEOUT } from "$env/static/public";
+
 // const version =
 const apiUrl: string = resolve("/api/compute/");
-const client = new SageCellClient({ timeout: 30 });
+const client = new SageCellClient({ timeout: PUBLIC_SAGECELL_TIMEOUT });
 let bicoLib: string | undefined = undefined;
 
 export const computeSelfhosted: ComputeBackend = async (
