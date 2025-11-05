@@ -9,7 +9,7 @@ import {
   replaceNamesZigZags,
   computeZigzags
 } from "./utils";
-import { PUBLIC_ADAPTER, PUBLIC_COMPUTATION_TIME_MIN, PUBLIC_CACHE } from "$env/static/public";
+import { PUBLIC_ADAPTER, PUBLIC_COMPUTATION_TIME_MIN, PUBLIC_CACHE, PUBLIC_PRECOMPUTED_EXAMPLES } from "$env/static/public";
 
 import ktResult from "$lib/precomputations/KT_Result.json?raw";
 import ktHash from "$lib/precomputations/KT_Hash.txt?raw";
@@ -85,7 +85,7 @@ async function computeCanonical(
   acsNorm?: number[]
 ): Promise<ComputationResult> {
   const isStatic = PUBLIC_ADAPTER === "static";
-  const enableCache = PUBLIC_CACHE === "true";
+  const precomputations = PUBLIC_PRECOMPUTED_EXAMPLES == "true";
   const backend: string = isStatic ? "sageCell" : "selfHosted";
   if (!Object.keys(computeBackends).includes(backend)) {
     throw new Error(
@@ -93,35 +93,7 @@ async function computeCanonical(
     );
   }
 
-  var result: string | null = null;
-  if (!enableCache) {
-    console.log(`No cache enabled, computed in backend: ${backend}`);
-    result = await computeBackends[backend](varNames, lieBracket, acsMatrix, acsNorm);
-  } else {
-    const inputHash: string = hash({
-      varNames: varNames,
-      lieBracket: lieBracket,
-      acsMatrix: acsMatrix,
-      ...(acsNorm != undefined && { acsNorm: acsNorm })
-    });
-    console.log(`Input has hash: ${inputHash}`);
-
-    result = window.localStorage.getItem(inputHash);
-    if (result === null) {
-      if (inputHash in precomputedExamples) {
-        console.log("Precomputed at the server");
-        result = precomputedExamples[inputHash].result;
-      } else {
-        console.log(`Computed in backend: ${backend}`);
-        result = await computeBackends[backend](varNames, lieBracket, acsMatrix, acsNorm);
-      }
-      window.localStorage.setItem(inputHash, result);
-    } else {
-      console.log("Cached in local storage");
-    }
-  }
-
-  return JSON.parse(result);
+  if (precomputations && inputHash in precomputedExamples) {
 }
 
 export function findExample(input: Input): string | null {
