@@ -77,7 +77,7 @@ export interface CanonicalInput {
 }
 
 export interface ComputationResult {
-  hash: string
+  hash: string;
   n: number;
   m: number;
   cohomology: {

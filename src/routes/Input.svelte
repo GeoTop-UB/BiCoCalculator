@@ -1,6 +1,6 @@
 <script lang="ts">
   import { math } from "mathlifier";
-	import { untrack } from 'svelte';
+  import { untrack } from "svelte";
 
   import { compute, processResult, findExample, ExamplesID, hashInput } from "$lib/compute";
   import type { Data, Input, ComputationResult } from "$lib/compute";
@@ -10,10 +10,10 @@
   import iwInput from "$lib/precomputations/IW_Input.json";
   // import jnInput from "$lib/precomputations/JN_Input.json";
 
-  interface Props { 
-    data: Data | undefined, 
-    waiting: boolean, 
-    isMobile: boolean 
+  interface Props {
+    data: Data | undefined;
+    waiting: boolean;
+    isMobile: boolean;
   }
   let { data = $bindable(), waiting = $bindable(), isMobile }: Props = $props();
 
@@ -24,7 +24,7 @@
   let showModal = $state(false);
   let modalLie = $state();
 
-  let inputHash: string | undefined = $derived(input != undefined? hashInput(input) : undefined);
+  let inputHash: string | undefined = $derived(input != undefined ? hashInput(input) : undefined);
   let saveDisabled = $derived.by(() => {
     if (modalLie != undefined) {
       try {
@@ -149,7 +149,7 @@
       data = undefined;
       console.log("Data reset");
     }
-  })
+  });
 
   $effect(() => {
     if (inputHash != undefined && input != undefined) {

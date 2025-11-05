@@ -1,6 +1,14 @@
 import hash from "object-hash";
 
-import type { ComputationResult, CanonicalInput, Input, SerializableInput, LieBrackets, NamedBackends, Data, Cohomology } from "./types";
+import type {
+  ComputationResult,
+  CanonicalInput,
+  Input,
+  SerializableInput,
+  NamedBackends,
+  Data,
+  Cohomology
+} from "./types";
 export type { Input, SerializableInput, ComputationResult, Data } from "./types";
 import { computeSageCell, computeSelfhosted } from "./backends";
 import {
@@ -10,7 +18,12 @@ import {
   replaceNamesZigZags,
   computeZigzags
 } from "./utils";
-import { PUBLIC_ADAPTER, PUBLIC_COMPUTATION_TIME_MIN, PUBLIC_CACHE, PUBLIC_PRECOMPUTED_EXAMPLES } from "$env/static/public";
+import {
+  PUBLIC_ADAPTER,
+  PUBLIC_COMPUTATION_TIME_MIN,
+  PUBLIC_CACHE,
+  PUBLIC_PRECOMPUTED_EXAMPLES
+} from "$env/static/public";
 
 import ktResult from "$lib/precomputations/KT_Result.json?raw";
 import ktHash from "$lib/precomputations/KT_Hash.txt?raw";
@@ -19,7 +32,11 @@ import iwHash from "$lib/precomputations/IW_Hash.txt?raw";
 import jnResult from "$lib/precomputations/JN_Result.json?raw";
 import jnHash from "$lib/precomputations/JN_Hash.txt?raw";
 
-export const enum ExamplesID { KT, IW, JN }
+export const enum ExamplesID {
+  KT,
+  IW,
+  JN
+}
 interface PrecomputedExamples {
   [hash: string]: {
     id: ExamplesID;
@@ -57,7 +74,7 @@ function serializeInput(input: Input): SerializableInput {
       matrix: input.acs.matrix,
       ...(input.acs.norm != undefined && { norm: input.acs.norm })
     }
-  }
+  };
 }
 
 function makeCanonical(input: Input): CanonicalInput {
@@ -72,7 +89,7 @@ function makeCanonical(input: Input): CanonicalInput {
       matrix: input.acs.matrix,
       ...(input.acs.norm != undefined && { norm: input.acs.norm })
     }
-  }
+  };
 }
 
 export function hashFullInput(input: Input): string {
@@ -107,15 +124,20 @@ async function computeCanonical(cInput: CanonicalInput, inputHash: string): Prom
     return precomputedExamples[inputHash].result;
   } else {
     console.log(`Computed in backend: ${backend}`);
-    return await computeBackends[backend](cInput.varNames, cInput.lie.bracket, cInput.acs.matrix, cInput.acs.norm);
+    return await computeBackends[backend](
+      cInput.varNames,
+      cInput.lie.bracket,
+      cInput.acs.matrix,
+      cInput.acs.norm
+    );
   }
 }
 
 export function processResult(input: Input, result: ComputationResult): Data {
   const tmpNames = makeTmpNames(input.dim);
   const replaceNames = (cohomology: Cohomology) => {
-    return replaceNamesCohomology(tmpNames, input.acs.names, cohomology)
-  }
+    return replaceNamesCohomology(tmpNames, input.acs.names, cohomology);
+  };
   return {
     n: result.n,
     m: result.m,

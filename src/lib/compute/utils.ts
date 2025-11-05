@@ -1,4 +1,14 @@
-import type { Cohomology, LieBracket, LieBrackets, ZigZag, PostZigZag, ZigZagBasis, ZigZagsTracks, LocatedZigZag, ZigZagsBasis } from "./types";
+import type {
+  Cohomology,
+  LieBracket,
+  LieBrackets,
+  ZigZag,
+  PostZigZag,
+  ZigZagBasis,
+  ZigZagsTracks,
+  LocatedZigZag,
+  ZigZagsBasis
+} from "./types";
 
 interface ZigZagsBasis2 {
   [bidegree: string]: ZigZagBasis;
