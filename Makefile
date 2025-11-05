@@ -12,21 +12,29 @@ prepare: package.json
 	yarn
 .PHONY: prepare
 
+build-static: prepare
+	yarn build-static
+.PHONY: build-static
+
 build-server: prepare
 	yarn build-server
 .PHONY: build-server
 
-build-static: prepare
-	yarn build-static
-.PHONY: build-static
+build-server-nc: prepare
+	yarn build-server-nc
+.PHONY: build-server-nc
+
+preview-static: build-static
+	yarn preview-static --open
+.PHONY: preview-static
 
 preview-server: build-server
 	yarn preview-server --open
 .PHONY: preview-server
 
-preview-static: build-static
-	yarn preview-static --open
-.PHONY: preview-static
+preview-server-nc: build-server-nc
+	yarn preview-server-nc --open
+.PHONY: preview-server-nc
 
 deploy:
 	./deploy.sh
