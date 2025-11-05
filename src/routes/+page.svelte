@@ -4,10 +4,11 @@
   import Input from "./Input.svelte";
   import Output from "./Output.svelte";
   import "../app.css";
+  import type { Data } from "$lib/compute";
 
-  let data = $state();
+  let data: Data | undefined = $state();
   let waiting: boolean = $state(false);
-  let innerWidth = $state(0);
+  let innerWidth: number = $state(0);
 
   let isMobile = $derived(innerWidth < 768);
 </script>

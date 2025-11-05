@@ -1,35 +1,7 @@
-import type { Cohomology, LieBracket, LieBrackets, ZigZag } from "./types";
-
-interface LocatedZigZag {
-  m: number;
-  n: number;
-  z: ZigZag;
-}
-
-interface ZigZagBasis {
-  value: string;
-  type: string;
-  del: string;
-  delbar: string;
-  order?: number;
-  zigzag?: LocatedZigZag;
-}
-
-interface ZigZagsTracks {
-  [bidegree: string]: number;
-}
+import type { Cohomology, LieBracket, LieBrackets, ZigZag, PostZigZag, ZigZagBasis, ZigZagsTracks, LocatedZigZag, ZigZagsBasis } from "./types";
 
 interface ZigZagsBasis2 {
   [bidegree: string]: ZigZagBasis;
-}
-
-interface ZigZagsBasis {
-  [bidegree: string]: ZigZagBasis[];
-}
-
-interface PostZigZag {
-  tracks: ZigZagsTracks;
-  basis: ZigZagsBasis;
 }
 
 interface CC {

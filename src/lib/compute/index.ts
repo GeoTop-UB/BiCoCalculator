@@ -1,6 +1,7 @@
 import hash from "object-hash";
 
-import type { Cohomology, ComputeBackend, LieBrackets, ZigZag } from "./types";
+import type { ComputationResult, CanonicalInput, Input, SerializableInput, LieBrackets, NamedBackends, Data, Cohomology } from "./types";
+export type { Input, SerializableInput, ComputationResult, Data } from "./types";
 import { computeSageCell, computeSelfhosted } from "./backends";
 import {
   computeTmpLieBracket,
@@ -18,72 +19,80 @@ import iwHash from "$lib/precomputations/IW_Hash.txt?raw";
 import jnResult from "$lib/precomputations/JN_Result.json?raw";
 import jnHash from "$lib/precomputations/JN_Hash.txt?raw";
 
-interface Input {
-  dim: number;
-  lie: {
-    names: string[];
-    bracket: LieBrackets;
-  };
-  acs: {
-    names: string[];
-    matrix: number[][];
-    norm?: number[];
-  };
-}
-
-interface NamedBackends {
-  [backend: string]: ComputeBackend;
-}
-const computeBackends: NamedBackends = {
-  selfHosted: computeSelfhosted,
-  sageCell: computeSageCell
-};
-
+export const enum ExamplesID { KT, IW, JN }
 interface PrecomputedExamples {
   [hash: string]: {
-    id: string;
+    id: ExamplesID;
     result: string;
   };
 }
 const precomputedExamples: PrecomputedExamples = {
   [ktHash]: {
     // Kodaira-Thurston
-    id: "KT",
+    id: ExamplesID.KT,
     result: ktResult
   },
   [iwHash]: {
     // Iwasawa
-    id: "IW",
+    id: ExamplesID.IW,
     result: iwResult
   },
   [jnHash]: {
     // Jonas
-    id: "JN",
+    id: ExamplesID.JN,
     result: jnResult
   }
 };
+const computeBackends: NamedBackends = {
+  selfHosted: computeSelfhosted,
+  sageCell: computeSageCell
+};
 
-interface ComputationResult {
-  n: number;
-  m: number;
-  cohomology: {
-    dell: Cohomology;
-    delbar: Cohomology;
-    bottchern: Cohomology;
-    aeppli: Cohomology;
-    reduced_aeppli: Cohomology;
-    reduced_bottchern: Cohomology;
-  };
-  zigzags: ZigZag[];
-  squares: ZigZag[];
+function serializeInput(input: Input): SerializableInput {
+  return {
+    lie: {
+      bracket: input.lie.bracket
+    },
+    acs: {
+      matrix: input.acs.matrix,
+      ...(input.acs.norm != undefined && { norm: input.acs.norm })
+    }
+  }
 }
 
-async function computeCanonical(
-  varNames: string[],
-  lieBracket: LieBrackets,
-  acsMatrix: number[][],
-  acsNorm?: number[]
-): Promise<ComputationResult> {
+function makeCanonical(input: Input): CanonicalInput {
+  const tmpNames = makeTmpNames(input.dim);
+  const tmpLieBracket = computeTmpLieBracket(input.lie.bracket, tmpNames);
+  return {
+    varNames: tmpNames,
+    lie: {
+      bracket: tmpLieBracket
+    },
+    acs: {
+      matrix: input.acs.matrix,
+      ...(input.acs.norm != undefined && { norm: input.acs.norm })
+    }
+  }
+}
+
+export function hashFullInput(input: Input): string {
+  return hash(input);
+}
+
+export function hashInput(input: Input): string {
+  return hash(serializeInput(input));
+}
+
+export function findExample(input: Input): ExamplesID | null {
+  const inputHash: string = hashInput(input);
+  if (inputHash in precomputedExamples) {
+    return precomputedExamples[inputHash].id;
+  } else {
+    return null;
+  }
+}
+
+async function computeCanonical(cInput: CanonicalInput, inputHash: string): Promise<string> {
   const isStatic = PUBLIC_ADAPTER === "static";
   const precomputations = PUBLIC_PRECOMPUTED_EXAMPLES == "true";
   const backend: string = isStatic ? "sageCell" : "selfHosted";
@@ -94,61 +103,69 @@ async function computeCanonical(
   }
 
   if (precomputations && inputHash in precomputedExamples) {
-}
-
-export function findExample(input: Input): string | null {
-  const tmpNames = makeTmpNames(input.dim);
-  const tmpLieBracket = computeTmpLieBracket(input.lie.bracket, tmpNames);
-  const inputHash: string = hash({
-    varNames: tmpNames,
-    lieBracket: tmpLieBracket,
-    acsMatrix: input.acs.matrix,
-    ...(input.acs.norm != undefined && { acsNorm: input.acs.norm })
-  });
-  if (inputHash in precomputedExamples) {
-    return precomputedExamples[inputHash].id;
+    console.log("Precomputed at the server");
+    return precomputedExamples[inputHash].result;
   } else {
-    return null;
+    console.log(`Computed in backend: ${backend}`);
+    return await computeBackends[backend](cInput.varNames, cInput.lie.bracket, cInput.acs.matrix, cInput.acs.norm);
   }
 }
 
-export async function compute(
-  dim: number,
-  lieBracket: LieBrackets,
-  acsNames: string[],
-  acsMatrix: number[][],
-  acsNorm?: number[]
-) {
-  const tmpNames = makeTmpNames(dim);
-  const tmpLieBracket = computeTmpLieBracket(lieBracket, tmpNames);
-  const d = await Promise.all([
-    computeCanonical(tmpNames, tmpLieBracket, acsMatrix, acsNorm),
-    new Promise((resolve, _) => {
-      setTimeout(resolve, PUBLIC_COMPUTATION_TIME_MIN, "Mininum timeout ended!");
-    })
-  ]).then((result) => result[0]);
+export function processResult(input: Input, result: ComputationResult): Data {
+  const tmpNames = makeTmpNames(input.dim);
+  const replaceNames = (cohomology: Cohomology) => {
+    return replaceNamesCohomology(tmpNames, input.acs.names, cohomology)
+  }
   return {
-    n: d.n,
-    m: d.m,
-    cohomology_aeppli: replaceNamesCohomology(tmpNames, acsNames, d.cohomology.aeppli),
-    cohomology_bottchern: replaceNamesCohomology(tmpNames, acsNames, d.cohomology.bottchern),
-    cohomology_delbar: replaceNamesCohomology(tmpNames, acsNames, d.cohomology.delbar),
-    cohomology_dell: replaceNamesCohomology(tmpNames, acsNames, d.cohomology.dell),
-    cohomology_reduced_aeppli: replaceNamesCohomology(
-      tmpNames,
-      acsNames,
-      d.cohomology.reduced_aeppli
-    ),
-    cohomology_reduced_bottchern: replaceNamesCohomology(
-      tmpNames,
-      acsNames,
-      d.cohomology.reduced_bottchern
-    ),
-    zigzags: computeZigzags(replaceNamesZigZags(tmpNames, acsNames, d.zigzags)),
+    n: result.n,
+    m: result.m,
+    cohomology_aeppli: replaceNames(result.cohomology.aeppli),
+    cohomology_bottchern: replaceNames(result.cohomology.bottchern),
+    cohomology_delbar: replaceNames(result.cohomology.delbar),
+    cohomology_dell: replaceNames(result.cohomology.dell),
+    cohomology_reduced_aeppli: replaceNames(result.cohomology.reduced_aeppli),
+    cohomology_reduced_bottchern: replaceNames(result.cohomology.reduced_bottchern),
+    zigzags: computeZigzags(replaceNamesZigZags(tmpNames, input.acs.names, result.zigzags)),
     // "squares": d.squares
     squares: {
       basis: {},
       tracks: {}
     }
   };
+}
+
+async function _compute(input: Input): Promise<ComputationResult> {
+  const enableCache = PUBLIC_CACHE === "true";
+  const inputHash: string = hashInput(input);
+  // console.log(`Input has hash: ${inputHash}`);
+
+  let result: string | null = null;
+  if (enableCache) {
+    console.log("Cache enabled");
+    result = window.localStorage.getItem(inputHash);
+  } else {
+    console.log("No cache enabled");
+  }
+
+  if (result === null) {
+    result = await computeCanonical(makeCanonical(input), inputHash);
+    if (enableCache) {
+      window.localStorage.setItem(inputHash, result);
+    }
+  } else {
+    console.log("Cached in local storage");
+  }
+  return {
+    hash: inputHash,
+    ...JSON.parse(result)
+  };
+}
+
+export async function compute(input: Input): Promise<ComputationResult> {
+  return Promise.all([
+    _compute(input),
+    new Promise((resolve, _) => {
+      setTimeout(resolve, parseInt(PUBLIC_COMPUTATION_TIME_MIN), "Mininum timeout ended!");
+    })
+  ]).then((result) => result[0]);
 }
