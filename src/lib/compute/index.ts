@@ -9,7 +9,7 @@ import {
   replaceNamesZigZags,
   computeZigzags
 } from "./utils";
-import { PUBLIC_ADAPTER, PUBLIC_COMPUTATION_TIME_MIN } from "$env/static/public";
+import { PUBLIC_ADAPTER, PUBLIC_COMPUTATION_TIME_MIN, PUBLIC_CACHE } from "$env/static/public";
 
 import ktResult from "$lib/precomputations/KT_Result.json?raw";
 import ktHash from "$lib/precomputations/KT_Hash.txt?raw";
@@ -85,7 +85,7 @@ async function computeCanonical(
   acsNorm?: number[]
 ): Promise<ComputationResult> {
   const isStatic = PUBLIC_ADAPTER === "static";
-  const enableCache = isStatic;
+  const enableCache = PUBLIC_CACHE === "true";
   const backend: string = isStatic ? "sageCell" : "selfHosted";
   if (!Object.keys(computeBackends).includes(backend)) {
     throw new Error(
