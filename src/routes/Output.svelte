@@ -2,6 +2,8 @@
   import GridOutput from "./GridOutput.svelte";
   import Button from "$lib/components/Button.svelte";
   import Loader from "$lib/components/Loader.svelte";
+  import minusIcon from "$lib/images/minus.svg"
+  import plusIcon from "$lib/images/plus.svg"
 
   let { data, waiting, isMobile } = $props();
 
@@ -66,11 +68,11 @@
           label: "Zigzags",
           type: "zigzags"
         },
-        {
-          id: "squares",
-          label: "Squares",
-          type: "squares"
-        }
+        // {
+        //   id: "squares",
+        //   label: "Squares",
+        //   type: "squares"
+        // }
       ]
     }
   ];
@@ -99,6 +101,7 @@
   let tab: string = $state(defaultOutput);
   let categorySelected: number = $state(0);
   let outputActive: boolean[] = $state([true, ...Array(listOutputs.length - 1).fill(false)]);
+  let zoom: number = $state(100);
 
   let openMenuAttr = $derived({
     ...(!isMobile && { open: true })
@@ -131,7 +134,7 @@
   });
 </script>
 
-<section class={data != undefined ? "loaded" : ""}>
+<section class={data != undefined ? "loaded" : ""} style="--zoom: {zoom}%">
   <div id="table-container-parent">
     <div id="table-container" class={type}>
       {#if datatab === undefined}
@@ -187,6 +190,20 @@
           </ul>
         </details>
       {/each}
+      <div id="tools">
+        <div id="zoom">
+          <span>Zoom:</span>
+          <span>
+            <button onclick={() => zoom = Math.max(zoom - 20, 20)}>
+              <img src={minusIcon} alt="Reduce zoom" width="10px"/>
+            </button>
+            <span>{zoom}%</span>
+            <button onclick={() => zoom = Math.min(zoom + 20, 180)}>
+              <img src={plusIcon} alt="Augment zoom" width="10px"/>
+            </button>
+          </span>
+        </div>
+      </div>
     {/if}
   </nav>
 </section>
@@ -267,15 +284,30 @@
     max-width: 80%;
     margin: auto;
     padding: 0.8rem;
+    zoom: var(--zoom);
   }
 
   #table-container.zigzags {
     width: max-content;
   }
 
+  #tools > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 0.8rem;
+  }
+
+  #tools > div > :last-child {
+    display: flex;
+    flex-direction: row;
+    gap: 0.2rem;
+    align-items: center;
+  }
+
   @media screen and (min-width: 768px) {
-    nav > :last-child {
-      margin-top: 2rem;
+    nav > :not(:last-child) {
+      margin-bottom: 1.5rem;
     }
 
     nav > details {
@@ -297,6 +329,7 @@
       text-align: center;
       pointer-events: none; /* prevents click events */
       user-select: none; /* prevents text selection */
+      padding: 0.2em 0;
     }
 
     nav ul {
@@ -323,8 +356,8 @@
   }
 
   @media screen and (max-width: 768px) {
-    nav > :last-child {
-      margin-left: 2rem;
+    nav > :not(:last-child) {
+      margin-right: 2rem;
     }
 
     nav {
@@ -345,5 +378,35 @@
     nav select {
       width: 10rem;
     }
+  }
+
+  section #zoom {
+    display: none;
+  }
+
+  section.loaded #zoom {
+    display: flex;
+  }
+
+  #zoom > :last-child > span {
+    width: 3em;
+    text-align: center;
+  }
+
+  #zoom button {
+    background-color: var(--color-accent-light);
+    border: 1px solid transparent;
+    height: fit-content;
+    padding: 0 5px;
+  }
+
+  #zoom button:hover {
+    border: 1px var(--color-accent-strong) solid;
+  }
+
+  #zoom button:active {
+    border: 1px solid transparent;
+    background-color: var(--color-accent-strong);
+    color: var(--color-accent-strong-font);
   }
 </style>
