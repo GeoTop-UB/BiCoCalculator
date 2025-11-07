@@ -139,7 +139,10 @@
           <Loader />
         {:else}
           <div>
-            <p>Click compute to see the invariants of the selected nilmanifold</p>
+            <p>
+              Start by <strong>choosing a nilmanifold</strong> from the provided examples or entering
+              your own by selection one of the options on the left.
+            </p>
           </div>
         {/if}
       {:else}
@@ -193,7 +196,8 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    width: 70%;
+    /* width: 70%; */
+    width: max-content;
     /* margin: 1.8rem; */
     height: 100%;
   }
@@ -232,17 +236,24 @@
   }
 
   #table-container-parent {
-    flex-grow: 1;
+    /* flex-grow: 1; */
     /* position: relative; */
     /* margin: 1rem; */
     height: 100%;
     overflow: auto;
     scrollbar-gutter: stable;
-    align-content: center;
+    /* align-content: center; */
+    display: flex;
+    flex-direction: row;
+    /* justify-content: center; */
+    align-items: center;
+    max-width: calc(100vw - 24rem - 12rem - 4rem);
+    width: calc(100vh - 5rem);
+    min-width: 40rem;
   }
 
   #table-container {
-    min-width: 100%;
+    /* min-width: 100%; */
     /* height: 100%; */
     /* max-width: 72.59%; */
     display: flex;
@@ -252,6 +263,10 @@
     scrollbar-gutter: stable; */
     position: relative;
     overflow: hidden;
+    min-width: min-content;
+    max-width: 80%;
+    margin: auto;
+    padding: 0.8rem;
   }
 
   #table-container.zigzags {
@@ -299,7 +314,7 @@
     }
 
     ul > :global(*) {
-      width: 100%;
+      width: 12rem;
     }
 
     ul > :global(*):not(:last-child) {

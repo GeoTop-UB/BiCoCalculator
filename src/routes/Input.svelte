@@ -2,7 +2,7 @@
   import { math } from "mathlifier";
   import { untrack } from "svelte";
 
-  import { compute, processResult, findExample, ExamplesID, hashInput } from "$lib/compute";
+  import { compute, processResult, precomputedExamples, ExamplesID, hashInput } from "$lib/compute";
   import type { Data, Input, ComputationResult, ExamplesID as ExamplesIDT } from "$lib/compute";
   import Modal from "$lib/components/Modal.svelte";
   import Button from "$lib/components/Button.svelte";
@@ -20,6 +20,11 @@
     CUSTOM: "CUSTOM"
   } as const;
   type MoreOptions = (typeof MoreOptions)[keyof typeof MoreOptions];
+  const MoreMoreOptions = {
+    DEFAULT: "",
+    SELECTED_CUSTOM: "SELECTED_CUSTOM"
+  } as const;
+  type MoreMoreOptions = (typeof MoreMoreOptions)[keyof typeof MoreMoreOptions];
   const InputOptions = { ...ExamplesID, ...MoreOptions };
   type InputOptions = ExamplesIDT | MoreOptions;
   type MetadataInputOptions = {
@@ -42,13 +47,13 @@
       }
     },
     [InputOptions.JN]: {
-      label: "Jonas",
+      label: "Stelzig",
       callback: () => {
         return Promise.resolve(jnInput);
       }
     },
     [InputOptions.CUSTOM]: {
-      label: "Custom nilmanifold",
+      label: "Enter nilmanifold...",
       callback: lieClick
     }
   };
@@ -56,11 +61,11 @@
   let { data = $bindable(), waiting = $bindable(), isMobile }: Props = $props();
 
   let input: Input | undefined = $state.raw();
-  let inputOption: ExamplesID | "" = $state("");
-  let prevInputOption: ExamplesID | "" = $state("");
+  let inputOption: InputOptions | MoreMoreOptions = $state(MoreMoreOptions.DEFAULT);
+  let prevInputOption: InputOptions | MoreMoreOptions = $state(MoreMoreOptions.DEFAULT);
   let result: ComputationResult | undefined = $state.raw();
   let showModal = $state(false);
-  let modalLie = $state();
+  let modalLie: string | undefined = $state();
   let modalSave = $state();
   let modalAbort = $state();
 
@@ -89,25 +94,24 @@
     return true;
   });
 
-  function setInput(i: Input) {
-    input = i;
-    console.log("Input updated to:");
-    console.log($state.snapshot(input));
-    // ktActive = false;
-    // iwActive = false;
-  }
-
   async function setInputOption() {
-    if (inputOption != "") {
+    if (inputOption != MoreMoreOptions.DEFAULT && inputOption != MoreMoreOptions.SELECTED_CUSTOM) {
       try {
         const i = await inputOptions[inputOption].callback();
-        setInput(i);
+        input = i;
+        console.log("Input updated to:");
+        console.log(untrack(() => $state.snapshot(input)));
         prevInputOption = inputOption;
       } catch (_) {
         console.log("Modal closed, reverting to previous option");
         inputOption = prevInputOption;
       }
     }
+  }
+
+  async function onEdit() {
+    inputOption = InputOptions.CUSTOM;
+    setInputOption();
   }
 
   async function computeResult(i: Input) {
@@ -169,18 +173,20 @@
 
     return new Promise((resolve, reject) => {
       modalSave = () => {
+        if (modalLie === undefined) {
+          reject("TODO Error, aborted");
+          return;
+        }
         let a = JSON.parse(modalLie);
         const newInput: Input = {
           dim: a.lie.names.length,
           ...a
         };
-        // setInput(newInput);
-        // modalSave(newInput)
-        const ex = findExample(newInput);
-        if (ex === ExamplesID.KT) {
-          inputOption = ExamplesID.KT;
-        } else if (ex === ExamplesID.IW) {
-          inputOption = ExamplesID.IW;
+        const inputHash: string = hashInput(newInput);
+        if (inputHash in precomputedExamples) {
+          inputOption = precomputedExamples[inputHash].id;
+        } else {
+          inputOption = MoreMoreOptions.SELECTED_CUSTOM;
         }
         resolve(newInput);
       };
@@ -190,23 +196,6 @@
     });
   }
 
-  async function save() {
-    let a = JSON.parse(modalLie);
-    const newInput: Input = {
-      dim: a.lie.names.length,
-      ...a
-    };
-    // setInput(newInput);
-    modalSave(newInput);
-    const ex = findExample(newInput);
-    if (ex === ExamplesID.KT) {
-      inputOption = ExamplesID.KT;
-    } else if (ex === ExamplesID.IW) {
-      inputOption = ExamplesID.IW;
-    }
-    return true;
-  }
-
   $effect(() => {
     if (input === undefined) {
       console.log("Input reset");
@@ -214,7 +203,7 @@
       console.log("Result reset");
       data = undefined;
       console.log("Data reset");
-      inputOption = "";
+      inputOption = MoreMoreOptions.DEFAULT;
       console.log("Input option reset");
     }
   });
@@ -238,87 +227,96 @@
   });
 </script>
 
-<section class={data != undefined ? "loaded" : ""}>
-  <div id="intro">
-    <p>
-      <strong>bbCalculator</strong> is aimed at computing invariants of bigraded complexes, in particular
-      from complex nilmanifolds.
-    </p>
-  </div>
-  <div id="examples">
-    <h2>Some examples to try:</h2>
-    <!-- <div>
-      <Button label="Kodaira-Thurston" onClick={setKt} bind:active={ktActive} />
-      <Button label="Iwasawa" onClick={setIw} bind:active={iwActive} />
-    </div> -->
-    <form>
-      <label for="pet-select">Select pet:</label>
-      <select bind:value={inputOption} onchange={setInputOption}>
-        <option value="" selected disabled hidden>Choose here</option>
-        {#each Object.entries(inputOptions) as [key, option]}
-          <option value={key}>
-            {option.label}
-          </option>
-        {/each}
-      </select>
-    </form>
-  </div>
-  {#if input != undefined}
+<section class={input != undefined ? (data != undefined ? "loaded entered" : "entered") : ""}>
+  <div id="input-parent">
+    <div id="intro">
+      <p>
+        <strong>bicoCalculator</strong> is aimed at computing and displaying invariants of bigraded complexes,
+        in particular from complex nilmanifolds. Its main goals are the computation of:
+      </p>
+      <ul>
+        <li>Anti-Dolbeault, Bott-Chern and Aeppli cohomologies</li>
+        <li>Zigzags and squares decomposition</li>
+        <li>Frölicher spectral sequence</li>
+      </ul>
+      <p>
+        Select one of the provided <strong>examples</strong> or the option to
+        <strong>enter your own</strong> nilmanifold:
+      </p>
+    </div>
     <div id="input">
-      {#if isMobile && data != undefined}
-        <Button label="Complex nilmanifold: ✏️" onClick={editMobile} slim={true} />
-      {:else}
-        <h2>Complex nilmanifold:</h2>
-      {/if}
-      <div class="visual">
-        <div class="visualheader">
-          <div><h5>Real Lie algebra</h5></div>
-          <Button label="Edit" onClick={lieClick} slim={true} />
-        </div>
-        <div class="visualcontent">
-          {@html math("\\Lambda(" + input.lie.names.join(", ") + ")")}
-          <div id="brackets">
-            {#each Object.entries(input.lie.bracket) as [key, value]}
-              {@const k = key
-                .substring(1, key.length - 1)
-                .split(",")
-                .map((b) => parseInt(b.trim()))}
-              {@html math(
-                "[" +
-                  input.lie.names[k[0] - 1] +
-                  ", " +
-                  input.lie.names[k[1] - 1] +
-                  "] = " +
-                  Object.entries(value)
-                    .map(
-                      ([kk, vv], ii) =>
-                        (vv < 0 ? "-" : ii != 0 ? "+" : "") + input.lie.names[parseInt(kk) - 1]
-                    )
-                    .join(" ")
-              )}
-            {/each}
+      <form>
+        <label for="input-option">Selected nilmanifold:</label>
+        <select id="input-option" bind:value={inputOption} onchange={setInputOption}>
+          <option value={MoreMoreOptions.DEFAULT} selected disabled hidden>Choose here</option>
+          <option value={MoreMoreOptions.SELECTED_CUSTOM} disabled hidden>Custom nilmanifold</option>
+          {#each Object.entries(inputOptions) as [key, option]}
+            <option value={key}>
+              {option.label}
+            </option>
+          {/each}
+        </select>
+      </form>
+      {#if input != undefined}
+        {#if isMobile && data != undefined}
+          <Button label="Complex nilmanifold: ✏️" onClick={editMobile} slim={true} />
+        {:else}
+          <!--<h2>Complex nilmanifold:</h2>-->
+        {/if}
+        <div class="visual">
+          <div class="visualheader">
+            <div><h5>Real Lie algebra</h5></div>
+            <Button label="Edit" onClick={onEdit} slim={true} />
+          </div>
+          <div class="visualcontent">
+            {@html math("\\Lambda(" + input.lie.names.join(", ") + ")")}
+            <div id="brackets">
+              {#each Object.entries(input.lie.bracket) as [key, value]}
+                {@const k = key
+                  .substring(1, key.length - 1)
+                  .split(",")
+                  .map((b) => parseInt(b.trim()))}
+                {@const names = input.lie.names}
+                {@html math(
+                  "[" +
+                    names[k[0] - 1] +
+                    ", " +
+                    names[k[1] - 1] +
+                    "] = " +
+                    Object.entries(value)
+                      .map(
+                        ([kk, vv], ii) =>
+                          (vv < 0 ? "-" : ii != 0 ? "+" : "") + names[parseInt(kk) - 1]
+                      )
+                      .join(" ")
+                )}
+              {/each}
+            </div>
+          </div>
+          <div class="visualheader">
+            <h5>Almost complex structure</h5>
+          </div>
+          <div class="visualcontent">
+            {@html math(
+              "\\begin{pmatrix}" +
+                input.acs.matrix.map((row) => row.join(" & ")).join(" \\\\") +
+                "\\end{pmatrix}"
+            )}
           </div>
         </div>
-        <div class="visualheader">
-          <h5>Almost complex structure</h5>
-        </div>
-        <div class="visualcontent">
-          {@html math(
-            "\\begin{pmatrix}" +
-              input.acs.matrix.map((row) => row.join(" & ")).join(" \\\\") +
-              "\\end{pmatrix}"
-          )}
-        </div>
-      </div>
+      {/if}
     </div>
-  {/if}
+  </div>
+  <div id="acknowledgments">
+    TODO acknowledgments
+  </div>
 </section>
 
 <Modal
   bind:showModal
   buttonLabel="Save"
   buttonDisabled={saveDisabled}
-  onClose={save}
+  onClose={modalSave}
   onAbort={modalAbort}
 >
   {#snippet header()}
@@ -332,17 +330,29 @@
   section {
     display: flex;
     flex-direction: column;
-    /* justify-content: space-between; */
-    justify-content: space-around;
-    width: 30%;
-    min-width: 30%;
+    justify-content: space-between;
+    /* justify-content: space-around; */
+    width: 24rem;
+    /* min-width: 30%; */
     box-shadow:
       3px 0 1px -2px rgba(0, 0, 0, 0.2),
       3px 0 5px 0 rgba(0, 0, 0, 0.12),
       3px 0 2px 0 rgba(0, 0, 0, 0.14);
     padding: 1rem 1.5rem;
     gap: 0.8rem;
-    min-height: 100%;
+    height: 100%;
+    /* min-height: 100%;
+    overflow: auto;
+    scrollbar-gutter: stable;
+    max-height: fit-content; */
+  }
+
+  #input-parent {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.8rem;
+    /* min-height: 100%; */
     overflow: auto;
     scrollbar-gutter: stable;
     max-height: fit-content;
@@ -372,11 +382,7 @@
       flex-grow: 0;
     }
 
-    section.loaded > #intro {
-      display: none;
-    }
-
-    section.loaded > #examples {
+    section.loaded #intro {
       display: none;
     }
 
@@ -389,24 +395,37 @@
     }
   }
 
+  section #input > form > label {
+    display: none;
+  }
+
+  section #input > form {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    align-items: center;
+  }
+
+  section.entered #input > form > label {
+    display: initial;
+    margin-right: 0.8em;
+  }
+
+  section.entered #intro {
+    display: none;
+  }
+
   #intro p {
     text-align: justify;
     /* word-break: break-all; */
     text-wrap: pretty;
   }
 
-  #examples,
   #input {
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
-  }
-
-  #examples > div {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    gap: 1rem;
   }
 
   h2 {
@@ -459,5 +478,61 @@
     resize: none;
     width: 400px;
     height: 350px;
+  }
+
+  /* select,
+  ::picker(select) {
+    appearance: base-select;
+  } */
+
+  select {
+    background-color: var(--color-accent-light);
+    border: 1px solid transparent;
+    padding: 5px 10px;
+    transition: 0.4s;
+    /* font-size: 1em; */
+    font-weight: 500;
+    font-family: inherit;
+    border-radius: 4px;
+    transition: border-color .25s;
+  }
+
+  select:hover,
+  select:focus {
+    border: 1px var(--color-accent-strong) solid;
+  }
+
+  select:active {
+    border: 1px solid transparent;
+    background-color: var(--color-accent-strong);
+    color: var(--color-accent-strong-font);
+  }
+
+  ::picker(select) {
+    border: none;
+  }
+  
+  option::checkmark {
+    content: "";
+  }
+
+  option:hover,
+  option:focus {
+    /* border: 1px var(--color-accent-strong) solid; */
+    background-color: var(--color-accent-strong);
+    color: var(--color-accent-strong-font);
+  }
+
+  option:checked {
+    /* border: 1px solid transparent; */
+    background-color: var(--color-accent-strong);
+    color: var(--color-accent-strong-font);
+  }
+
+  option {
+    /* border: 2px solid var(--color-accent-strong); */
+    background-color: var(--color-accent-light);
+    /* padding: 10px;
+    transition: 0.4s; */
   }
 </style>

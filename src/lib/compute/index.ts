@@ -49,7 +49,7 @@ interface PrecomputedExamples {
     result: string;
   };
 }
-const precomputedExamples: PrecomputedExamples = {
+export const precomputedExamples: PrecomputedExamples = {
   [ktHash]: {
     // Kodaira-Thurston
     id: ExamplesID.KT,
@@ -104,15 +104,6 @@ export function hashFullInput(input: Input): string {
 
 export function hashInput(input: Input): string {
   return hash(serializeInput(input));
-}
-
-export function findExample(input: Input): ExamplesID | null {
-  const inputHash: string = hashInput(input);
-  if (inputHash in precomputedExamples) {
-    return precomputedExamples[inputHash].id;
-  } else {
-    return null;
-  }
 }
 
 async function computeCanonical(cInput: CanonicalInput, inputHash: string): Promise<string> {

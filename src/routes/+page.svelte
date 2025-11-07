@@ -14,7 +14,7 @@
 </script>
 
 <svelte:head>
-  <title>bbCalculator</title>
+  <title>bicoCalculator</title>
   <meta
     name="description"
     content="An application aimed at computing invariants of bigraded complexes, in particular from complex nilmanifolds"
@@ -25,12 +25,12 @@
 
 <div id="app">
   <header>
-    <div class="content">
-      <a href={resolve("/")} target="_blank" rel="noreferrer">
-        <img src={favicon} class="logo" alt="bbCalculator" />
+    <div class="content" data-sveltekit-reload>
+      <a href={resolve("/")} rel="noreferrer">
+        <img src={favicon} class="logo" alt="bicoCalculator" />
       </a>
-      <a href={resolve("/")} target="_blank" rel="noreferrer">
-        <h1>bbCalculator</h1>
+      <a href={resolve("/")} rel="noreferrer">
+        <h1>bicoCalculator</h1>
       </a>
     </div>
   </header>
@@ -67,8 +67,9 @@
   }
 
   .content {
-    max-width: 1280px;
-    width: 100%;
+    /* max-width: 1280px; */
+    /* width: 100%; */
+    width: max-content;
   }
 
   @media screen and (max-width: 768px) {
