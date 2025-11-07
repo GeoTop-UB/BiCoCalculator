@@ -125,6 +125,7 @@ button:focus:not(:focus-visible) {
   --color-disabled-font: rgb(85, 85, 85);
   --color-points: rgb(100, 100, 100);
   --color-zigzag: rgb(157, 157, 157);
+  --color-background: white;
 }
 
 /* 1. Use a more-intuitive box-sizing model */

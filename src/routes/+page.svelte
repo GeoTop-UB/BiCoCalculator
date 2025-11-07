@@ -4,12 +4,14 @@
   import Input from "./Input.svelte";
   import Output from "./Output.svelte";
   import "../app.css";
-  import type { Data } from "$lib/compute";
+  import type { Data, Input as InputType } from "$lib/compute";
 
   let data: Data | undefined = $state();
+  let input: InputType | undefined = $state.raw();
   let waiting: boolean = $state(false);
   let innerWidth: number = $state(0);
 
+  let entered = $derived(input != undefined);
   let isMobile = $derived(innerWidth < 768);
 </script>
 
@@ -35,8 +37,8 @@
     </div>
   </header>
   <main class="content">
-    <Input bind:data bind:waiting {isMobile} />
-    <Output {data} {waiting} {isMobile} />
+    <Input bind:input bind:data bind:waiting {isMobile} />
+    <Output {data} {waiting} {entered} {isMobile} />
   </main>
 </div>
 
@@ -51,32 +53,14 @@
   }
 
   header {
-    flex: 0 1 auto;
+    /* flex: 0 1 auto; */
     width: 100vw;
+    background: var(--color-background);
     box-shadow:
       0 2px 2px 0 rgba(0, 0, 0, 0.14),
       0 1px 5px 0 rgba(0, 0, 0, 0.12),
       0 3px 1px -2px rgba(0, 0, 0, 0.2);
     z-index: 100;
-  }
-
-  main {
-    flex: 1 1 auto;
-    display: flex;
-    height: calc(100vh - 2rem - 1.5 * 2rem);
-  }
-
-  .content {
-    /* max-width: 1280px; */
-    /* width: 100%; */
-    width: max-content;
-  }
-
-  @media screen and (max-width: 768px) {
-    main {
-      display: flex;
-      flex-direction: column-reverse;
-    }
   }
 
   header > .content {
@@ -102,5 +86,26 @@
   header img {
     height: 3rem;
     margin-right: 1.5rem;
+  }
+
+  main {
+    /* flex: 1 1 auto; */
+    display: flex;
+    height: calc(100vh - 2rem - 1.5 * 2rem);
+  }
+
+  .content {
+    /* max-width: 1280px; */
+    width: max-content;
+  }
+
+  @media screen and (max-width: 768px) {
+    .content {
+      width: 100%;
+    }
+
+    main {
+      flex-direction: column-reverse;
+    }
   }
 </style>

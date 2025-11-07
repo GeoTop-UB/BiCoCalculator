@@ -11,6 +11,7 @@
   import jnInput from "$lib/precomputations/JN_Input.json";
 
   interface Props {
+    input: Input | undefined;
     data: Data | undefined;
     waiting: boolean;
     isMobile: boolean;
@@ -58,9 +59,8 @@
     }
   };
 
-  let { data = $bindable(), waiting = $bindable(), isMobile }: Props = $props();
+  let { input = $bindable(), data = $bindable(), waiting = $bindable() }: Props = $props();
 
-  let input: Input | undefined = $state.raw();
   let inputOption: InputOptions | MoreMoreOptions = $state(MoreMoreOptions.DEFAULT);
   let prevInputOption: InputOptions | MoreMoreOptions = $state(MoreMoreOptions.DEFAULT);
   let result: ComputationResult | undefined = $state.raw();
@@ -131,10 +131,6 @@
     console.log("Data updated to:");
     console.log(untrack(() => $state.snapshot(data)));
     waiting = false;
-  }
-
-  async function editMobile() {
-    data = undefined;
   }
 
   async function lieClick(): Promise<Input> {
@@ -249,7 +245,8 @@
         <label for="input-option">Selected nilmanifold:</label>
         <select id="input-option" bind:value={inputOption} onchange={setInputOption}>
           <option value={MoreMoreOptions.DEFAULT} selected disabled hidden>Choose here</option>
-          <option value={MoreMoreOptions.SELECTED_CUSTOM} disabled hidden>Custom nilmanifold</option>
+          <option value={MoreMoreOptions.SELECTED_CUSTOM} disabled hidden>Custom nilmanifold</option
+          >
           {#each Object.entries(inputOptions) as [key, option]}
             <option value={key}>
               {option.label}
@@ -258,11 +255,6 @@
         </select>
       </form>
       {#if input != undefined}
-        {#if isMobile && data != undefined}
-          <Button label="Complex nilmanifold: ✏️" onClick={editMobile} slim={true} />
-        {:else}
-          <!--<h2>Complex nilmanifold:</h2>-->
-        {/if}
         <div class="visual">
           <div class="visualheader">
             <div><h5>Real Lie algebra</h5></div>
@@ -307,9 +299,7 @@
       {/if}
     </div>
   </div>
-  <div id="acknowledgments">
-    TODO acknowledgments
-  </div>
+  <div id="acknowledgments">TODO acknowledgments</div>
 </section>
 
 <Modal
@@ -334,6 +324,7 @@
     /* justify-content: space-around; */
     width: 24rem;
     /* min-width: 30%; */
+    background: var(--color-background);
     box-shadow:
       3px 0 1px -2px rgba(0, 0, 0, 0.2),
       3px 0 5px 0 rgba(0, 0, 0, 0.12),
@@ -362,35 +353,31 @@
     section {
       width: 100%;
       z-index: 10;
+      height: 100%;
       /* position: absolute; */
       /* top: 0; */
       /* bottom: 0; */
       /* transition: height .5s; */
       /* transition: flex-grow 0.15s ease-out; */
-      transition: flex-grow 1s;
+      /* transition: flex-grow 1s; */
       /* transition: flex-grow 1s ease-out; */
-      flex-grow: 1;
-      background: white;
+      /* flex-grow: 1; */
       /* height: 100%; */
-      min-height: initial;
+      /* min-height: initial; */
       /* transition: top 0.5s; */
     }
 
-    section.loaded {
-      height: fit-content;
-      max-height: 40%;
-      flex-grow: 0;
+    section.entered {
+      /* height: fit-content; */
+      height: 40%;
+      /* flex-grow: 0; */
     }
 
-    section.loaded #intro {
+    section.entered > :last-child {
       display: none;
     }
 
-    section.loaded > :global(*):last-child {
-      display: none;
-    }
-
-    section.loaded .visualheader > :global(button) {
+    section.entered .visualheader > :global(button) {
       display: none;
     }
   }
@@ -494,12 +481,17 @@
     font-weight: 500;
     font-family: inherit;
     border-radius: 4px;
-    transition: border-color .25s;
+    transition: border-color 0.25s;
   }
 
   select:hover,
   select:focus {
     border: 1px var(--color-accent-strong) solid;
+  }
+
+  select:disabled:hover,
+  select:disabled:focus {
+    border: 1px solid transparent;
   }
 
   select:active {
@@ -511,7 +503,7 @@
   ::picker(select) {
     border: none;
   }
-  
+
   option::checkmark {
     content: "";
   }

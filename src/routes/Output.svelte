@@ -2,10 +2,10 @@
   import GridOutput from "./GridOutput.svelte";
   import Button from "$lib/components/Button.svelte";
   import Loader from "$lib/components/Loader.svelte";
-  import minusIcon from "$lib/images/minus.svg"
-  import plusIcon from "$lib/images/plus.svg"
+  import minusIcon from "$lib/images/minus.svg";
+  import plusIcon from "$lib/images/plus.svg";
 
-  let { data, waiting, isMobile } = $props();
+  let { data, waiting, entered, isMobile } = $props();
 
   interface Output {
     id: string;
@@ -67,7 +67,7 @@
           id: "zigzags",
           label: "Zigzags",
           type: "zigzags"
-        },
+        }
         // {
         //   id: "squares",
         //   label: "Squares",
@@ -129,12 +129,18 @@
   $effect(() => {
     if (data === undefined) {
       tab = defaultOutput;
+      categorySelected = 0;
       outputActive = [true, ...Array(listOutputs.length - 1).fill(false)];
+      zoom = 100;
+      // resetOut = false;
     }
   });
 </script>
 
-<section class={data != undefined ? "loaded" : ""} style="--zoom: {zoom}%">
+<section
+  class={entered ? (data != undefined ? "loaded entered" : "entered") : ""}
+  style="--zoom: {zoom}%"
+>
   <div id="table-container-parent">
     <div id="table-container" class={type}>
       {#if datatab === undefined}
@@ -156,23 +162,26 @@
 
   <nav>
     {#if isMobile}
-      <select
-        bind:value={categorySelected}
-        onchange={() => changeTab(outputCategories[categorySelected].outputs[0].id)}
-      >
-        {#each outputCategories.entries() as [i, category]}
-          <option value={i}>
-            {category.label}
-          </option>
-        {/each}
-      </select>
-      <select bind:value={tab} onchange={onChangeTab}>
-        {#each outputCategories[categorySelected].outputs as output}
-          <option value={output.id}>
-            {output.label}
-          </option>
-        {/each}
-      </select>
+      <div id="outputs">
+        <select
+          bind:value={categorySelected}
+          onchange={() => changeTab(outputCategories[categorySelected].outputs[0].id)}
+          disabled={data === undefined}
+        >
+          {#each outputCategories.entries() as [i, category]}
+            <option value={i}>
+              {category.label}
+            </option>
+          {/each}
+        </select>
+        <select bind:value={tab} onchange={onChangeTab} disabled={data === undefined}>
+          {#each outputCategories[categorySelected].outputs as output}
+            <option value={output.id}>
+              {output.label}
+            </option>
+          {/each}
+        </select>
+      </div>
     {:else}
       {#each outputCategories as category}
         <details {...openMenuAttr}>
@@ -190,21 +199,21 @@
           </ul>
         </details>
       {/each}
-      <div id="tools">
-        <div id="zoom">
-          <span>Zoom:</span>
-          <span>
-            <button onclick={() => zoom = Math.max(zoom - 20, 20)}>
-              <img src={minusIcon} alt="Reduce zoom" width="10px"/>
-            </button>
-            <span>{zoom}%</span>
-            <button onclick={() => zoom = Math.min(zoom + 20, 180)}>
-              <img src={plusIcon} alt="Augment zoom" width="10px"/>
-            </button>
-          </span>
-        </div>
-      </div>
     {/if}
+    <div id="tools">
+      <div id="zoom">
+        <span>Zoom:</span>
+        <span>
+          <button onclick={() => (zoom = Math.max(zoom - 20, 20))}>
+            <img src={minusIcon} alt="Reduce zoom" width="10px" />
+          </button>
+          <span>{zoom}%</span>
+          <button onclick={() => (zoom = Math.min(zoom + 20, 180))}>
+            <img src={plusIcon} alt="Augment zoom" width="10px" />
+          </button>
+        </span>
+      </div>
+    </div>
   </nav>
 </section>
 
@@ -217,39 +226,6 @@
     width: max-content;
     /* margin: 1.8rem; */
     height: 100%;
-  }
-
-  @media screen and (max-width: 768px) {
-    section {
-      width: 100%;
-      z-index: 1;
-      /* position: absolute;
-      top: 0;
-      bottom: 40%; */
-      flex-grow: 0;
-      max-height: 0;
-    }
-
-    section.loaded {
-      flex-direction: column-reverse;
-      height: initial;
-      flex-grow: 1;
-      max-height: initial;
-    }
-
-    section.loaded #table-container-parent {
-      flex-grow: initial;
-      height: initial;
-      width: 100%;
-    }
-
-    section.loaded #table-container {
-      width: fit-content;
-    }
-
-    /* section.loaded nav {
-      display: none;
-    } */
   }
 
   #table-container-parent {
@@ -305,6 +281,44 @@
     align-items: center;
   }
 
+  @media screen and (max-width: 768px) {
+    section {
+      display: none;
+      flex-direction: column-reverse;
+      height: 60%;
+      width: 100%;
+      z-index: 1;
+      /* position: absolute;
+      top: 0;
+      bottom: 40%; */
+      /* flex-grow: 0; */
+      /* max-height: 0; */
+    }
+
+    section.entered {
+      display: flex;
+      /* height: initial; */
+      /* flex-grow: 1; */
+      /* max-height: initial; */
+    }
+
+    section.entered #table-container-parent {
+      /* flex-grow: initial;
+      height: initial; */
+      width: 100%;
+      min-width: initial;
+      max-width: initial;
+    }
+
+    section.entered #table-container {
+      width: fit-content;
+    }
+
+    /* section.entered nav {
+      display: none;
+    } */
+  }
+
   @media screen and (min-width: 768px) {
     nav > :not(:last-child) {
       margin-bottom: 1.5rem;
@@ -355,31 +369,6 @@
     }
   }
 
-  @media screen and (max-width: 768px) {
-    nav > :not(:last-child) {
-      margin-right: 2rem;
-    }
-
-    nav {
-      display: flex;
-      justify-content: space-around;
-      width: 100%;
-      padding: 0.5rem 1rem;
-    }
-
-    section nav {
-      display: none;
-    }
-
-    section.loaded nav {
-      display: flex;
-    }
-
-    nav select {
-      width: 10rem;
-    }
-  }
-
   section #zoom {
     display: none;
   }
@@ -408,5 +397,111 @@
     border: 1px solid transparent;
     background-color: var(--color-accent-strong);
     color: var(--color-accent-strong-font);
+  }
+
+  @media screen and (max-width: 768px) {
+    nav {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      width: 100%;
+    }
+
+    /* nav > :not(:last-child) {
+      margin-right: 2rem;
+    } */
+
+    #tools {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      padding: 0.5rem 1rem;
+    }
+
+    #outputs {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      padding: 0.5rem 1rem;
+    }
+
+    #outputs > :not(:last-child) {
+      margin-right: 2rem;
+    }
+
+    section nav {
+      display: none;
+    }
+
+    section.entered nav {
+      display: flex;
+    }
+
+    nav select {
+      width: 10rem;
+    }
+  }
+
+  /* select,
+  ::picker(select) {
+    appearance: base-select;
+  } */
+
+  select {
+    background-color: var(--color-accent-light);
+    border: 1px solid transparent;
+    padding: 5px 10px;
+    transition: 0.4s;
+    /* font-size: 1em; */
+    font-weight: 500;
+    font-family: inherit;
+    border-radius: 4px;
+    transition: border-color 0.25s;
+  }
+
+  select:hover,
+  select:focus {
+    border: 1px var(--color-accent-strong) solid;
+  }
+
+  select:active {
+    border: 1px solid transparent;
+    background-color: var(--color-accent-strong);
+    color: var(--color-accent-strong-font);
+  }
+
+  select:disabled {
+    border: 1px solid transparent;
+    background-color: var(--color-disabled);
+    color: var(--color-disabled-font);
+    cursor: auto;
+  }
+
+  ::picker(select) {
+    border: none;
+  }
+
+  option::checkmark {
+    content: "";
+  }
+
+  option:hover,
+  option:focus {
+    /* border: 1px var(--color-accent-strong) solid; */
+    background-color: var(--color-accent-strong);
+    color: var(--color-accent-strong-font);
+  }
+
+  option:checked {
+    /* border: 1px solid transparent; */
+    background-color: var(--color-accent-strong);
+    color: var(--color-accent-strong-font);
+  }
+
+  option {
+    /* border: 2px solid var(--color-accent-strong); */
+    background-color: var(--color-accent-light);
+    /* padding: 10px;
+    transition: 0.4s; */
   }
 </style>
