@@ -95,7 +95,7 @@
 
   .micro {
     height: fit-content;
-    padding: 0 5px;
+    padding: 5px 6px;
     font-size: medium;
   }
 </style>

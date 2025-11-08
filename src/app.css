@@ -158,6 +158,13 @@ body {
   padding: 2em;
 }
 
+img,
+svg,
+video {
+  max-width: 100%;
+  display: block;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
