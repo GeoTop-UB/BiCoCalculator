@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-make build-static
-sshpass -f <passwordfile> sftp -oBatchMode=no -b - <hosturl> << !
-   cd bbcalculator
+# make build-static
+export $(grep -v '^#' .env.secrets | xargs -d '\n')
+sshpass -p $DEPLOY_PASSWORD sftp -oBatchMode=no -b - $DEPLOY_HOST << !
+   cd bicocalculator
    rm _app/immutable/assets/*
    rm _app/immutable/chunks/*
    rm _app/immutable/entry/*

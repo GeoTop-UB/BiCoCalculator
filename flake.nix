@@ -54,6 +54,8 @@
             uv
             sshpass
             sageWithDoc
+            gnugrep
+            findutils
           ];
           # shellHook = ''
           #   uv run --with python-minifier==3.0.0 pyminify "${inputs.bico}/bigraded_complexes.py.sage" --output src/lib/assets/bico.py.sage --no-combine-imports --remove-literal-statements
