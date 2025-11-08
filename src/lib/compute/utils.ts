@@ -1,3 +1,4 @@
+import { form } from "$app/server";
 import type {
   Cohomology,
   LieBracket,
@@ -7,7 +8,8 @@ import type {
   ZigZagBasis,
   ZigZagsTracks,
   LocatedZigZag,
-  ZigZagsBasis
+  ZigZagsBasis,
+  Squares
 } from "./types";
 
 interface ZigZagsBasis2 {
@@ -328,4 +330,42 @@ export function computeZigzags(d: ZigZag[]): PostZigZag {
     tracks: t,
     basis: nz
   };
+}
+
+export function replaceNamesSquares(
+  tmpNames: string[],
+  displayNames: string[],
+  squares: Squares
+): Squares {
+  return Object.keys(squares).reduce(function (result: Squares, key: string) {
+    result[key] = squares[key].map((coord) => coord.map((formula) => {
+      return {
+        value: replaceNames(tmpNames, displayNames, formula.value),
+        square: formula.square.map((f) => replaceNames(tmpNames, displayNames, f))
+      };
+    }));
+    return result;
+  }, {});
+}
+
+export function preprocessSquares(n: number, m: number, squares: ZigZag[]): Squares {
+  let sqs: Squares = {};
+  for (const i of [...Array(n).keys()]) {
+    for (const j of [...Array(m).keys()]) {
+      const bd = "(" + i + ", " + j + ")";
+      sqs[bd] = [];
+      for (const _ of [...Array(4).keys()]) {
+        sqs[bd].push([]);
+      }
+    }
+  }
+  for (const sq of squares) {
+    for (const [k, [b, s]] of Object.entries(sq).entries()) {
+      sqs[b][k].push({
+        value: s,
+        square: Object.entries(sq).map(([_, s]) => s)
+      });
+    }
+  }
+  return sqs;
 }

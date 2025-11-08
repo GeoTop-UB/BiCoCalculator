@@ -42,6 +42,15 @@ export interface PostZigZag {
   basis: ZigZagsBasis;
 }
 
+export interface SquareCoord {
+  value: string;
+  square: string[];
+}
+
+export interface Squares {
+  [bidegree: string]: SquareCoord[][];
+}
+
 export interface Input {
   dim: number;
   lie: {
@@ -76,7 +85,7 @@ export interface CanonicalInput {
   };
 }
 
-export interface ComputationResult {
+export interface PreComputationResult {
   hash: string;
   n: number;
   m: number;
@@ -92,6 +101,22 @@ export interface ComputationResult {
   squares: ZigZag[];
 }
 
+export interface ComputationResult {
+  hash: string;
+  n: number;
+  m: number;
+  cohomology: {
+    dell: Cohomology;
+    delbar: Cohomology;
+    bottchern: Cohomology;
+    aeppli: Cohomology;
+    reduced_aeppli: Cohomology;
+    reduced_bottchern: Cohomology;
+  };
+  zigzags: ZigZag[];
+  squares: Squares;
+}
+
 export interface Data {
   n: number;
   m: number;
@@ -102,7 +127,7 @@ export interface Data {
   cohomology_reduced_aeppli: Cohomology;
   cohomology_reduced_bottchern: Cohomology;
   zigzags: PostZigZag;
-  squares: PostZigZag;
+  squares: Squares;
 }
 
 export type ComputeBackend = (

@@ -1,10 +1,11 @@
 <script lang="ts">
   import { math } from "mathlifier";
   import ZigzagOutput from "./ZigzagOutput.svelte";
+  import SquareOutput from "./SquareOutput.svelte";
 
   let { datatab, n, type } = $props();
 
-  let grid = $derived(type === "zigzags" || type === "squares" ? datatab.basis : datatab);
+  let grid = $derived(type === "zigzags" ? datatab.basis : datatab);
 
   function compare(a, b) {
     const ka = a[0]
@@ -41,12 +42,14 @@
       <div class="yidx">{dim[1]}</div>
     {/if}
     <div class={["cell", { notfirstrow }, { notfirstcol }]}>
-      {#if type === "zigzags" || type === "squares"}
+      {#if type === "zigzags"}
         <ZigzagOutput
           points={value.filter((b) => b.type === "point")}
           nopoints={value.filter((b) => b.type === "start" || b.type === "end")}
           tracks={datatab.tracks[key]}
         />
+      {:else if type === "squares"}
+        <SquareOutput points={value} squares={grid} />
       {:else}
         <div class="cohomologycell">
           {@html value.map((b) => "<div>" + math(b) + "</div>").join("")}
@@ -117,7 +120,8 @@
     flex-wrap: wrap;
   }
 
-  #output2.zigzags {
+  #output2.zigzags,
+  #output2.squares {
     min-width: max-content;
     min-height: max-content;
   }

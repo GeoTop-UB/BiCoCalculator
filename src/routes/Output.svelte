@@ -21,7 +21,8 @@
     cohomology_dell: "cohomology_dell",
     cohomology_reduced_aeppli: "cohomology_reduced_aeppli",
     cohomology_reduced_bottchern: "cohomology_reduced_bottchern",
-    zigzags: "zigzags"
+    zigzags: "zigzags",
+    squares: "squares"
   } as const;
   type DataTabs = (typeof DataTabs)[keyof typeof DataTabs];
   interface Output {
@@ -84,12 +85,12 @@
           id: "zigzags",
           label: "Zigzags",
           type: "zigzags"
+        },
+        {
+          id: "squares",
+          label: "Squares",
+          type: "squares"
         }
-        // {
-        //   id: "squares",
-        //   label: "Squares",
-        //   type: "squares"
-        // }
       ]
     }
   ];
@@ -272,7 +273,8 @@
     zoom: var(--zoom);
   }
 
-  #table-container.zigzags {
+  #table-container.zigzags,
+  #table-container.squares {
     width: max-content;
   }
 
@@ -374,7 +376,7 @@
       text-align: center;
       /* pointer-events: none;
       user-select: none; */
-      padding: 0.2em 0;
+      /* padding: 0.2em 0; */
     }
 
     nav ul {

@@ -7,7 +7,8 @@ import type {
   SerializableInput,
   NamedBackends,
   Data,
-  Cohomology
+  Cohomology,
+  PreComputationResult
 } from "./types";
 export type { Input, SerializableInput, ComputationResult, Data } from "./types";
 import { computeSageCell, computeSelfhosted } from "./backends";
@@ -16,7 +17,9 @@ import {
   makeTmpNames,
   replaceNamesCohomology,
   replaceNamesZigZags,
-  computeZigzags
+  computeZigzags,
+  preprocessSquares,
+  replaceNamesSquares
 } from "./utils";
 import {
   PUBLIC_ADAPTER,
@@ -145,12 +148,20 @@ export function processResult(input: Input, result: ComputationResult): Data {
     cohomology_reduced_aeppli: replaceNames(result.cohomology.reduced_aeppli),
     cohomology_reduced_bottchern: replaceNames(result.cohomology.reduced_bottchern),
     zigzags: computeZigzags(replaceNamesZigZags(tmpNames, input.acs.names, result.zigzags)),
-    // "squares": d.squares
-    squares: {
-      basis: {},
-      tracks: {}
-    }
+    squares: replaceNamesSquares(tmpNames, input.acs.names, result.squares)
   };
+}
+
+function preprocessResult(result: PreComputationResult): ComputationResult {
+  console.log(result)
+  return {
+    hash: result.hash,
+    n: result.n,
+    m: result.m,
+    cohomology: result.cohomology,
+    zigzags: result.zigzags,//TODO
+    squares: preprocessSquares(result.n, result.m, result.squares)
+  }
 }
 
 async function _compute(input: Input): Promise<ComputationResult> {
@@ -174,10 +185,10 @@ async function _compute(input: Input): Promise<ComputationResult> {
   } else {
     console.log("Cached in local storage");
   }
-  return {
+  return preprocessResult({
     hash: inputHash,
     ...JSON.parse(result)
-  };
+  });
 }
 
 export async function compute(input: Input): Promise<ComputationResult> {
