@@ -1,5 +1,21 @@
 all: run
 
+preview-server-nc: build-server-nc
+	yarn preview-server-nc --open
+.PHONY: preview-server-nc
+
+preview-server: build-server
+	yarn preview-server --open
+.PHONY: preview-server
+
+preview-static: build-static
+	yarn preview-static --open
+.PHONY: preview-static
+
+run-server-nc: prepare
+	yarn run dev-server-nc --open
+.PHONY: run-server-nc
+
 run-server: prepare
 	yarn run dev-server --open
 .PHONY: run-server
@@ -8,33 +24,21 @@ run-static: prepare
 	yarn run dev-static --open
 .PHONY: run-static
 
-prepare: package.json
-	yarn
-.PHONY: prepare
-
-build-static: prepare
-	yarn build-static
-.PHONY: build-static
+build-server-nc: prepare
+	yarn build-server-nc
+.PHONY: build-server-nc
 
 build-server: prepare
 	yarn build-server
 .PHONY: build-server
 
-build-server-nc: prepare
-	yarn build-server-nc
-.PHONY: build-server-nc
+build-static: prepare
+	yarn build-static
+.PHONY: build-static
 
-preview-static: build-static
-	yarn preview-static --open
-.PHONY: preview-static
-
-preview-server: build-server
-	yarn preview-server --open
-.PHONY: preview-server
-
-preview-server-nc: build-server-nc
-	yarn preview-server-nc --open
-.PHONY: preview-server-nc
+prepare: package.json
+	yarn
+.PHONY: prepare
 
 deploy:
 	./deploy.sh
