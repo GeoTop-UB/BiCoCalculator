@@ -6,6 +6,7 @@
   import type { Data, Input, ComputationResult, ExamplesID as ExamplesIDT } from "$lib/compute";
   import Modal from "$lib/components/Modal.svelte";
   import Button from "$lib/components/Button.svelte";
+  import "$lib/components/select.css";
   import ktInput from "$lib/precomputations/KT_Input.json";
   import iwInput from "$lib/precomputations/IW_Input.json";
   import jnInput from "$lib/precomputations/JN_Input.json";
@@ -463,66 +464,5 @@
     resize: none;
     width: 400px;
     height: 350px;
-  }
-
-  /* select,
-  ::picker(select) {
-    appearance: base-select;
-  } */
-
-  select {
-    background-color: var(--color-accent-light);
-    border: 1px solid transparent;
-    padding: 5px 10px;
-    transition: 0.4s;
-    /* font-size: 1em; */
-    font-weight: 500;
-    font-family: inherit;
-    border-radius: 4px;
-    transition: border-color 0.25s;
-  }
-
-  select:hover,
-  select:focus {
-    border: 1px var(--color-accent-strong) solid;
-  }
-
-  select:disabled:hover,
-  select:disabled:focus {
-    border: 1px solid transparent;
-  }
-
-  select:active {
-    border: 1px solid transparent;
-    background-color: var(--color-accent-strong);
-    color: var(--color-accent-strong-font);
-  }
-
-  ::picker(select) {
-    border: none;
-  }
-
-  option::checkmark {
-    content: "";
-  }
-
-  option:hover,
-  option:focus {
-    /* border: 1px var(--color-accent-strong) solid; */
-    background-color: var(--color-accent-strong);
-    color: var(--color-accent-strong-font);
-  }
-
-  option:checked {
-    /* border: 1px solid transparent; */
-    background-color: var(--color-accent-strong);
-    color: var(--color-accent-strong-font);
-  }
-
-  option {
-    /* border: 2px solid var(--color-accent-strong); */
-    background-color: var(--color-accent-light);
-    /* padding: 10px;
-    transition: 0.4s; */
   }
 </style>
