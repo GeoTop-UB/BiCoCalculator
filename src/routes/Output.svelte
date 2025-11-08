@@ -1,14 +1,30 @@
 <script lang="ts">
+  import type { Data } from "$lib/compute";
   import GridOutput from "./GridOutput.svelte";
   import Button from "$lib/components/Button.svelte";
   import Loader from "$lib/components/Loader.svelte";
   import minusIcon from "$lib/images/minus.svg";
   import plusIcon from "$lib/images/plus.svg";
 
-  let { data, waiting, entered, isMobile } = $props();
+  interface Props {
+    data: Data | undefined;
+    waiting: boolean;
+    entered: boolean;
+  }
+  let { data, waiting, entered }: Props = $props();
 
+  const DataTabs = {
+    cohomology_aeppli: "cohomology_aeppli",
+    cohomology_bottchern: "cohomology_bottchern",
+    cohomology_delbar: "cohomology_delbar",
+    cohomology_dell: "cohomology_dell",
+    cohomology_reduced_aeppli: "cohomology_reduced_aeppli",
+    cohomology_reduced_bottchern: "cohomology_reduced_bottchern",
+    zigzags: "zigzags"
+  } as const;
+  type DataTabs = (typeof DataTabs)[keyof typeof DataTabs];
   interface Output {
-    id: string;
+    id: DataTabs;
     label: string;
     type: string;
   }
@@ -96,17 +112,14 @@
     result[output.id] = output;
     return result;
   }, {});
-  const defaultOutput: string = outputCategories[0].outputs[0].id;
+  const defaultOutput: DataTabs = outputCategories[0].outputs[0].id;
 
-  let tab: string = $state(defaultOutput);
+  let tab: DataTabs = $state(defaultOutput);
   let categorySelected: number = $state(0);
   let outputActive: boolean[] = $state([true, ...Array(listOutputs.length - 1).fill(false)]);
   let zoom: number = $state(100);
 
-  let openMenuAttr = $derived({
-    ...(!isMobile && { open: true })
-  });
-  let disabled = $derived(data === undefined);
+  let loaded = $derived(!(data === undefined));
   let n = $derived(data != undefined ? data.n : undefined);
   let datatab = $derived(data != undefined ? data[tab] : undefined);
   let type: string = $derived(outputsIndex[tab].type);
@@ -120,30 +133,26 @@
     ];
   }
 
-  async function changeTab(id: string) {
+  async function changeTab(id: DataTabs) {
     tab = id;
     categorySelected = outputsIndex[id].category;
     onChangeTab();
   }
 
   $effect(() => {
-    if (data === undefined) {
+    if (!loaded) {
       tab = defaultOutput;
       categorySelected = 0;
       outputActive = [true, ...Array(listOutputs.length - 1).fill(false)];
       zoom = 100;
-      // resetOut = false;
     }
   });
 </script>
 
-<section
-  class={entered ? (data != undefined ? "loaded entered" : "entered") : ""}
-  style="--zoom: {zoom}%"
->
+<section class={[{ entered }, { loaded }]} style="--zoom: {zoom}%">
   <div id="table-container-parent">
     <div id="table-container" class={type}>
-      {#if datatab === undefined}
+      {#if !loaded}
         {#if waiting}
           <Loader />
         {:else}
@@ -161,31 +170,30 @@
   </div>
 
   <nav>
-    {#if isMobile}
-      <div id="outputs">
-        <select
-          bind:value={categorySelected}
-          onchange={() => changeTab(outputCategories[categorySelected].outputs[0].id)}
-          disabled={data === undefined}
-        >
-          {#each outputCategories.entries() as [i, category]}
-            <option value={i}>
-              {category.label}
-            </option>
-          {/each}
-        </select>
-        <select bind:value={tab} onchange={onChangeTab} disabled={data === undefined}>
-          {#each outputCategories[categorySelected].outputs as output}
-            <option value={output.id}>
-              {output.label}
-            </option>
-          {/each}
-        </select>
-      </div>
-    {:else}
+    <div id="outputs" class="outputs-close">
+      <select
+        bind:value={categorySelected}
+        onchange={() => changeTab(outputCategories[categorySelected].outputs[0].id)}
+        disabled={!loaded}
+      >
+        {#each outputCategories.entries() as [i, category]}
+          <option value={i}>
+            {category.label}
+          </option>
+        {/each}
+      </select>
+      <select bind:value={tab} onchange={onChangeTab} disabled={!loaded}>
+        {#each outputCategories[categorySelected].outputs as output}
+          <option value={output.id}>
+            {output.label}
+          </option>
+        {/each}
+      </select>
+    </div>
+    <div class="outputs-open">
       {#each outputCategories as category}
-        <details {...openMenuAttr}>
-          <summary>{category.label}</summary>
+        <div>
+          <span>{category.label}</span>
 
           <ul>
             {#each category.outputs as output}
@@ -193,24 +201,24 @@
                 label={output.label}
                 onClick={() => changeTab(output.id)}
                 bind:active={outputActive[outputsIndex[output.id].index]}
-                {disabled}
+                disabled={!loaded}
               />
             {/each}
           </ul>
-        </details>
+        </div>
       {/each}
-    {/if}
+    </div>
     <div id="tools">
       <div id="zoom">
         <span>Zoom:</span>
         <span>
-          <button onclick={() => (zoom = Math.max(zoom - 20, 20))}>
+          <Button onClick={() => (zoom = Math.max(zoom - 20, 20))} disabled={!loaded} micro={true}>
             <img src={minusIcon} alt="Reduce zoom" width="10px" />
-          </button>
+          </Button>
           <span>{zoom}%</span>
-          <button onclick={() => (zoom = Math.min(zoom + 20, 180))}>
+          <Button onClick={() => (zoom = Math.min(zoom + 20, 180))} disabled={!loaded} micro={true}>
             <img src={plusIcon} alt="Augment zoom" width="10px" />
-          </button>
+          </Button>
         </span>
       </div>
     </div>
@@ -314,17 +322,39 @@
       width: fit-content;
     }
 
+    #outputs {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      padding: 0.5rem 1rem;
+    }
+
+    .outputs-open {
+      display: none;
+    }
+
     /* section.entered nav {
       display: none;
     } */
   }
 
   @media screen and (min-width: 768px) {
-    nav > :not(:last-child) {
+    /* nav > :not(:last-child) {
       margin-bottom: 1.5rem;
+    } */
+    
+    nav,
+    nav > .outputs-open {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
     }
 
-    nav > details {
+    .outputs-close {
+      display: none;
+    }
+
+    nav > .outputs-open > div {
       display: flex;
       flex-direction: column;
       box-shadow:
@@ -333,16 +363,16 @@
         0 0 3px -2px rgba(0, 0, 0, 0.2);
     }
 
-    summary::marker {
+    /* summary::marker {
       content: "";
-    }
+    } */
 
-    nav summary {
+    nav span {
       font-size: medium;
       font-weight: bold;
       text-align: center;
-      pointer-events: none; /* prevents click events */
-      user-select: none; /* prevents text selection */
+      /* pointer-events: none;
+      user-select: none; */
       padding: 0.2em 0;
     }
 
@@ -356,7 +386,7 @@
       margin-top: 0;
     }
 
-    nav > :last-child > ul {
+    nav > .outputs-open > :last-child > ul {
       width: auto;
     }
 
@@ -369,10 +399,6 @@
     }
   }
 
-  section #zoom {
-    display: none;
-  }
-
   section.loaded #zoom {
     display: flex;
   }
@@ -380,23 +406,6 @@
   #zoom > :last-child > span {
     width: 3em;
     text-align: center;
-  }
-
-  #zoom button {
-    background-color: var(--color-accent-light);
-    border: 1px solid transparent;
-    height: fit-content;
-    padding: 0 5px;
-  }
-
-  #zoom button:hover {
-    border: 1px var(--color-accent-strong) solid;
-  }
-
-  #zoom button:active {
-    border: 1px solid transparent;
-    background-color: var(--color-accent-strong);
-    color: var(--color-accent-strong-font);
   }
 
   @media screen and (max-width: 768px) {
@@ -412,13 +421,6 @@
     } */
 
     #tools {
-      display: flex;
-      justify-content: space-around;
-      width: 100%;
-      padding: 0.5rem 1rem;
-    }
-
-    #outputs {
       display: flex;
       justify-content: space-around;
       width: 100%;

@@ -10,13 +10,6 @@
   import iwInput from "$lib/precomputations/IW_Input.json";
   import jnInput from "$lib/precomputations/JN_Input.json";
 
-  interface Props {
-    input: Input | undefined;
-    data: Data | undefined;
-    waiting: boolean;
-    isMobile: boolean;
-  }
-
   const MoreOptions = {
     CUSTOM: "CUSTOM"
   } as const;
@@ -59,6 +52,11 @@
     }
   };
 
+  interface Props {
+    input: Input | undefined;
+    data: Data | undefined;
+    waiting: boolean;
+  }
   let { input = $bindable(), data = $bindable(), waiting = $bindable() }: Props = $props();
 
   let inputOption: InputOptions | MoreMoreOptions = $state(MoreMoreOptions.DEFAULT);

@@ -9,10 +9,8 @@
   let data: Data | undefined = $state();
   let input: InputType | undefined = $state.raw();
   let waiting: boolean = $state(false);
-  let innerWidth: number = $state(0);
 
   let entered = $derived(input != undefined);
-  let isMobile = $derived(innerWidth < 768);
 </script>
 
 <svelte:head>
@@ -22,8 +20,6 @@
     content="An application aimed at computing invariants of bigraded complexes, in particular from complex nilmanifolds"
   />
 </svelte:head>
-
-<svelte:window bind:innerWidth />
 
 <div id="app">
   <header>
@@ -37,8 +33,8 @@
     </div>
   </header>
   <main class="content">
-    <Input bind:input bind:data bind:waiting {isMobile} />
-    <Output {data} {waiting} {entered} {isMobile} />
+    <Input bind:input bind:data bind:waiting />
+    <Output {data} {waiting} {entered} />
   </main>
 </div>
 
