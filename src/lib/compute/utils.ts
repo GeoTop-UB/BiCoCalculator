@@ -338,12 +338,14 @@ export function replaceNamesSquares(
   squares: Squares
 ): Squares {
   return Object.keys(squares).reduce(function (result: Squares, key: string) {
-    result[key] = squares[key].map((coord) => coord.map((formula) => {
-      return {
-        value: replaceNames(tmpNames, displayNames, formula.value),
-        square: formula.square.map((f) => replaceNames(tmpNames, displayNames, f))
-      };
-    }));
+    result[key] = squares[key].map((coord) =>
+      coord.map((formula) => {
+        return {
+          value: replaceNames(tmpNames, displayNames, formula.value),
+          square: formula.square.map((f) => replaceNames(tmpNames, displayNames, f))
+        };
+      })
+    );
     return result;
   }, {});
 }

@@ -49,7 +49,7 @@
           tracks={datatab.tracks[key]}
         />
       {:else if type === "squares"}
-        <SquareOutput points={value} squares={grid} />
+        <SquareOutput points={value} />
       {:else}
         <div class="cohomologycell">
           {@html value.map((b) => "<div>" + math(b) + "</div>").join("")}

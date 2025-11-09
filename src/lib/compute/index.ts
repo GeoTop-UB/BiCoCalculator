@@ -153,15 +153,14 @@ export function processResult(input: Input, result: ComputationResult): Data {
 }
 
 function preprocessResult(result: PreComputationResult): ComputationResult {
-  console.log(result)
   return {
     hash: result.hash,
     n: result.n,
     m: result.m,
     cohomology: result.cohomology,
-    zigzags: result.zigzags,//TODO
+    zigzags: result.zigzags, //TODO
     squares: preprocessSquares(result.n, result.m, result.squares)
-  }
+  };
 }
 
 async function _compute(input: Input): Promise<ComputationResult> {

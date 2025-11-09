@@ -5,9 +5,8 @@
 
   interface Props {
     points: SquareCoord[][];
-    squares: Squares
   }
-  let { points, squares }: Props = $props();
+  let { points }: Props = $props();
 
   let swPoints = $derived(points[0]);
   let sePoints = $derived(points[1]);
@@ -38,12 +37,7 @@
 
   function myaction(node, { v, w, vertical }) {
     $effect(() => {
-      adjustLine(
-        document.getElementById(v),
-        document.getElementById(w),
-        node,
-        vertical
-      );
+      adjustLine(document.getElementById(v), document.getElementById(w), node, vertical);
 
       return () => {};
     });
@@ -54,109 +48,93 @@
   <div id="sw" class="points" style="--n-points: {swPoints.length}">
     {#each swPoints.entries() as [i, b]}
       {@const id = "sq-sw-" + i}
-      <div id="aaa" use:myaction={{ v: id, w: ("sq-nw-" + i), vertical: true }}>
+      <div id="aaa" use:myaction={{ v: id, w: "sq-nw-" + i, vertical: true }}>
         <div class="line linev"></div>
         <span class="tooltiptext ver zigzagtool">
-          <div class="zigzagnodetool" style="grid-area: sw" >
+          <div class="zigzagnodetool" style="grid-area: sw">
             <div>{@html math(b.square[0])}</div>
           </div>
-          <div class="zigzagnodetool" style="grid-area: se" >
+          <div class="zigzagnodetool" style="grid-area: se">
             <div>{@html math(b.square[1])}</div>
           </div>
-          <div class="zigzagnodetool" style="grid-area: nw" >
+          <div class="zigzagnodetool" style="grid-area: nw">
             <div>{@html math(b.square[2])}</div>
           </div>
-          <div class="zigzagnodetool" style="grid-area: ne" >
+          <div class="zigzagnodetool" style="grid-area: ne">
             <div>{@html math(b.square[3])}</div>
           </div>
         </span>
       </div>
-      <div id="aaa" use:myaction={{ v: id, w: ("sq-se-" + i), vertical: false }}>
+      <div id="aaa" use:myaction={{ v: id, w: "sq-se-" + i, vertical: false }}>
         <div class="line lineh"></div>
         <span class="tooltiptext hor zigzagtool">
-          <div class="zigzagnodetool" style="grid-area: sw" >
+          <div class="zigzagnodetool" style="grid-area: sw">
             <div>{@html math(b.square[0])}</div>
           </div>
-          <div class="zigzagnodetool" style="grid-area: se" >
+          <div class="zigzagnodetool" style="grid-area: se">
             <div>{@html math(b.square[1])}</div>
           </div>
-          <div class="zigzagnodetool" style="grid-area: nw" >
+          <div class="zigzagnodetool" style="grid-area: nw">
             <div>{@html math(b.square[2])}</div>
           </div>
-          <div class="zigzagnodetool" style="grid-area: ne" >
+          <div class="zigzagnodetool" style="grid-area: ne">
             <div>{@html math(b.square[3])}</div>
           </div>
         </span>
       </div>
-      <div
-        {id}
-        class="node"
-        style="grid-area: {-(i + 1)} / {i + 1} / {-(i + 2)} / {i + 2};"
-      ></div>
+      <div {id} class="node" style="grid-area: {-(i + 1)} / {i + 1} / {-(i + 2)} / {i + 2};"></div>
     {/each}
   </div>
   <div id="nw" class="points" style="--n-points: {nwPoints.length}">
     {#each nwPoints.entries() as [i, b]}
       {@const id = "sq-nw-" + i}
-      <div id="aaa" use:myaction={{ v: id, w: ("sq-ne-" + i), vertical: false }}>
+      <div id="aaa" use:myaction={{ v: id, w: "sq-ne-" + i, vertical: false }}>
         <div class="line lineh"></div>
         <span class="tooltiptext hor zigzagtool">
-          <div class="zigzagnodetool" style="grid-area: sw" >
+          <div class="zigzagnodetool" style="grid-area: sw">
             <div>{@html math(b.square[0])}</div>
           </div>
-          <div class="zigzagnodetool" style="grid-area: se" >
+          <div class="zigzagnodetool" style="grid-area: se">
             <div>{@html math(b.square[1])}</div>
           </div>
-          <div class="zigzagnodetool" style="grid-area: nw" >
+          <div class="zigzagnodetool" style="grid-area: nw">
             <div>{@html math(b.square[2])}</div>
           </div>
-          <div class="zigzagnodetool" style="grid-area: ne" >
+          <div class="zigzagnodetool" style="grid-area: ne">
             <div>{@html math(b.square[3])}</div>
           </div>
         </span>
       </div>
-      <div
-        {id}
-        class="node"
-        style="grid-area: {-(i + 1)} / {i + 1} / {-(i + 2)} / {i + 2};"
-      ></div>
+      <div {id} class="node" style="grid-area: {-(i + 1)} / {i + 1} / {-(i + 2)} / {i + 2};"></div>
     {/each}
   </div>
   <div id="se" class="points" style="--n-points: {sePoints.length}">
     {#each sePoints.entries() as [i, b]}
       {@const id = "sq-se-" + i}
-      <div id="aaa" use:myaction={{ v: id, w: ("sq-ne-" + i), vertical: true }}>
+      <div id="aaa" use:myaction={{ v: id, w: "sq-ne-" + i, vertical: true }}>
         <div class="line linev"></div>
         <span class="tooltiptext ver zigzagtool">
-          <div class="zigzagnodetool" style="grid-area: sw" >
+          <div class="zigzagnodetool" style="grid-area: sw">
             <div>{@html math(b.square[0])}</div>
           </div>
-          <div class="zigzagnodetool" style="grid-area: se" >
+          <div class="zigzagnodetool" style="grid-area: se">
             <div>{@html math(b.square[1])}</div>
           </div>
-          <div class="zigzagnodetool" style="grid-area: nw" >
+          <div class="zigzagnodetool" style="grid-area: nw">
             <div>{@html math(b.square[2])}</div>
           </div>
-          <div class="zigzagnodetool" style="grid-area: ne" >
+          <div class="zigzagnodetool" style="grid-area: ne">
             <div>{@html math(b.square[3])}</div>
           </div>
         </span>
       </div>
-      <div
-        {id}
-        class="node"
-        style="grid-area: {-(i + 1)} / {i + 1} / {-(i + 2)} / {i + 2};"
-      ></div>
+      <div {id} class="node" style="grid-area: {-(i + 1)} / {i + 1} / {-(i + 2)} / {i + 2};"></div>
     {/each}
   </div>
   <div id="ne" class="points" style="--n-points: {nePoints.length}">
     {#each nePoints.entries() as [i, b]}
       {@const id = "sq-ne-" + i}
-      <div
-        {id}
-        class="node"
-        style="grid-area: {-(i + 1)} / {i + 1} / {-(i + 2)} / {i + 2};"
-      ></div>
+      <div {id} class="node" style="grid-area: {-(i + 1)} / {i + 1} / {-(i + 2)} / {i + 2};"></div>
     {/each}
   </div>
 </div>
@@ -207,7 +185,6 @@
     border-radius: calc(var(--node-size) / 2);
     background-color: var(--color-points);
   }
-
 
   #aaa {
     position: absolute;
@@ -303,22 +280,5 @@
     background-color: var(--color-points);
     padding: 0.05rem 0.3rem;
     border-radius: 3px;
-  }
-
-  .nodetool {
-    padding: 0.05rem 0.2rem;
-    background-color: rgb(60, 60, 60);
-    /* border: 2px rgb(100, 100, 100) solid; */
-    border-radius: 4px;
-  }
-
-  .pointstool {
-    grid-area: points;
-    display: grid;
-    place-items: center;
-    place-content: center;
-    grid-template-columns: repeat(var(--n-points), 1fr);
-    /* grid-template-rows: repeat(var(--n-points), 1fr); */
-    gap: 0.5em;
   }
 </style>
