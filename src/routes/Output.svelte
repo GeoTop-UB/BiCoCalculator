@@ -11,8 +11,9 @@
     data: Data | undefined;
     waiting: boolean;
     entered: boolean;
+    error?: string;
   }
-  let { data, waiting, entered }: Props = $props();
+  let { data, waiting, entered, error }: Props = $props();
 
   const DataTabs = {
     cohomology_aeppli: "cohomology_aeppli",
@@ -155,7 +156,13 @@
   <div id="table-container-parent">
     <div id="table-container" class={type}>
       {#if !loaded}
-        {#if waiting}
+        {#if error != undefined}
+          <div>
+            <p>
+              Error {error}
+            </p>
+          </div>
+        {:else if waiting}
           <Loader />
         {:else}
           <div>
@@ -345,7 +352,7 @@
     /* nav > :not(:last-child) {
       margin-bottom: 1.5rem;
     } */
-    
+
     nav,
     nav > .outputs-open {
       display: flex;
