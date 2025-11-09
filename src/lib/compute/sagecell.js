@@ -142,6 +142,7 @@ export default class SageCellClient {
       return this.send(id, "execute_request", this.getCodeContent(command));
     } catch (err) {
       console.error(err);
+      throw err;
     }
   }
 

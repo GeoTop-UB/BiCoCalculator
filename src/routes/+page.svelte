@@ -9,6 +9,7 @@
   let data: Data | undefined = $state();
   let input: InputType | undefined = $state.raw();
   let waiting: boolean = $state(false);
+  let error: string | undefined = $state();
 
   let entered = $derived(input != undefined);
 </script>
@@ -33,8 +34,8 @@
     </div>
   </header>
   <main class="content">
-    <Input bind:input bind:data bind:waiting />
-    <Output {data} {waiting} {entered} />
+    <Input bind:input bind:data bind:waiting bind:error />
+    <Output {data} {waiting} {entered} {error} />
   </main>
 </div>
 

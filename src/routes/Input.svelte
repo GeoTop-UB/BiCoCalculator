@@ -10,6 +10,7 @@
   import ktInput from "$lib/precomputations/KT_Input.json";
   import iwInput from "$lib/precomputations/IW_Input.json";
   import jnInput from "$lib/precomputations/JN_Input.json";
+  import { PUBLIC_COMPUTATION_TIME_MAX } from "$env/static/public";
 
   const MoreOptions = {
     CUSTOM: "CUSTOM"
@@ -57,8 +58,14 @@
     input: Input | undefined;
     data: Data | undefined;
     waiting: boolean;
+    error?: string;
   }
-  let { input = $bindable(), data = $bindable(), waiting = $bindable() }: Props = $props();
+  let {
+    input = $bindable(),
+    data = $bindable(),
+    waiting = $bindable(),
+    error = $bindable()
+  }: Props = $props();
 
   let inputOption: InputOptions | MoreMoreOptions = $state(MoreMoreOptions.DEFAULT);
   let prevInputOption: InputOptions | MoreMoreOptions = $state(MoreMoreOptions.DEFAULT);
@@ -97,6 +104,7 @@
     if (inputOption != MoreMoreOptions.DEFAULT && inputOption != MoreMoreOptions.SELECTED_CUSTOM) {
       try {
         const i = await inputOptions[inputOption].callback();
+        error = undefined;
         input = i;
         console.log("Input updated to:");
         console.log(untrack(() => $state.snapshot(input)));
@@ -113,19 +121,33 @@
     setInputOption();
   }
 
+  async function wait(ms: number): Promise<never> {
+    return new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("timeout succeeded")), ms);
+    });
+  }
+
   async function computeResult(i: Input) {
     waiting = true;
     data = undefined;
-    console.log("Data reset");
-    result = await compute(i);
-    console.log("Result updated to:");
-    console.log(untrack(() => $state.snapshot(result)));
+    // console.log("Data reset");
+    try {
+      result = await Promise.race([compute(i), wait(PUBLIC_COMPUTATION_TIME_MAX)]);
+      console.log("Result updated to:");
+      console.log(untrack(() => $state.snapshot(result)));
+    } catch (err) {
+      console.log("Catched error!");
+      console.log(err);
+      error = "found!";
+      result = undefined;
+      waiting = false;
+    }
   }
 
   async function loadData(i: Input, r: ComputationResult) {
     waiting = true;
     data = undefined;
-    console.log("Data reset");
+    // console.log("Data reset");
     data = processResult(i, r);
     console.log("Data updated to:");
     console.log(untrack(() => $state.snapshot(data)));
@@ -204,13 +226,16 @@
   });
 
   $effect(() => {
-    if (inputHash != undefined && input != undefined) {
-      if (result === undefined || inputHash != result.hash) {
-        console.log("Input hash updated to:");
-        console.log($state.snapshot(inputHash));
-        console.log("Compute result...");
-        computeResult(input);
-      }
+    if (
+      inputHash != undefined &&
+      input != undefined &&
+      error === undefined &&
+      (result === undefined || inputHash != result.hash)
+    ) {
+      console.log("Input hash updated to:");
+      console.log($state.snapshot(inputHash));
+      console.log("Compute result...");
+      computeResult(input);
     }
   });
 
@@ -464,5 +489,11 @@
     resize: none;
     width: 400px;
     height: 350px;
+  }
+
+  @media screen and (max-width: 768px) {
+    textarea {
+      width: 90vw;
+    }
   }
 </style>

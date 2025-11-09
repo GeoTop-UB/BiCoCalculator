@@ -15,25 +15,29 @@ export const computeSelfhosted: ComputeBackend = async (
   acsMatrix,
   acsNorm
 ) => {
-  const response = await fetch(apiUrl, {
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json"
-    },
-    method: "POST",
-    body: JSON.stringify({
-      lie: {
-        names: varNames.join(","),
-        bracket: lieBracket
+  try {
+    const response = await fetch(apiUrl, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
       },
-      acs: {
-        names: varNames,
-        matrix: acsMatrix,
-        ...(acsNorm != undefined && { norm: acsNorm })
-      }
-    })
-  });
-  return response.text();
+      method: "POST",
+      body: JSON.stringify({
+        lie: {
+          names: varNames.join(","),
+          bracket: lieBracket
+        },
+        acs: {
+          names: varNames,
+          matrix: acsMatrix,
+          ...(acsNorm != undefined && { norm: acsNorm })
+        }
+      })
+    });
+    return response.text();
+  } catch (_) {
+    throw new Error("404 from backend");
+  }
 };
 
 export const computeSageCell: ComputeBackend = async (varNames, lieBracket, acsMatrix, acsNorm) => {
