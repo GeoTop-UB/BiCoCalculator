@@ -1,6 +1,7 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
   import favicon from "$lib/images/favicon.svg";
+  import github from "$lib/images/github.svg";
   import Input from "./Input.svelte";
   import Output from "./Output.svelte";
   import "../app.css";
@@ -15,7 +16,7 @@
 </script>
 
 <svelte:head>
-  <title>bicoCalculator</title>
+  <title>BiCoCalculator</title>
   <meta
     name="description"
     content="An application aimed at computing invariants of bigraded complexes, in particular from complex nilmanifolds"
@@ -26,10 +27,13 @@
   <header>
     <div class="content" data-sveltekit-reload>
       <a href={resolve("/")} rel="noreferrer">
-        <img src={favicon} class="logo" alt="bicoCalculator" />
+        <img src={favicon} class="logo" alt="BiCoCalculator" />
       </a>
       <a href={resolve("/")} rel="noreferrer">
-        <h1>bicoCalculator</h1>
+        <h1>BiCoCalculator</h1>
+      </a>
+      <a id="sourcecode" href="https://github.com/GeoTop-UB/BiCoCalculator" target="_blank" rel="noreferrer">
+        <img src={github} alt="Source code of this web application" />
       </a>
     </div>
   </header>
@@ -61,16 +65,21 @@
   }
 
   header > .content {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     margin: auto;
+    max-width: 100vw;
+    width: max(calc(100vh - 5rem + 24rem + 12rem + 1.5rem), 40rem + 24rem + 12rem + 1.5rem);
   }
 
   header h1 {
-    font-family: "Montserrat", sans-serif;
+    font-family: "Momo Trust Display", sans-serif;
+    font-weight: 400;
+    /* font-family: "Montserrat", sans-serif;
     font-optical-sizing: auto;
-    font-weight: 700;
+    font-weight: 700; */
     font-style: normal;
     letter-spacing: 3px;
     color: var(--color-accent-stronger);
@@ -80,7 +89,7 @@
     line-height: 1.5;
   }
 
-  header img {
+  header .logo {
     height: 3rem;
     margin-right: 1.5rem;
   }
@@ -96,6 +105,21 @@
     width: max-content;
   }
 
+  #sourcecode {
+    position: absolute;
+    right: 0;
+  }
+
+  #sourcecode img {
+    height: 2.5rem;
+  }
+
+  @media screen and (max-width: calc(40rem + 24rem + 12rem + 2.5em)) {
+    #sourcecode {
+      margin-right: 1em;
+    }
+  }
+
   @media screen and (max-width: 768px) {
     .content {
       width: 100%;
@@ -103,6 +127,10 @@
 
     main {
       flex-direction: column-reverse;
+    }
+
+    #sourcecode {
+      display: none;
     }
   }
 </style>

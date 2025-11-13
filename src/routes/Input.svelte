@@ -11,6 +11,7 @@
   import iwInput from "$lib/precomputations/IW_Input.json";
   import jnInput from "$lib/precomputations/JN_Input.json";
   import { PUBLIC_COMPUTATION_TIME_MAX } from "$env/static/public";
+  import logoMiciuAei from "$lib/images/MICIU+AEI.jpg"
 
   const MoreOptions = {
     CUSTOM: "CUSTOM"
@@ -251,13 +252,13 @@
   <div id="input-parent">
     <div id="intro">
       <p>
-        <strong>bicoCalculator</strong> is aimed at computing and displaying invariants of bigraded complexes,
+        <strong>BiCoCalculator</strong> is aimed at computing and displaying invariants of bigraded complexes,
         in particular from complex nilmanifolds. Its main goals are the computation of:
       </p>
       <ul>
         <li>Anti-Dolbeault, Bott-Chern and Aeppli cohomologies</li>
         <li>Zigzags and squares decomposition</li>
-        <li>Frölicher spectral sequence</li>
+        <!-- <li>Frölicher spectral sequence</li> -->
       </ul>
       <p>
         Select one of the provided <strong>examples</strong> or the option to
@@ -323,7 +324,12 @@
       {/if}
     </div>
   </div>
-  <div id="acknowledgments">TODO acknowledgments</div>
+  <div id="acknowledgments">
+    <p>This work was funded by the Spanish State Research Agency (EUR2023-143450), developed by <a href="https://dvmcarpena.com/" target="_blank" rel="noreferrer">David Martínez Carpena</a> as a frontend and visualization of <a href="https://github.com/GeoTop-UB/BiCo" target="_blank" rel="noreferrer">BiCo</a>, a Sage script for Computing Invariants of Bigraded Complexes developed by Roger Garrido Vilallave.</p>
+    <!-- <p>This work was supported by the project Europa Excelencia "Homotopical Invariants of Almost Complex Manifolds" (EUR2023-143450) of the Spanish State Research Agency.</p> -->
+    <!-- <p>This work was funded by the project Europa Excelencia "Homotopical Invariants of Almost Complex Manifolds" (EUR2023-143450), AEI, Spain.</p> -->
+    <img src={logoMiciuAei} alt="Logo of Ministerio de Ciencia, Innovación y Universidades and Agencia Estatal de Investigación" />
+  </div>
 </section>
 
 <Modal
@@ -356,10 +362,10 @@
     padding: 1rem 1.5rem;
     gap: 0.8rem;
     height: 100%;
-    /* min-height: 100%;
+    /* min-height: 100%; */
     overflow: auto;
     scrollbar-gutter: stable;
-    max-height: fit-content; */
+    max-height: fit-content;
   }
 
   #input-parent {
@@ -368,9 +374,9 @@
     width: 100%;
     gap: 0.8rem;
     /* min-height: 100%; */
-    overflow: auto;
+    /* overflow: auto;
     scrollbar-gutter: stable;
-    max-height: fit-content;
+    max-height: fit-content; */
   }
 
   @media screen and (max-width: 768px) {
@@ -489,6 +495,23 @@
     resize: none;
     width: 400px;
     height: 350px;
+  }
+
+  #acknowledgments {
+    font-size: small;
+  }
+
+  #acknowledgments p {
+    text-align: justify;
+  }
+
+  #acknowledgments :not(:last-child) {
+    margin-bottom: 1em;
+  }
+
+  #acknowledgments img {
+    width: 70%;
+    margin: 0 auto;
   }
 
   @media screen and (max-width: 768px) {
