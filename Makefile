@@ -1,4 +1,4 @@
-all: run
+all: preview-server
 
 preview-server-nc: build-server-nc
 	yarn preview-server-nc --open
