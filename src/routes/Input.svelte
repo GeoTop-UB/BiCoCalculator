@@ -365,18 +365,17 @@
     /* min-height: 100%; */
     overflow: auto;
     scrollbar-gutter: stable;
-    max-height: fit-content;
   }
 
   #input-parent {
     display: flex;
     flex-direction: column;
     width: 100%;
+    max-height: fit-content;
     gap: 0.8rem;
     /* min-height: 100%; */
     /* overflow: auto;
-    scrollbar-gutter: stable;
-    max-height: fit-content; */
+    scrollbar-gutter: stable; */
   }
 
   @media screen and (max-width: 768px) {
