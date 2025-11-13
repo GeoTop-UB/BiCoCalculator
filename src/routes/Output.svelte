@@ -258,7 +258,7 @@
     /* justify-content: center; */
     align-items: center;
     max-width: calc(100vw - 24rem - 12rem - 4rem);
-    width: calc(100vh - 5rem);
+    width: calc(100dvh - 5rem);
     min-width: 40rem;
   }
 
