@@ -1,3 +1,4 @@
+_J=None
 _I='The bigraded complex has unspecified names'
 _H=' + '
 _G='\n'
@@ -5,7 +6,7 @@ _F='[{}]'
 _E=' '
 _D='The bigraded complex does not have bidegree '
 _C=False
-_B=None
+_B=_J
 _A=True
 from sage.geometry.hyperplane_arrangement.affine_subspace import AffineSubspace
 class PuncturedAffineSpace:
@@ -95,7 +96,7 @@ class PuncturedAffineSpace:
 				return A.ambient_space().zero()
 class BigradedComplex:
 	def __init__(A,base,dell,delbar,names=_B,latex_names=_B,CHECK=_A):
-		I='The differentials dell and delbar are not well defined';A.__base=base;A.__dimension={};A.__bidegrees=[];A.__dell=dell;A.__delbar=delbar;A.__delldelbar={};A.__names=names;A.__latex_names=latex_names;A.__CHECK=CHECK;A.__dell_cocycles={};A.__dell_coboundaries={};A.__delbar_cocycles={};A.__delbar_coboundaries={};A.__delldelbar_cocycles={};A.__delldelbar_coboundaries={};A.__dell_and_delbar_cocycles={};A.__dell_and_delbar_coboundaries={};A.__dell_cohomology={};A.__delbar_cohomology={};A.__aeppli_cohomology={};A.__bottchern_cohomology={};A.__reduced_bottchern_cohomology={};A.__reduced_aeppli_cohomology={};A.__squares_basis={};A.__zigzags_decomposition=_B
+		H='The differentials dell and delbar are not well defined';A.__base=base;A.__dimension={};A.__bidegrees=[];A.__dell=dell;A.__delbar=delbar;A.__delldelbar={};A.__names=names;A.__latex_names=latex_names;A.__CHECK=CHECK;A.__dell_cocycles={};A.__dell_coboundaries={};A.__delbar_cocycles={};A.__delbar_coboundaries={};A.__delldelbar_cocycles={};A.__delldelbar_coboundaries={};A.__dell_and_delbar_cocycles={};A.__dell_and_delbar_coboundaries={};A.__dell_cohomology={};A.__delbar_cohomology={};A.__aeppli_cohomology={};A.__bottchern_cohomology={};A.__reduced_bottchern_cohomology={};A.__reduced_aeppli_cohomology={};A.__squares_basis={};A.__zigzags_decomposition=_B
 		for(B,C)in A.__dell:
 			if(B,C)not in A.__dimension:A.__dimension[B,C]=A.__dell[B,C].ncols()
 		for(B,C)in A.__delbar:
@@ -115,9 +116,9 @@ class BigradedComplex:
 					if A.delbar((B,C+1))*A.delbar((B,C))!=0:return BaseException('The delbar differential does not square to zero')
 				if(B,C+1)in A.bidegrees()and(B+1,C)in A.bidegrees()and(B+1,C+1)in A.bidegrees():
 					if A.delbar((B+1,C))*A.dell((B,C))+A.dell((B,C+1))*A.delbar((B,C))!=0:return BaseException('The differentials dell and delbar do not anticommute')
-				if A.dell((B,C)).ncols()!=A.delbar((B,C)).ncols():return BaseException(I)
-				if(B-1,C)in A.bidegrees()and A.dell((B-1,C)).nrows()!=A.dell((B,C)).ncols():return BaseException(I)
-				if(B,C-1)in A.bidegrees()and A.delbar((B,C-1)).nrows()!=A.dell((B,C)).ncols():return BaseException(I)
+				if A.dell((B,C)).ncols()!=A.delbar((B,C)).ncols():return BaseException(H)
+				if(B-1,C)in A.bidegrees()and A.dell((B-1,C)).nrows()!=A.dell((B,C)).ncols():return BaseException(H)
+				if(B,C-1)in A.bidegrees()and A.delbar((B,C-1)).nrows()!=A.dell((B,C)).ncols():return BaseException(H)
 		D=_B;E=_B;F=_B;G=_B
 		for(B,C)in A.bidegrees():
 			if D==_B:D=B;E=B;F=C;G=C
@@ -138,7 +139,7 @@ class BigradedComplex:
 			if B+C not in A.__total_degrees:A.__total_degrees.append(B+C);A.__ordered_bidegrees[B+C]=[B]
 			else:A.__ordered_bidegrees[B+C].append(B)
 		A.__total_degrees=sorted(A.__total_degrees)
-		for H in A.__total_degrees:A.__ordered_bidegrees[H]=[(A,H-A)for A in sorted(A.__ordered_bidegrees[H])]
+		for I in A.__total_degrees:A.__ordered_bidegrees[I]=[(A,I-A)for A in sorted(A.__ordered_bidegrees[I])]
 	def base(A):return A.__base
 	def dimension(A,bidegree=_B):
 		B=bidegree
@@ -212,31 +213,31 @@ class BigradedComplex:
 		if B==_B:return A.__ordered_bidegrees
 		else:return A.__ordered_bidegrees[B]
 	def attach_element(A,bidegree,dell,delbar,name=_B):
-		M=bidegree;L='The element can not be attached: dell and delbar would not anticommute.';K=name;G=delbar;F=dell;F=vector(F);G=vector(G);B,C=M
-		if(B+1,C)in A.bidegrees()and A.dell((B+1,C))*F!=0:raise BaseException('The element can not be attached: dell would not square to zero.')
-		elif(B,C+1)in A.bidegrees()and A.delbar((B,C+1))*G!=0:raise BaseException('The element can not be attached: delbar would not square to zero.')
+		M=bidegree;K='The element can not be attached: dell and delbar would not anticommute.';L=name;F=delbar;G=dell;G=vector(G);F=vector(F);B,C=M
+		if(B+1,C)in A.bidegrees()and A.dell((B+1,C))*G!=0:raise BaseException('The element can not be attached: dell would not square to zero.')
+		elif(B,C+1)in A.bidegrees()and A.delbar((B,C+1))*F!=0:raise BaseException('The element can not be attached: delbar would not square to zero.')
 		if(B+1,C)in A.bidegrees()and(B,C+1)in A.bidegrees():
-			if A.delbar((B+1,C))*F+A.dell((B,C+1))*G!=0:raise BaseException(L)
+			if A.delbar((B+1,C))*G+A.dell((B,C+1))*F!=0:raise BaseException(K)
 		elif(B+1,C)in A.bidegrees():
-			if A.delbar((B+1,C))*F!=0:raise BaseException(L)
+			if A.delbar((B+1,C))*G!=0:raise BaseException(K)
 		elif(B,C+1)in A.bidegrees():
-			if A.dell((B,C+1))*G!=0:raise BaseException(L)
+			if A.dell((B,C+1))*F!=0:raise BaseException(K)
 		H={B:A.dell(B)for B in A.bidegrees()};I={B:A.delbar(B)for B in A.bidegrees()}
 		if M not in A.bidegrees():
-			if(B+1,C)in A.bidegrees():H[B,C]=Matrix(A.base(),[F]).transpose()
+			if(B+1,C)in A.bidegrees():H[B,C]=Matrix(A.base(),[G]).transpose()
 			else:H[B,C]=Matrix(A.base(),0,1)
-			if(B,C+1)in A.bidegrees():I[B,C]=Matrix(A.base(),[G]).transpose()
+			if(B,C+1)in A.bidegrees():I[B,C]=Matrix(A.base(),[F]).transpose()
 			else:I[B,C]=Matrix(A.base(),0,1)
 		else:
 			if(B+1,C)not in A.bidegrees():H[B,C]=Matrix(A.base(),0,A.dimension((B,C))+1)
 			else:
 				D=H[B,C].rows()
-				for E in range(len(F)):D[E]=list(D[E])+[F[E]]
+				for E in range(len(G)):D[E]=list(D[E])+[G[E]]
 				H[B,C]=Matrix(A.base(),D)
 			if(B,C+1)not in A.bidegrees():I[B,C]=Matrix(A.base(),0,A.dimension((B,C))+1)
 			else:
 				D=I[B,C].rows()
-				for E in range(len(G)):D[E]=list(D[E])+[G[E]]
+				for E in range(len(F)):D[E]=list(D[E])+[F[E]]
 				I[B,C]=Matrix(A.base(),D)
 		if(B-1,C)in A.bidegrees():
 			D=H[B-1,C].columns()
@@ -250,10 +251,10 @@ class BigradedComplex:
 			else:
 				for E in range(len(D)):D[E]=list(D[E])+[0]
 			I[B,C-1]=Matrix(A.base(),D).transpose()
-		if A.names()!=_B and K!=_B:
+		if A.names()!=_B and L!=_B:
 			J=A.names()
-			if(B,C)in A.bidegrees():J[B,C].append(K)
-			else:J[B,C]=[K]
+			if(B,C)in A.bidegrees():J[B,C].append(L)
+			else:J[B,C]=[L]
 		else:J=_B
 		return BigradedComplex(A.base(),H,I,names=J)
 	def attach_random_element(A,min_degree=_B,max_degree=_B,min_coefficient=-5,max_coefficient=5,name=_B):
@@ -561,22 +562,22 @@ class BigradedComplex:
 			if T==_C or A!=L:H[A+1,B]=C.dell((A,B))*H[A,B]
 		return H
 	def zigzags_decomposition(A,raw=_C):
-		G='The zigzags decomposition was not computed successfully'
+		F='The zigzags decomposition was not computed successfully'
 		if raw==_A:
 			if A.__zigzags_decomposition==_B:
 				try:
-					D=[];E={};F=_C
-					while F==_C:
+					D=[];E={};G=_C
+					while G==_C:
 						B=A.__find_zigzag(already_computed=E)
-						if B==_B or B=={}:F=_A
+						if B==_B or B=={}:G=_A
 						else:
 							D.append(B)
 							for C in B:
 								if C in E:E[C].append(B[C])
 								else:E[C]=[B[C]]
 					if A._is_zigzag_decomposition(D):A.__zigzags_decomposition=D;return D
-					else:raise BaseException(G)
-				except:raise BaseException(G)
+					else:raise BaseException(F)
+				except:raise BaseException(F)
 			else:return A.__zigzags_decomposition
 		else:H=A.zigzags_decomposition(raw=_A);return[{B:A.element(B,C[B])for B in C}for C in H]
 	def _is_zigzag(D,zigzag):
@@ -777,7 +778,7 @@ class BigradedComplex:
 		if raw==_A or A.names()==_B:return A.spectral_sequence_cocycles(r,p,p+q)/(A.spectral_sequence_cocycles(r-1,p+1,p+q)+A.spectral_sequence_coboundaries(r-1,p,p+q))
 		else:return VectorSpace(A.base(),A.spectral_sequence_basis(r,p,q,raw=_C))
 	def __ascii_art_table(C,data,n_generators_row):
-		O=n_generators_row;M='  |  ';K=data;E={};J={};P=0;D={}
+		O=n_generators_row;L='  |  ';K=data;E={};J={};P=0;D={}
 		for Q in C.bidegrees():
 			if Q not in K:K[Q]=[]
 		for(A,B)in C.__dimension:
@@ -802,9 +803,9 @@ class BigradedComplex:
 			P+=E[A]
 		for B in range(C.__min_q,C.__max_q+1):
 			if(B in J)==_C:J[B]=1
-		L=['-']*(G+P+5*(C.__max_p-C.__min_p+1)+2);S=2+G
-		for A in range(C.__min_p,C.__max_p+1):L[S]='+';S+=E[A]+5
-		L=''.join(L)
+		M=['-']*(G+P+5*(C.__max_p-C.__min_p+1)+2);S=2+G
+		for A in range(C.__min_p,C.__max_p+1):M[S]='+';S+=E[A]+5
+		M=''.join(M)
 		for T in range(C.__max_q-C.__min_q+1):
 			B=C.__max_q-T;I=['']*J[B]
 			for F in range(J[B]):
@@ -812,13 +813,13 @@ class BigradedComplex:
 				else:I[F]=_E*G
 				for A in range(C.__min_p,C.__max_p+1):
 					if(A,B)in D:
-						if F<len(D[A,B]):I[F]+=M+D[A,B][F]+_E*(E[A]-len(D[A,B][F]))
-						else:I[F]+=M+_E*E[A]
-					else:I[F]+=M+_E*E[A]
+						if F<len(D[A,B]):I[F]+=L+D[A,B][F]+_E*(E[A]-len(D[A,B][F]))
+						else:I[F]+=L+_E*E[A]
+					else:I[F]+=L+_E*E[A]
 				print(I[F])
-			print(L)
+			print(M)
 		I=_E*G
-		for A in range(C.__min_p,C.__max_p+1):I+=M+str(A)+_E*(E[A]-len(str(A)))
+		for A in range(C.__min_p,C.__max_p+1):I+=L+str(A)+_E*(E[A]-len(str(A)))
 		print(I)
 	def _ascii_art_dell_cohomology(A,n_generators_row=-1):print('Anti-Dolbeault cohomology:\n');A.__ascii_art_table({B:A.dell_cohomology_basis(B)for B in A.bidegrees()},n_generators_row)
 	def _ascii_art_delbar_cohomology(A,n_generators_row=-1):print('Dolbeault cohomology:\n');A.__ascii_art_table({B:A.delbar_cohomology_basis(B)for B in A.bidegrees()},n_generators_row)
@@ -982,16 +983,20 @@ class BigradedSubcomplex(BigradedComplex):
 			return _A
 class BidifferentialBigradedCommutativeAlgebra(BigradedComplex):
 	def __init__(A,algebra,dell_dictionary,delbar_dictionary,min_deg,max_deg):
-		H=delbar_dictionary;G=algebra;D=dell_dictionary;A.__zigzags=_B;A.__zigzags_i=_B;A.__zigzags_p=_B;A.__zigzags_h11=_B;A.__zigzags_h10=_B;A.__zigzags_h01=_B;A.__algebra=G;A.__min_deg=min_deg;A.__max_deg=max_deg;I=D[list(D.keys())[0]]not in G;J={}
-		if I:E=D;F=H
-		else:E={};F={}
+		F=delbar_dictionary;E=dell_dictionary;A.__zigzags=_J;A.__zigzags_i=_J;A.__zigzags_p=_J;A.__zigzags_h11=_J;A.__zigzags_h10=_J;A.__zigzags_h01=_J;A.__algebra=algebra;A.__min_deg=min_deg;A.__max_deg=max_deg
+		if E!={}:J=A.__algebra.differential(E)
+		if F!={}:K=A.__algebra.differential(F)
+		G={};H={};I={}
 		for B in range(A.__min_deg,A.__max_deg+1):
 			for C in range(A.__min_deg,A.__max_deg+1):
-				K=A.__algebra.basis((B,C))
-				if K!=[]:
-					J[B,C]=K
-					if not I:E[B,C]=A.__algebra.differential(D).differential_matrix_multigraded((B,C)).transpose();F[B,C]=A.__algebra.differential(H).differential_matrix_multigraded((B,C)).transpose()
-		BigradedComplex.__init__(A,A.__algebra.base(),E,F,names=J)
+				D=A.__algebra.basis((B,C))
+				if D!=[]:
+					I[B,C]=D
+					if E=={}:G[B,C]=Matrix(A.__algebra.base(),len(A.__algebra.basis((B+1,C))),len(D))
+					else:G[B,C]=J.differential_matrix_multigraded((B,C)).transpose()
+					if F=={}:H[B,C]=Matrix(A.__algebra.base(),len(A.__algebra.basis((B,C+1))),len(D))
+					else:H[B,C]=K.differential_matrix_multigraded((B,C)).transpose()
+		BigradedComplex.__init__(A,A.__algebra.base(),G,H,names=I)
 	def algebra(A):return A.__algebra
 	def min_deg(A):return A.__min_deg
 	def max_deg(A):return A.__max_deg
@@ -1049,16 +1054,16 @@ class BidifferentialBigradedCommutativeAlgebra(BigradedComplex):
 		return BidifferentialBigradedCommutativeAlgebra(E,U,V,C.__min_deg,C.__max_deg),j
 	@staticmethod
 	def from_nilmanifold(lie_algebra,ac_structure,labels=_B,normalization_coefficients=_B,latex_generators=_B):
-		M=normalization_coefficients;L=labels;G=lie_algebra;Q=G.gens();A=len(Q)
-		if M==_B:M=[1 for A in range(A)]
+		L=normalization_coefficients;M=labels;G=lie_algebra;Q=G.gens();A=len(Q)
+		if L==_B:L=[1 for A in range(A)]
 		if A%2==1:raise'The Lie algebra must be even-dimensional.'
 		elif A==0:return BidifferentialBigradedCommutativeAlgebra.unit(G.base())
 		else:
-			if L==_B:L=['a%s'%A for A in range(A/2)]+['b%s'%A for A in range(A/2)]
+			if M==_B:M=['a%s'%A for A in range(A/2)]+['b%s'%A for A in range(A/2)]
 			J=ac_structure.eigenvectors_right()
 			if J[0][0]==I:N=J[0][1]+J[1][1]
 			else:N=J[1][1]+J[0][1]
-			H=[M[B]*sum(N[B][A]*Q[A]for A in range(A))for B in range(A)];K=Matrix(G.base(),A,A,N).transpose().inverse();R=GradedCommutativeAlgebra(G.base(),names=L,degrees=tuple([(1,0)for A in range(A/2)]+[(0,1)for A in range(A/2)]));D=R.gens();O={A:0 for A in D};P={A:0 for A in D};E={}
+			H=[L[B]*sum(N[B][A]*Q[A]for A in range(A))for B in range(A)];K=Matrix(G.base(),A,A,N).transpose().inverse();R=GradedCommutativeAlgebra(G.base(),names=M,degrees=tuple([(1,0)for A in range(A/2)]+[(0,1)for A in range(A/2)]));D=R.gens();O={A:0 for A in D};P={A:0 for A in D};E={}
 			for F in range(A/2):
 				for B in range(A/2):
 					for C in range(B+1,A/2):
@@ -1082,11 +1087,11 @@ class BidifferentialBigradedCommutativeAlgebra(BigradedComplex):
 		for B in A.__zigzags_h01:A.__zigzags_h01[B]=-A.__zigzags_h01[B]
 		A.__zigzags_h01=BigradedComplexMap(A,A,A.__zigzags_h01,bidegree=(0,-1))
 	def operation(D,arity,operation_bidegree,show_progress=_C,compute_symmetries=_A):
-		T='%';S='Progress: ';Q=operation_bidegree;O=show_progress;N=arity;K=compute_symmetries
+		Q='%';R='Progress: ';S=operation_bidegree;N=show_progress;O=arity;K=compute_symmetries
 		if D.__zigzags==_B:D.__compute_zigzags_deformation_retract()
-		J={};P=Tuples(D.bidegrees(),N)
-		if O==_A:L=0;R=len(P);M=0
-		if N==3 and Q==(-1,0):
+		J={};P=Tuples(D.bidegrees(),O)
+		if N==_A:L=0;T=len(P);M=0
+		if O==3 and S==(-1,0):
 			C={}
 			for B in P:
 				if K or B[0][0]+B[1][0]+B[2][0]<=B[0][1]+B[1][1]+B[2][1]:
@@ -1105,11 +1110,11 @@ class BidifferentialBigradedCommutativeAlgebra(BigradedComplex):
 							if H!=0:
 								I=D.__zigzags_p(G,H.basis_coefficients())
 								if I!=0:J[tuple(A)]=I
-				if O==_A:
-					L+=1;F=int(100*L/R)
-					if F>M:print(S+str(F)+T)
+				if N==_A:
+					L+=1;F=int(100*L/T)
+					if F>M:print(R+str(F)+Q)
 					M=F
-		elif N==3 and Q==(0,-1):
+		elif O==3 and S==(0,-1):
 			C={}
 			for B in P:
 				if K or B[0][0]+B[1][0]+B[2][0]<=B[0][1]+B[1][1]+B[2][1]:
@@ -1128,11 +1133,11 @@ class BidifferentialBigradedCommutativeAlgebra(BigradedComplex):
 							if H!=0:
 								I=D.__zigzags_p(G,H.basis_coefficients())
 								if I!=0:J[tuple(A)]=I
-				if O==_A:
-					L+=1;F=int(100*L/R)
-					if F>M:print(S+str(F)+T)
+				if N==_A:
+					L+=1;F=int(100*L/T)
+					if F>M:print(R+str(F)+Q)
 					M=F
-		elif N==3 and Q==(-1,-1):
+		elif O==3 and S==(-1,-1):
 			C={}
 			for B in P:
 				if K or B[0][0]+B[1][0]+B[2][0]<=B[0][1]+B[1][1]+B[2][1]:
@@ -1151,63 +1156,29 @@ class BidifferentialBigradedCommutativeAlgebra(BigradedComplex):
 							if H!=0:
 								I=D.__zigzags_p(G,H.basis_coefficients())
 								if I!=0:J[tuple(A)]=I
-				if O==_A:
-					L+=1;F=int(100*L/R)
-					if F>M:print(S+str(F)+T)
+				if N==_A:
+					L+=1;F=int(100*L/T)
+					if F>M:print(R+str(F)+Q)
 					M=F
 		return J
 class BidifferentialBigradedCommutativeAlgebraMap(BigradedComplexMap):
 	def __init__(A,domain,codomain,mapp):BigradedComplexMap.__init__(A,domain,codomain,mapp)
 	@staticmethod
-	def from_image_generators(domain,codomain,image_generators):C=codomain;B=domain;D=B.algebra();A=C.algebra();E=GCAlgebra.Hom(D,A)(image_generators);F={A:Matrix(D.base(),B.dimension(A),C.dimension(A),[E(B).basis_coefficients()if E(B)!=0 else[0 for A in range(C.dimension(A))]for B in D.basis(A)]).transpose()for A in B.bidegrees()};return BidifferentialBigradedCommutativeAlgebraMap(B,C,F)
+	def from_image_generators(domain,codomain,image_generators):B=codomain;C=domain;D=C.algebra();A=B.algebra();E=GCAlgebra.Hom(D,A)(image_generators);F={A:Matrix(D.base(),C.dimension(A),B.dimension(A),[E(C).basis_coefficients()if E(C)!=0 else[0 for A in range(B.dimension(A))]for C in D.basis(A)]).transpose()for A in C.bidegrees()};return BidifferentialBigradedCommutativeAlgebraMap(C,B,F)
 class BidifferentialBigradedCommutativeAlgebraExample:
 	__QQi=QuadraticField(-1,'I')
 	@staticmethod
 	def KodairaThurston(acs=_B,names=_B):
-		B=names;A=acs;C=LieAlgebra(BidifferentialBigradedCommutativeAlgebraExample.__QQi,'X,Y,Z,W',{('X','Y'):{'Z':-1}})
-		if A==_B:A=Matrix(BidifferentialBigradedCommutativeAlgebraExample.__QQi,4,[[0,-1,0,0],[1,0,0,0],[0,0,0,-1],[0,0,1,0]])
-		if B==_B:B=['a','b','abar','bbar']
-		return BidifferentialBigradedCommutativeAlgebra.from_nilmanifold(C,A,B)
+		A=names;B=acs;C=LieAlgebra(BidifferentialBigradedCommutativeAlgebraExample.__QQi,'X,Y,Z,W',{('X','Y'):{'Z':-1}})
+		if B==_B:B=Matrix(BidifferentialBigradedCommutativeAlgebraExample.__QQi,4,[[0,-1,0,0],[1,0,0,0],[0,0,0,-1],[0,0,1,0]])
+		if A==_B:A=['a','b','abar','bbar']
+		return BidifferentialBigradedCommutativeAlgebra.from_nilmanifold(C,B,A)
 	@staticmethod
 	def Iwasawa(acs=_B,names=_B):
-		B=names;A=acs;C=LieAlgebra(BidifferentialBigradedCommutativeAlgebraExample.__QQi,'p,ip,q,iq,z,iz',{('p','q'):{'z':1},('p','iq'):{'iz':1},('ip','q'):{'iz':1},('ip','iq'):{'z':-1}})
-		if A==_B:A=Matrix(BidifferentialBigradedCommutativeAlgebraExample.__QQi,6,[[0,1,0,0,0,0],[-1,0,0,0,0,0],[0,0,0,1,0,0],[0,0,-1,0,0,0],[0,0,0,0,0,1],[0,0,0,0,-1,0]])
-		if B==_B:B=['a','b','c','abar','bbar','cbar']
-		return BidifferentialBigradedCommutativeAlgebra.from_nilmanifold(C,A,B,normalization_coefficients=[1/2,1,1,1/2,1,1])
-
-def build(lie_names, lie_bracket, acs_matrix, acs_names, normalization_coefficients=None):
-    bfield = QuadraticField(-1, 'I')
-
-    lie_algebra = LieAlgebra(bfield, lie_names, lie_bracket)
-    acs = Matrix(bfield, len(acs_names), acs_matrix)
-
-    return BidifferentialBigradedCommutativeAlgebra.from_nilmanifold(lie_algebra, acs, acs_names, normalization_coefficients)
-
-def mapByBidegree(bbc : BigradedComplex, method: str):
-    return {
-        str(bidegree): list(map(lambda a: str(a), getattr(bbc, method)(bidegree)))
-        for bidegree in bbc.bidegrees()
-    }
-
-def compute(lie_names, lie_bracket, acs_matrix, acs_names, norm):
-    import json
-    lie_bracket = {tuple(k.split(",")): v for  k, v in lie_bracket.items()}
-    normalization_coefficients = list(map(QQ, norm)) if norm else None
-    bbc = build(lie_names, lie_bracket, acs_matrix, acs_names, normalization_coefficients)
-    return json.dumps({
-        "n": int(max(map(lambda t: t[0], bbc.dimension().keys())) + 1),
-        "m": int(max(map(lambda t: t[1], bbc.dimension().keys())) + 1),
-        "cohomology": {
-            cohomology: mapByBidegree(bbc, f"{cohomology}_cohomology_basis")
-            for cohomology in [
-                "dell",
-                "delbar",
-                "bottchern",
-                "aeppli",
-                "reduced_aeppli",
-                "reduced_bottchern"
-            ]
-        },
-        "zigzags": list(map(lambda a: {str(bidegree): str(v) for (bidegree, v) in a.items()}, bbc.zigzags_decomposition())),
-        "squares": list(map(lambda a: {str(bidegree): str(v) for (bidegree, v) in a.items()}, bbc.squares_decomposition()))
-    })
+		A=names;B=acs;C=LieAlgebra(BidifferentialBigradedCommutativeAlgebraExample.__QQi,'p,ip,q,iq,z,iz',{('p','q'):{'z':1},('p','iq'):{'iz':1},('ip','q'):{'iz':1},('ip','iq'):{'z':-1}})
+		if B==_B:B=Matrix(BidifferentialBigradedCommutativeAlgebraExample.__QQi,6,[[0,1,0,0,0,0],[-1,0,0,0,0,0],[0,0,0,1,0,0],[0,0,-1,0,0,0],[0,0,0,0,0,1],[0,0,0,0,-1,0]])
+		if A==_B:A=['a','b','c','abar','bbar','cbar']
+		return BidifferentialBigradedCommutativeAlgebra.from_nilmanifold(C,B,A,normalization_coefficients=[1/2,1,1,1/2,1,1])
+def build(lie_names,lie_bracket,acs_matrix,acs_names,normalization_coefficients=_J):A=acs_names;B=QuadraticField(-1,'I');C=LieAlgebra(B,lie_names,lie_bracket);D=Matrix(B,len(A),acs_matrix);return BidifferentialBigradedCommutativeAlgebra.from_nilmanifold(C,D,A,normalization_coefficients)
+def mapByBidegree(bbc,method):return{str(A):list(map(lambda a:str(a),getattr(bbc,method)(A)))for A in bbc.bidegrees()}
+def compute(lie_names,lie_bracket,acs_matrix,acs_names,norm):B=lie_bracket;import json;B={tuple(A.split(',')):B for(A,B)in B.items()};C=list(map(QQ,norm))if norm else _J;A=build(lie_names,B,acs_matrix,acs_names,C);return json.dumps({'n':int(max(map(lambda t:t[0],A.dimension().keys()))+1),'m':int(max(map(lambda t:t[1],A.dimension().keys()))+1),'cohomology':{B:mapByBidegree(A,f"{B}_cohomology_basis")for B in['dell','delbar','bottchern','aeppli','reduced_aeppli','reduced_bottchern']},'zigzags':list(map(lambda a:{str(A):str(B)for(A,B)in a.items()},A.zigzags_decomposition())),'squares':list(map(lambda a:{str(A):str(B)for(A,B)in a.items()},A.squares_decomposition()))})
