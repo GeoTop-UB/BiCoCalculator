@@ -50,6 +50,7 @@
     flex-direction: column;
     place-items: center;
     min-width: 320px;
+    min-height: 100vh; /* polyfill */
     min-height: 100dvh;
   }
 
@@ -71,6 +72,7 @@
     align-items: center;
     margin: auto;
     max-width: 100vw;
+    width: max(calc(100vh - 5rem + 24rem + 12rem + 1.5rem), 40rem + 24rem + 12rem + 1.5rem); /* polyfill */
     width: max(calc(100dvh - 5rem + 24rem + 12rem + 1.5rem), 40rem + 24rem + 12rem + 1.5rem);
   }
 
@@ -97,6 +99,7 @@
   main {
     /* flex: 1 1 auto; */
     display: flex;
+    height: calc(100vh - 2rem - 1.5 * 2rem); /* polyfill */
     height: calc(100dvh - 2rem - 1.5 * 2rem);
   }
 
