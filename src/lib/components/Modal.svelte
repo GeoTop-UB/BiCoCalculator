@@ -11,15 +11,15 @@
     children
   } = $props();
 
-  let dialog = $state();
+  let dialog: HTMLDialogElement | undefined = $state();
 
   async function wrappedOnClose() {
     onClose();
-    dialog.close();
+    if (dialog != undefined) dialog.close();
   }
 
   $effect(() => {
-    if (showModal) dialog.showModal();
+    if (dialog != undefined && showModal) dialog.showModal();
   });
 </script>
 
