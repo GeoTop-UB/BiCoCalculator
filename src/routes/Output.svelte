@@ -59,12 +59,12 @@
         },
         {
           id: "cohomology_delbar",
-          label: "Delbar",
+          label: "Dolbeault",
           type: "cohomology"
         },
         {
           id: "cohomology_dell",
-          label: "Del",
+          label: "Anti-Dolbeault",
           type: "cohomology"
         },
         {

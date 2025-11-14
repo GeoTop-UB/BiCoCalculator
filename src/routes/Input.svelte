@@ -44,7 +44,7 @@
       }
     },
     [InputOptions.JN]: {
-      label: "Stelzig",
+      label: "H9 Integrable",
       callback: () => {
         return Promise.resolve(jnInput);
       }
@@ -110,7 +110,8 @@
         console.log("Input updated to:");
         console.log(untrack(() => $state.snapshot(input)));
         prevInputOption = inputOption;
-      } catch (_) {
+      } catch (err) {
+        console.log(err);
         console.log("Modal closed, reverting to previous option");
         inputOption = prevInputOption;
       }
