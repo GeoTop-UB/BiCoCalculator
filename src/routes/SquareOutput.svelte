@@ -1,17 +1,22 @@
 <script lang="ts">
   import { math } from "mathlifier";
 
-  import type { SquareCoord, Squares } from "$lib/compute/types";
+  import type { SquareCoord } from "$lib/compute/types";
 
   interface Props {
     points: SquareCoord[][];
   }
   let { points }: Props = $props();
 
-  let swPoints = $derived(points[0]);
-  let sePoints = $derived(points[1]);
-  let nwPoints = $derived(points[2]);
-  let nePoints = $derived(points[3]);
+  const swIdx = 0;
+  const seIdx = 1;
+  const nwIdx = 2;
+  const neIdx = 3;
+
+  let swPoints = $derived(points[swIdx]);
+  let sePoints = $derived(points[seIdx]);
+  let nwPoints = $derived(points[nwIdx]);
+  let nePoints = $derived(points[neIdx]);
 
   function adjustLine(from, to, line, vertical) {
     const remToPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
@@ -52,16 +57,16 @@
         <div class="line linev"></div>
         <span class="tooltiptext ver zigzagtool">
           <div class="zigzagnodetool" style="grid-area: sw">
-            <div>{@html math(b.square[0])}</div>
+            <div>{@html math(b.square[swIdx])}</div>
           </div>
           <div class="zigzagnodetool" style="grid-area: se">
-            <div>{@html math(b.square[1])}</div>
+            <div>{@html math(b.square[swIdx])}</div>
           </div>
           <div class="zigzagnodetool" style="grid-area: nw">
-            <div>{@html math(b.square[2])}</div>
+            <div>{@html math(b.square[nwIdx])}</div>
           </div>
           <div class="zigzagnodetool" style="grid-area: ne">
-            <div>{@html math(b.square[3])}</div>
+            <div>{@html math(b.square[neIdx])}</div>
           </div>
         </span>
       </div>
@@ -69,16 +74,16 @@
         <div class="line lineh"></div>
         <span class="tooltiptext hor zigzagtool">
           <div class="zigzagnodetool" style="grid-area: sw">
-            <div>{@html math(b.square[0])}</div>
+            <div>{@html math(b.square[swIdx])}</div>
           </div>
           <div class="zigzagnodetool" style="grid-area: se">
-            <div>{@html math(b.square[1])}</div>
+            <div>{@html math(b.square[seIdx])}</div>
           </div>
           <div class="zigzagnodetool" style="grid-area: nw">
-            <div>{@html math(b.square[2])}</div>
+            <div>{@html math(b.square[nwIdx])}</div>
           </div>
           <div class="zigzagnodetool" style="grid-area: ne">
-            <div>{@html math(b.square[3])}</div>
+            <div>{@html math(b.square[neIdx])}</div>
           </div>
         </span>
       </div>
@@ -92,16 +97,16 @@
         <div class="line lineh"></div>
         <span class="tooltiptext hor zigzagtool">
           <div class="zigzagnodetool" style="grid-area: sw">
-            <div>{@html math(b.square[0])}</div>
+            <div>{@html math(b.square[swIdx])}</div>
           </div>
           <div class="zigzagnodetool" style="grid-area: se">
-            <div>{@html math(b.square[1])}</div>
+            <div>{@html math(b.square[seIdx])}</div>
           </div>
           <div class="zigzagnodetool" style="grid-area: nw">
-            <div>{@html math(b.square[2])}</div>
+            <div>{@html math(b.square[nwIdx])}</div>
           </div>
           <div class="zigzagnodetool" style="grid-area: ne">
-            <div>{@html math(b.square[3])}</div>
+            <div>{@html math(b.square[neIdx])}</div>
           </div>
         </span>
       </div>
@@ -115,16 +120,16 @@
         <div class="line linev"></div>
         <span class="tooltiptext ver zigzagtool">
           <div class="zigzagnodetool" style="grid-area: sw">
-            <div>{@html math(b.square[0])}</div>
+            <div>{@html math(b.square[swIdx])}</div>
           </div>
           <div class="zigzagnodetool" style="grid-area: se">
-            <div>{@html math(b.square[1])}</div>
+            <div>{@html math(b.square[seIdx])}</div>
           </div>
           <div class="zigzagnodetool" style="grid-area: nw">
-            <div>{@html math(b.square[2])}</div>
+            <div>{@html math(b.square[nwIdx])}</div>
           </div>
           <div class="zigzagnodetool" style="grid-area: ne">
-            <div>{@html math(b.square[3])}</div>
+            <div>{@html math(b.square[neIdx])}</div>
           </div>
         </span>
       </div>
@@ -145,8 +150,8 @@
     height: 100%;
     display: grid;
     grid-template-areas:
-      "se sw"
-      "ne nw";
+      "nw ne"
+      "sw se";
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(2, 1fr);
     place-items: center;
@@ -155,19 +160,19 @@
     gap: 5px;
   }
 
-  #sw {
+  #ne {
     grid-area: sw;
   }
 
-  #nw {
+  #se {
     grid-area: nw;
   }
 
-  #se {
+  #nw {
     grid-area: se;
   }
 
-  #ne {
+  #sw {
     grid-area: ne;
   }
 
@@ -264,8 +269,8 @@
   .zigzagtool {
     display: grid;
     grid-template-areas:
-      "se sw"
-      "ne nw";
+      "nw ne"
+      "sw se";
     gap: -3px;
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(2, 1fr);
