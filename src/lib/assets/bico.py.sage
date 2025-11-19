@@ -1,11 +1,13 @@
-_J=None
+_L=False
+_K=None
+_J=_K
 _I='The bigraded complex has unspecified names'
 _H=' + '
 _G='\n'
 _F='[{}]'
 _E=' '
 _D='The bigraded complex does not have bidegree '
-_C=False
+_C=_L
 _B=_J
 _A=True
 from sage.geometry.hyperplane_arrangement.affine_subspace import AffineSubspace
@@ -983,20 +985,25 @@ class BigradedSubcomplex(BigradedComplex):
 			return _A
 class BidifferentialBigradedCommutativeAlgebra(BigradedComplex):
 	def __init__(A,algebra,dell_dictionary,delbar_dictionary,min_deg,max_deg):
-		F=delbar_dictionary;E=dell_dictionary;A.__zigzags=_J;A.__zigzags_i=_J;A.__zigzags_p=_J;A.__zigzags_h11=_J;A.__zigzags_h10=_J;A.__zigzags_h01=_J;A.__algebra=algebra;A.__min_deg=min_deg;A.__max_deg=max_deg
-		if E!={}:J=A.__algebra.differential(E)
-		if F!={}:K=A.__algebra.differential(F)
-		G={};H={};I={}
+		F=delbar_dictionary;E=dell_dictionary;A.__zigzags=_K;A.__zigzags_i=_K;A.__zigzags_p=_K;A.__zigzags_h11=_K;A.__zigzags_h10=_K;A.__zigzags_h01=_K;A.__algebra=algebra;A.__min_deg=min_deg;A.__max_deg=max_deg;G=True
+		for H in E:
+			if E[H]!=0:G=_L;break
+		I=True
+		for H in F:
+			if F[H]!=0:I=_L;break
+		if G==_L:M=A.__algebra.differential(E)
+		if I==_L:N=A.__algebra.differential(F)
+		J={};K={};L={}
 		for B in range(A.__min_deg,A.__max_deg+1):
 			for C in range(A.__min_deg,A.__max_deg+1):
 				D=A.__algebra.basis((B,C))
 				if D!=[]:
-					I[B,C]=D
-					if E=={}:G[B,C]=Matrix(A.__algebra.base(),len(A.__algebra.basis((B+1,C))),len(D))
-					else:G[B,C]=J.differential_matrix_multigraded((B,C)).transpose()
-					if F=={}:H[B,C]=Matrix(A.__algebra.base(),len(A.__algebra.basis((B,C+1))),len(D))
-					else:H[B,C]=K.differential_matrix_multigraded((B,C)).transpose()
-		BigradedComplex.__init__(A,A.__algebra.base(),G,H,names=I)
+					L[B,C]=D
+					if G:J[B,C]=Matrix(A.__algebra.base(),len(A.__algebra.basis((B+1,C))),len(D))
+					else:J[B,C]=M.differential_matrix_multigraded((B,C)).transpose()
+					if I:K[B,C]=Matrix(A.__algebra.base(),len(A.__algebra.basis((B,C+1))),len(D))
+					else:K[B,C]=N.differential_matrix_multigraded((B,C)).transpose()
+		BigradedComplex.__init__(A,A.__algebra.base(),J,K,names=L)
 	def algebra(A):return A.__algebra
 	def min_deg(A):return A.__min_deg
 	def max_deg(A):return A.__max_deg
